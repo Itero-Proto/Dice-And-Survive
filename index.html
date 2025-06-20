@@ -18,36 +18,59 @@
             max-width: 300px;
         }
         .cell {
-            padding: 10px;
-            margin: 2px;
+            position: relative;
+            padding: 15px;
+            margin: 3px 0;
             background: #fff;
             border: 1px solid #ddd;
-            border-radius: 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
         }
         .current {
-            background: #4CAF50 !important;
+            background: #4CAF50;
             color: white;
             font-weight: bold;
         }
         #dice-result {
             font-size: 24px;
-            margin: 10px;
+            margin: 20px;
+            min-height: 60px;
         }
         button {
-            padding: 10px 20px;
-            font-size: 16px;
+            padding: 12px 24px;
+            font-size: 18px;
             background: #4CAF50;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 50px;
             cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s;
+        }
+        button:disabled {
+            background: #cccccc;
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.3);
+        }
+        .dice {
+            font-size: 48px;
+            animation: diceRoll 1s ease-out;
+            display: inline-block;
+        }
+        @keyframes diceRoll {
+            0% { transform: rotate(0deg) scale(0.5); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
         }
     </style>
 </head>
 <body>
-    <h1>🎲 Dice & Survive</h1>
-    <div id="dice-result">Брось кубик!</div>
-    <button onclick="rollDice()">Бросить кубик</button>
+    <h1>🚀 Dice & Survive</h1>
+    <div id="dice-result">Нажми "Бросить кубик"</div>
+    <button onclick="rollDice()">🎲 Бросить кубик</button>
     <div id="game-board"></div>
 
     <script>
@@ -55,40 +78,66 @@
         const totalCells = 100;
         const gameBoard = document.getElementById('game-board');
 
-        // Создаём игровое поле
         function createBoard() {
             gameBoard.innerHTML = '';
-            for (let i = 1; i <= totalCells; i++) {
+            for (let i = totalCells; i >= 1; i--) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.textContent = `Клетка ${i}`;
                 if (i === currentPosition) {
                     cell.classList.add('current');
+                    cell.innerHTML = `👤 Клетка ${i}`;
                 }
                 gameBoard.appendChild(cell);
             }
         }
 
-        // Бросок кубика
         function rollDice() {
-            const dice = Math.floor(Math.random() * 6) + 1;
-            document.getElementById('dice-result').textContent = `Выпало: ${dice}`;
+            const btn = document.querySelector('button');
+            btn.disabled = true;
             
-            // Перемещение
-            currentPosition += dice;
-            if (currentPosition > totalCells) {
-                currentPosition = totalCells;
-                setTimeout(() => {
-                    alert('🎉 Победа! Ты достиг конца!');
-                    if (window.Telegram && Telegram.WebApp) {
-                        Telegram.WebApp.sendData(JSON.stringify({
-                            event: 'win',
-                            position: currentPosition
-                        }));
-                    }
-                }, 100);
-            }
-            createBoard();
+            const diceResult = document.getElementById('dice-result');
+            diceResult.innerHTML = '<div class="dice">🎲</div>';
+            
+            let rollsLeft = 5;
+            const diceInterval = setInterval(() => {
+                const tempValue = Math.floor(Math.random() * 6) + 1;
+                diceResult.innerHTML = `<div class="dice">🎲<br>${tempValue}</div>`;
+                rollsLeft--;
+                
+                if (rollsLeft === 0) {
+                    clearInterval(diceInterval);
+                    const finalValue = Math.floor(Math.random() * 6) + 1;
+                    diceResult.innerHTML = `<div class="dice">🎲<br>${finalValue}</div>`;
+                    movePlayer(finalValue);
+                    btn.disabled = false;
+                }
+            }, 200);
+        }
+
+        function movePlayer(steps) {
+            const oldPosition = currentPosition;
+            currentPosition = Math.min(oldPosition + steps, totalCells);
+            
+            const cells = document.querySelectorAll('.cell');
+            cells[totalCells - oldPosition].classList.remove('current');
+            
+            setTimeout(() => {
+                cells[totalCells - currentPosition].classList.add('current');
+                cells[totalCells - currentPosition].innerHTML = `👤 Клетка ${currentPosition}`;
+                
+                if (currentPosition === totalCells) {
+                    setTimeout(() => {
+                        alert('🎉 Победа!');
+                        if (window.Telegram && Telegram.WebApp) {
+                            Telegram.WebApp.sendData(JSON.stringify({
+                                event: 'win',
+                                position: currentPosition
+                            }));
+                        }
+                    }, 500);
+                }
+            }, 300);
         }
 
         // Инициализация
