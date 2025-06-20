@@ -82,7 +82,7 @@
 
     .heal-popup, .trap-popup {
       position: absolute;
-      right: -130px;
+      right: -100px;
       top: 10px;
       background: #fff;
       border: 1px solid #aaa;
@@ -90,7 +90,7 @@
       border-radius: 6px;
       font-size: 0.8em;
       box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-      animation: fadeUp 1.5s forwards;
+      animation: fadeUp 4s forwards;
     }
 
     @keyframes fadeUp {
@@ -251,7 +251,7 @@
           setTimeout(() => {
             popup.remove();
             heal.remove();
-          }, 1500);
+          }, 4000);
           playerHP = Math.min(100, playerHP + 25);
           updateHealthBar();
         }
