@@ -16,6 +16,7 @@
             margin: 20px auto;
             width: 100%;
             max-width: 300px;
+            margin-bottom: 20px;
         }
         .cell {
             position: relative;
@@ -60,6 +61,13 @@
             animation: diceRoll 1s ease-out;
             display: inline-block;
         }
+        .controls {
+            position: sticky;
+            bottom: 0;
+            background: #f5f5f5;
+            padding: 15px;
+            border-top: 1px solid #ddd;
+        }
         @keyframes diceRoll {
             0% { transform: rotate(0deg) scale(0.5); }
             50% { transform: rotate(180deg) scale(1.2); }
@@ -71,8 +79,12 @@
     <h1>🚀 Dice & Survive</h1>
     <div id="dice-result">Нажми "Бросить кубик"</div>
     <button onclick="rollDice()">🎲 Бросить кубик</button>
-    <div id="game-board"></div>
-
+    <div id="game-board"></div> <!-- Поле теперь ВЫШЕ элементов управления -->
+<div class="controls">
+        <h1>🚀 Dice & Survive</h1>
+        <div id="dice-result">Нажми "Бросить кубик"</div>
+        <button onclick="rollDice()">🎲 Бросить кубик</button>
+    </div>
     <script>
         let currentPosition = 1;
         const totalCells = 100;
