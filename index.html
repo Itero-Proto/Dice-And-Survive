@@ -156,14 +156,26 @@
 
 
         dice.addEventListener('click', () => {
+            if (dice.disabled) return;
+
+            dice.disabled = true;
             dice.classList.add('rolling');
+
             setTimeout(() => {
                 dice.classList.remove('rolling');
                 const roll = Math.floor(Math.random() * 6) + 1;
                 dice.textContent = `🎲 ${roll}`;
+
                 movePlayer(roll);
+
+                // Включим кубик обратно после всех шагов
+                setTimeout(() => {
+                    dice.disabled = false;
+                }, roll * 400 + 500);
+
             }, 800);
         });
+
     </script>
 </body>
 
