@@ -193,6 +193,8 @@
 
     const healthCells = [];
     const enemyCells = [];
+    const trapCells = [];
+
     while (enemyCells.length < 20) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!enemyCells.includes(rand)) enemyCells.push(rand);
@@ -200,6 +202,10 @@
     while (healthCells.length < 20) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!healthCells.includes(rand) && !enemyCells.includes(rand)) healthCells.push(rand);
+    }
+    while (trapCells.length < 20) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (!trapCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand)) trapCells.push(rand);
     }
 
     function checkForHealthPotion() {
@@ -252,6 +258,20 @@
       }
     }
 
+    function checkForTrap() {
+      const cell = cells[currentCell];
+      if (trapCells.includes(currentCell)) {
+        const trap = document.createElement('span');
+        trap.textContent = '🪤';
+        trap.className = 'trap';
+        cell.appendChild(trap);
+        playerHP = Math.max(0, playerHP - 25);
+        if (currentCell > 0) currentCell--;
+        cells[currentCell].appendChild(player);
+        updateHealthBar();
+      }
+    }
+
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
       dice.style.display = 'block';
@@ -266,6 +286,7 @@
           clearInterval(interval);
           checkForHealthPotion();
           checkForEnemy();
+          checkForTrap();
           return;
         }
         currentCell++;
