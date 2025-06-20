@@ -286,7 +286,7 @@
         popup.className = 'trap-popup';
         popup.textContent = '🩸 Ты попал в ловушку и был ранен!';
         cell.appendChild(popup);
-        setTimeout(() => popup.remove(), 1500);
+        setTimeout(() => popup.remove(), 6000);
         playerHP = Math.max(0, playerHP - 25);
         flashCell(cell);
         if (currentCell > 0) currentCell--;
