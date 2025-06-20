@@ -136,15 +136,6 @@
       display: none;
       text-align: center;
     }
-    #battleDice {
-      margin-top: 15px;
-      font-size: 2em;
-      cursor: pointer;
-      padding: 10px 20px;
-      background: #eee;
-      border-radius: 10px;
-      box-shadow: 2px 2px 5px #ccc;
-    }
     #closeBattleBtn {
       margin-top: 15px;
       padding: 6px 16px;
@@ -153,6 +144,7 @@
       border: none;
       border-radius: 6px;
       cursor: pointer;
+      display: none;
     }
   </style>
 </head>
@@ -162,10 +154,7 @@
   <div id="dice">🎲</div>
 
   <div id="battleModal">
-    <div id="battleInfo">👹 Враг бросил: <span id="enemyRollResult"></span></div>
-    <div>
-      🎲 Твой бросок: <button id="battleDice">Бросить</button>
-    </div>
+    <div id="battleInfo"></div>
     <div id="battleOutcome"></div>
     <button id="closeBattleBtn">OK</button>
   </div>
@@ -175,8 +164,7 @@
     const dice = document.getElementById('dice');
     const player = document.createElement('div');
     const battleModal = document.getElementById('battleModal');
-    const enemyRollResult = document.getElementById('enemyRollResult');
-    const battleDice = document.getElementById('battleDice');
+    const battleInfo = document.getElementById('battleInfo');
     const battleOutcome = document.getElementById('battleOutcome');
     const closeBattleBtn = document.getElementById('closeBattleBtn');
 
@@ -185,7 +173,6 @@
 
     let currentCell = 0;
     let playerHP = 100;
-    let enemyRoll = 0;
 
     for (let i = 1; i <= 100; i++) {
       const cell = document.createElement('div');
@@ -246,32 +233,29 @@
           enemy.className = 'enemy';
           cell.appendChild(enemy);
         }
-        enemyRoll = Math.floor(Math.random() * 6) + 1;
-        enemyRollResult.textContent = enemyRoll;
-        battleOutcome.textContent = '';
+        const enemyRoll = Math.floor(Math.random() * 6) + 1;
+        const playerRoll = Math.floor(Math.random() * 6) + 1;
+        battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
+
+        if (playerRoll < enemyRoll) {
+          playerHP = Math.max(0, playerHP - 25);
+          battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
+          if (currentCell > 0) currentCell--;
+          cells[currentCell].appendChild(player);
+        } else {
+          battleOutcome.textContent = `✅ Ты победил!`;
+        }
+        updateHealthBar();
         battleModal.style.display = 'block';
         dice.style.display = 'none';
+        closeBattleBtn.style.display = 'inline-block';
       }
     }
-
-    battleDice.onclick = () => {
-      const playerRoll = Math.floor(Math.random() * 6) + 1;
-      if (playerRoll < enemyRoll) {
-        playerHP = Math.max(0, playerHP - 25);
-        battleOutcome.textContent = `❌ Ты проиграл (ты: ${playerRoll}) — отступаешь на 1 клетку!`;
-        if (currentCell > 0) currentCell--;
-        cells[currentCell].appendChild(player);
-      } else {
-        battleOutcome.textContent = `✅ Ты победил! (ты: ${playerRoll})`;
-      }
-      updateHealthBar();
-      battleDice.disabled = true;
-    };
 
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
       dice.style.display = 'block';
-      battleDice.disabled = false;
+      closeBattleBtn.style.display = 'none';
     };
 
     function movePlayer(steps) {
