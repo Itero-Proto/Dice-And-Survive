@@ -33,8 +33,15 @@
             height: 120px;
             margin: 1px auto;
             border-radius: 10px;
-            background: linear-gradient(145deg, #ffffff, #e6e6e6);
-            box-shadow: 2px 2px 5px #ccc, -2px -2px 5px #fff;
+
+            /* Светло-коричневый фон */
+            background-color: #e8d3b9;
+            /* можно попробовать #e0c8a0, #d8b98a и т.п. */
+
+            /* Контур */
+            border: 2px solid #a57c50;
+
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -42,10 +49,6 @@
             color: #444;
             font-size: 1em;
             position: relative;
-        }
-
-        .cell:nth-child(even) {
-            background: linear-gradient(145deg, #f0f0f0, #d8d8d8);
         }
 
         .player {
