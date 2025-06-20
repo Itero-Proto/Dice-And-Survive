@@ -19,7 +19,6 @@
             flex-grow: 1;
             overflow-y: auto;
             padding: 10px;
-            position: relative;
         }
 
         .controls {
@@ -56,12 +55,12 @@
             height: 20px;
         }
 
-        .character {
+        .cell-with-character::after {
+            content: '👤';
             position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
             font-size: 24px;
-            z-index: 10;
-            transition: top 0.5s ease, left 0.5s ease;
-            pointer-events: none;
         }
 
         .current-cell {
@@ -196,7 +195,6 @@
         let health = 100;
         let trapCells = [];
         let healCells = [];
-        let character = null;
         const gameBoard = document.getElementById('game-board');
 
         // Инициализация игры
@@ -231,47 +229,27 @@
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.id = `cell-${i}`;
+                
+                if (i === currentPosition) {
+                    cell.classList.add('current-cell', 'cell-with-character');
+                }
+                
                 gameBoard.appendChild(cell);
             }
             
-            // Создаем и добавляем персонажа
-            character = document.createElement('div');
-            character.className = 'character';
-            character.textContent = '👤';
-            gameBoard.appendChild(character);
-            
             updateHealth();
-            moveCharacterToCell(currentPosition, true);
+            scrollToPlayer();
         }
 
-        // Плавное перемещение персонажа
-        function moveCharacterToCell(position, instant = false) {
-            const cell = document.getElementById(`cell-${position}`);
-            if (!cell) return;
-            
-            const cellRect = cell.getBoundingClientRect();
-            const boardRect = gameBoard.getBoundingClientRect();
-            
-            // Убираем подсветку со всех клеток
-            document.querySelectorAll('.current-cell').forEach(el => {
-                el.classList.remove('current-cell');
-            });
-            
-            // Подсвечиваем текущую клетку
-            cell.classList.add('current-cell');
-            
-            // Позиционируем персонажа
-            character.style.transition = instant ? 'none' : 'top 0.5s ease, left 0.5s ease';
-            character.style.top = `${cellRect.top - boardRect.top + cellRect.height/2 - 12}px`;
-            character.style.left = `${cellRect.left - boardRect.left + cellRect.width/2}px`;
-            
-            // Прокручиваем поле к персонажу
-            setTimeout(() => {
-                cell.scrollIntoView({
+        // Прокрутка к игроку
+        function scrollToPlayer() {
+            const playerCell = document.getElementById(`cell-${currentPosition}`);
+            if (playerCell) {
+                playerCell.scrollIntoView({
                     behavior: 'smooth',
                     block: 'center'
                 });
-            }, 50);
+            }
         }
 
         // Обновление полоски здоровья
@@ -327,17 +305,39 @@
             }, 200);
         }
 
-        // Перемещение игрока с анимацией
+        // Перемещение игрока
         function movePlayer(steps) {
             const oldPosition = currentPosition;
             currentPosition = Math.min(oldPosition + steps, totalCells);
-            
+
+            // Убираем персонажа со старой позиции
+            const oldCell = document.getElementById(`cell-${oldPosition}`);
+            if (oldCell) {
+                oldCell.classList.remove('cell-with-character');
+            }
+
+            // Добавляем персонажа на новую позицию
+            const newCell = document.getElementById(`cell-${currentPosition}`);
+            if (newCell) {
+                newCell.classList.add('cell-with-character');
+                
+                // Убираем подсветку со всех клеток
+                document.querySelectorAll('.current-cell').forEach(el => {
+                    el.classList.remove('current-cell');
+                });
+                
+                // Подсвечиваем текущую клетку
+                newCell.classList.add('current-cell');
+            }
+
             // Анимация пошагового перемещения
             let step = 1;
             const moveInterval = setInterval(() => {
                 if (oldPosition + step > currentPosition) {
                     clearInterval(moveInterval);
                     checkCellEvent();
+                    scrollToPlayer();
+                    
                     if (currentPosition === totalCells) {
                         setTimeout(() => {
                             showEvent('heal', '🎉 Победа!', 'Вы успешно прошли все 100 клеток!');
@@ -346,7 +346,15 @@
                     return;
                 }
                 
-                moveCharacterToCell(oldPosition + step);
+                // Временное отображение перемещения
+                const tempCell = document.getElementById(`cell-${oldPosition + step}`);
+                if (tempCell) {
+                    tempCell.classList.add('cell-with-character');
+                    setTimeout(() => {
+                        tempCell.classList.remove('cell-with-character');
+                    }, 200);
+                }
+                
                 step++;
             }, 300);
         }
