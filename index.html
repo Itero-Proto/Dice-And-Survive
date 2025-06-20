@@ -60,6 +60,17 @@
       color: #444;
       font-size: 1em;
       position: relative;
+      transition: background-color 0.3s ease;
+    }
+
+    .cell.flash-red {
+      background-color: #ff9999 !important;
+      animation: flashRed 2s ease;
+    }
+
+    @keyframes flashRed {
+      0% { background-color: #ff9999; }
+      100% { background-color: #e8d3b9; }
     }
 
     .player {
@@ -70,9 +81,9 @@
       transition: transform 0.3s ease;
     }
 
-    .heal-popup {
+    .heal-popup, .trap-popup {
       position: absolute;
-      right: -80px;
+      right: -100px;
       top: 10px;
       background: #fff;
       border: 1px solid #aaa;
@@ -191,6 +202,11 @@
       document.getElementById('health-fill').style.width = playerHP + '%';
     }
 
+    function flashCell(cell) {
+      cell.classList.add('flash-red');
+      setTimeout(() => cell.classList.remove('flash-red'), 2000);
+    }
+
     const healthCells = [];
     const enemyCells = [];
     const trapCells = [];
@@ -245,6 +261,7 @@
 
         if (playerRoll < enemyRoll) {
           playerHP = Math.max(0, playerHP - 25);
+          flashCell(cell);
           battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
           if (currentCell > 0) currentCell--;
           cells[currentCell].appendChild(player);
@@ -265,7 +282,13 @@
         trap.textContent = '🪤';
         trap.className = 'trap';
         cell.appendChild(trap);
+        const popup = document.createElement('div');
+        popup.className = 'trap-popup';
+        popup.textContent = '🩸 Ты попал в ловушку и был ранен!';
+        cell.appendChild(popup);
+        setTimeout(() => popup.remove(), 1500);
         playerHP = Math.max(0, playerHP - 25);
+        flashCell(cell);
         if (currentCell > 0) currentCell--;
         cells[currentCell].appendChild(player);
         updateHealthBar();
