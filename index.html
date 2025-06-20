@@ -197,7 +197,6 @@
             let rand = Math.floor(Math.random() * 98) + 1;
             if (!healthCells.includes(rand) && !enemyCells.includes(rand)) healthCells.push(rand);
         }
-
         function checkForHealthPotion() {
             const cell = cells[currentCell];
             if (healthCells.includes(currentCell)) {
@@ -210,7 +209,7 @@
                     const popup = document.createElement('div');
                     popup.className = 'heal-popup';
                     popup.textContent = '+25 HP ❤️';
-                    cell.appendChild(popup);
+                    document.body.appendChild(popup); // Добавляем к body, а не к клетке
 
                     setTimeout(() => {
                         popup.remove();
