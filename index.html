@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Dice & Survive</title>
     <meta charset="UTF-8">
@@ -56,14 +57,23 @@
             height: 20px;
         }
 
-        .character {
+        .character-container {
             position: absolute;
+            width: 100%;
+            height: 0;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .character {
+            position: relative;
             font-size: 24px;
             transition: transform 0.5s ease;
-            z-index: 10;
-            left: 50%;
             transform: translateX(-50%);
-            pointer-events: none;
+            left: 50%;
+            width: 24px;
+            text-align: center;
         }
 
         .current-cell {
@@ -83,13 +93,23 @@
         }
 
         @keyframes trapReveal {
-            from { background: #fff; }
-            to { background: #ffebee; }
+            from {
+                background: #fff;
+            }
+
+            to {
+                background: #ffebee;
+            }
         }
 
         @keyframes healReveal {
-            from { background: #fff; }
-            to { background: #e8f5e9; }
+            from {
+                background: #fff;
+            }
+
+            to {
+                background: #e8f5e9;
+            }
         }
 
         #dice-result {
@@ -121,9 +141,17 @@
         }
 
         @keyframes diceRoll {
-            0% { transform: rotate(0deg) scale(0.5); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
+            0% {
+                transform: rotate(0deg) scale(0.5);
+            }
+
+            50% {
+                transform: rotate(180deg) scale(1.2);
+            }
+
+            100% {
+                transform: rotate(360deg) scale(1);
+            }
         }
 
         .event-popup {
@@ -134,7 +162,7 @@
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
             z-index: 100;
             max-width: 80%;
             text-align: center;
@@ -142,8 +170,13 @@
         }
 
         @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
         }
 
         .event-title {
@@ -174,9 +207,12 @@
         }
     </style>
 </head>
+
 <body>
     <div id="game-board"></div>
-
+<div class="character-container">
+            <div class="character">👤</div>
+        </div>
     <div class="controls">
         <h1>🚀 Dice & Survive</h1>
         <div class="health-bar">
@@ -205,28 +241,38 @@
         function initGame() {
             // Генерация случайных ловушек
             trapCells = [];
-            while(trapCells.length < trapCount) {
+            while (trapCells.length < trapCount) {
                 const randomCell = Math.floor(Math.random() * totalCells) + 1;
                 if (randomCell !== 1 && !trapCells.includes(randomCell)) {
                     trapCells.push(randomCell);
                 }
             }
-            
+
             // Генерация случайных лечебных клеток
             healCells = [];
-            while(healCells.length < healCount) {
+            while (healCells.length < healCount) {
                 const randomCell = Math.floor(Math.random() * totalCells) + 1;
                 if (randomCell !== 1 && !trapCells.includes(randomCell) && !healCells.includes(randomCell)) {
                     healCells.push(randomCell);
                 }
             }
-            
+
             createBoard();
         }
 
         // Создание игрового поля
         function createBoard() {
             gameBoard.innerHTML = '';
+            
+            // Создаем контейнер для персонажа
+            const characterContainer = document.createElement('div');
+            characterContainer.className = 'character-container';
+            
+            // Создаем персонажа
+            character = document.createElement('div');
+            character.className = 'character';
+            character.textContent = '👤';
+            characterContainer.appendChild(character);
             
             // Создаем клетки
             for (let i = totalCells; i >= 1; i--) {
@@ -236,11 +282,8 @@
                 gameBoard.appendChild(cell);
             }
             
-            // Создаем и позиционируем персонажа
-            character = document.createElement('div');
-            character.className = 'character';
-            character.textContent = '👤';
-            gameBoard.appendChild(character);
+            // Добавляем персонажа на поле
+            gameBoard.appendChild(characterContainer);
             
             updateHealth();
             moveCharacterToCell(currentPosition, true);
@@ -281,7 +324,7 @@
             const healthText = document.getElementById('health-text');
             healthBar.style.width = `${health}%`;
             healthText.textContent = `Здоровье: ${health}/100`;
-            
+
             // Меняем цвет в зависимости от уровня здоровья
             if (health > 60) {
                 healthBar.style.background = '#2ecc71';
@@ -332,7 +375,7 @@
         function movePlayer(steps) {
             const oldPosition = currentPosition;
             currentPosition = Math.min(oldPosition + steps, totalCells);
-            
+
             // Анимация пошагового перемещения
             let step = 1;
             const moveInterval = setInterval(() => {
@@ -346,7 +389,7 @@
                     }
                     return;
                 }
-                
+
                 moveCharacterToCell(oldPosition + step);
                 step++;
             }, 300);
@@ -355,19 +398,19 @@
         // Проверка событий клетки
         function checkCellEvent() {
             const cell = document.getElementById(`cell-${currentPosition}`);
-            
+
             if (trapCells.includes(currentPosition)) {
                 cell.classList.add('revealed-trap');
                 health = Math.max(0, health - trapDamage);
                 updateHealth();
-                
+
                 if (health <= 0) {
                     showEvent('trap', '💀 Поражение', 'Вы потеряли все здоровье! Игра окончена.');
                     document.querySelector('button').disabled = true;
                 } else {
                     showEvent('trap', '⚠️ Ловушка', `Шипы нанесли ${trapDamage} урона! Осталось ${health} HP`);
                 }
-            } 
+            }
             else if (healCells.includes(currentPosition)) {
                 cell.classList.add('revealed-heal');
                 health = Math.min(100, health + healAmount);
@@ -382,4 +425,5 @@
         initGame();
     </script>
 </body>
+
 </html>
