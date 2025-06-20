@@ -123,7 +123,10 @@
             from { opacity: 0; }
             to { opacity: 1; }
         }
-
+@keyframes trapReveal {
+            from { background: #fff; }
+            to { background: #ffebee; }
+        }
         .event-title {
             font-size: 20px;
             font-weight: bold;
@@ -143,6 +146,10 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        .revealed-trap {
+            background: #ffebee;
+            animation: trapReveal 0.5s;
+        }
     </style>
 </head>
 <body>
@@ -161,23 +168,31 @@
     <script>
         // Игровые константы
         const totalCells = 100;
-        const trapCells = [5, 15, 25, 35, 45, 55, 65, 75, 85, 95];
+        const trapCount = 20;
         const trapDamage = 25;
         let currentPosition = 1;
         let health = 100;
+        let trapCells = [];
         const gameBoard = document.getElementById('game-board');
-
-        // Инициализация игрового поля
+// Инициализация игры
+        function initGame() {
+            // Генерация случайных ловушек
+            trapCells = [];
+            while(trapCells.length < trapCount) {
+                const randomCell = Math.floor(Math.random() * totalCells) + 1;
+                if (randomCell !== 1 && !trapCells.includes(randomCell)) {
+                    trapCells.push(randomCell);
+                }
+            }
+            
+            createBoard();
+        }
+        // Создание игрового поля
         function createBoard() {
             gameBoard.innerHTML = '';
             for (let i = totalCells; i >= 1; i--) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
-                
-                // Добавляем класс ловушки для специальных клеток
-                if (trapCells.includes(i)) {
-                    cell.classList.add('trap');
-                }
                 
                 if (i === currentPosition) {
                     cell.classList.add('current');
@@ -188,7 +203,6 @@
             updateHealth();
             setTimeout(() => scrollToPlayer(), 50);
         }
-
         // Обновление полоски здоровья
         function updateHealth() {
             const healthBar = document.getElementById('health-bar');
@@ -287,10 +301,13 @@
                 }
             }, 300);
         }
-
-        // Проверка событий клетки
+// Проверка событий клетки
         function checkCellEvent() {
             if (trapCells.includes(currentPosition)) {
+                // Показываем ловушку
+                const cells = document.querySelectorAll('.cell');
+                cells[totalCells - currentPosition].classList.add('revealed-trap');
+                
                 health = Math.max(0, health - trapDamage);
                 updateHealth();
                 
@@ -298,15 +315,14 @@
                     showEvent('💀 Поражение', 'Вы потеряли все здоровья! Игра окончена.');
                     document.querySelector('button').disabled = true;
                 } else {
-                    showEvent('⚠️ Ловушка', `Вы наступили на шипы и потеряли ${trapDamage} здоровья!`);
+                    showEvent('⚠️ Ловушка', `Шипы нанесли ${trapDamage} урона! Осталось ${health} HP`);
                 }
             }
         }
-
         // Инициализация
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
-        createBoard();
+        initGame(); // Заменяем createBoard() на initGame()
     </script>
 </body>
 </html>
