@@ -161,13 +161,13 @@
 
             const cells = document.querySelectorAll('.cell');
 
-            // УБИРАЕМ ЭТУ СТРОКУ, чтобы не снимать подсветку:
-            // cells[totalCells - oldPosition].classList.remove('current');
+            // 1. Убираем персонажа с предыдущей позиции
+            cells[totalCells - oldPosition].innerHTML = `Клетка ${oldPosition}`;
+            cells[totalCells - oldPosition].classList.remove('current');
 
             setTimeout(() => {
-                // Добавляем класс только к новой позиции
+                // 2. Добавляем персонажа на новую позицию
                 cells[totalCells - currentPosition].classList.add('current');
-                // Устанавливаем нового персонажа
                 cells[totalCells - currentPosition].innerHTML = `👤 Клетка ${currentPosition}`;
                 scrollToPlayer();
 
@@ -184,7 +184,6 @@
                 }
             }, 300);
         }
-
         // Инициализация
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
