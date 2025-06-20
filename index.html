@@ -69,13 +69,8 @@
     }
 
     @keyframes flashRed {
-      0% {
-        background-color: #ff9999;
-      }
-
-      100% {
-        background-color: #e8d3b9;
-      }
+      0% { background-color: #ff9999; }
+      100% { background-color: #e8d3b9; }
     }
 
     .player {
@@ -97,7 +92,7 @@
       border-radius: 8px;
       font-size: 0.9em;
       font-weight: bold;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
       animation: fadeUp 4s forwards;
       z-index: 20;
     }
@@ -113,43 +108,21 @@
       border-radius: 8px;
       font-size: 0.9em;
       font-weight: bold;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
       animation: fadeUp 4s forwards;
       z-index: 20;
     }
 
     @keyframes fadeUp {
-      0% {
-        opacity: 0;
-        transform: translateY(10px);
-      }
-
-      10% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      80% {
-        opacity: 1;
-        transform: translateY(0);
-      }
-
-      100% {
-        opacity: 0;
-        transform: translateY(-10px);
-      }
+      0% { opacity: 0; transform: translateY(10px); }
+      10% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-10px); }
     }
 
     @keyframes idle-bob {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-5px);
-      }
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
     }
 
     #dice {
@@ -177,13 +150,8 @@
     }
 
     @keyframes roll {
-      0% {
-        transform: translateX(-50%) rotate(0deg);
-      }
-
-      100% {
-        transform: translateX(-50%) rotate(360deg);
-      }
+      0% { transform: translateX(-50%) rotate(0deg); }
+      100% { transform: translateX(-50%) rotate(360deg); }
     }
 
     #battleModal {
@@ -199,7 +167,6 @@
       display: none;
       text-align: center;
     }
-
     #closeBattleBtn {
       margin-top: 15px;
       padding: 6px 16px;
@@ -212,14 +179,9 @@
     }
   </style>
 </head>
-
 <body>
-  <div id="health-bar">
-    <div id="health-fill"></div>
-  </div>
-  <div id="board-container">
-    <div id="board"></div>
-  </div>
+  <div id="health-bar"><div id="health-fill"></div></div>
+  <div id="board-container"><div id="board"></div></div>
   <div id="dice">🎲</div>
 
   <div id="battleModal">
@@ -319,16 +281,14 @@
           battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
           if (currentCell > 0) currentCell--;
           cells[currentCell].appendChild(player);
+        } else {
+          battleOutcome.textContent = `✅ Ты победил!`;
         }
-
-      } else {
-        battleOutcome.textContent = `✅ Ты победил!`;
+        updateHealthBar();
+        battleModal.style.display = 'block';
+        dice.style.display = 'none';
+        closeBattleBtn.style.display = 'inline-block';
       }
-      updateHealthBar();
-      battleModal.style.display = 'block';
-      dice.style.display = 'none';
-      closeBattleBtn.style.display = 'inline-block';
-    }
     }
 
     function checkForTrap() {
@@ -339,17 +299,12 @@
         popup.innerHTML = '<span style="margin-right:5px">🩸</span> Ты ранен!';
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
-
+        
         playerHP = Math.max(0, playerHP - 25);
         flashCell(cell);
         if (currentCell > 0) currentCell--;
         cells[currentCell].appendChild(player);
         updateHealthBar();
-        if (playerHP <= 0) {
-          alert("💀 Игра окончена! У вас закончились жизни.");
-          dice.disabled = true;
-        }
-
       }
     }
 
@@ -393,13 +348,6 @@
     });
 
     updateHealthBar();
-    updateHealthBar();
-    if (playerHP <= 0) {
-      alert("💀 Игра окончена! У вас закончились жизни.");
-      dice.disabled = true;
-    }
-
   </script>
 </body>
-
 </html>
