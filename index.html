@@ -160,12 +160,15 @@
             currentPosition = Math.min(oldPosition + steps, totalCells);
 
             const cells = document.querySelectorAll('.cell');
-            cells[totalCells - oldPosition].classList.remove('current');
+
+            // УБИРАЕМ ЭТУ СТРОКУ, чтобы не снимать подсветку:
+            // cells[totalCells - oldPosition].classList.remove('current');
 
             setTimeout(() => {
+                // Добавляем класс только к новой позиции
                 cells[totalCells - currentPosition].classList.add('current');
                 cells[totalCells - currentPosition].innerHTML = `👤 Клетка ${currentPosition}`;
-                scrollToPlayer(); // И после перемещения
+                scrollToPlayer();
 
                 if (currentPosition === totalCells) {
                     setTimeout(() => {
