@@ -132,6 +132,7 @@
             cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
         }, 100);
 
+
         function movePlayer(steps) {
             if (steps <= 0) return;
 
@@ -157,9 +158,11 @@
         dice.addEventListener('click', () => {
             dice.classList.add('rolling');
             setTimeout(() => {
-                cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
-            }, 100);
-
+                dice.classList.remove('rolling');
+                const roll = Math.floor(Math.random() * 6) + 1;
+                dice.textContent = `🎲 ${roll}`;
+                movePlayer(roll);
+            }, 800);
         });
     </script>
 </body>
