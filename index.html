@@ -72,7 +72,7 @@
 
     .heal-popup {
       position: absolute;
-      right: -40px;
+      right: -80px;
       top: 10px;
       background: #fff;
       border: 1px solid #aaa;
@@ -163,9 +163,15 @@
 
     // HEALTH POTIONS
     const healthCells = [];
+    const enemyCells = [];
+    while (enemyCells.length < 20) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (!enemyCells.includes(rand)) enemyCells.push(rand);
+    }
+
     while (healthCells.length < 20) {
       let rand = Math.floor(Math.random() * 98) + 1;
-      if (!healthCells.includes(rand)) healthCells.push(rand);
+      if (!healthCells.includes(rand) && !enemyCells.includes(rand)) healthCells.push(rand);
     }
 
     function checkForHealthPotion() {
@@ -193,6 +199,35 @@
       }
     }
 
+    function checkForEnemy() {
+      const cell = cells[currentCell];
+      if (enemyCells.includes(currentCell)) {
+        if (!cell.querySelector('.enemy')) {
+          const enemy = document.createElement('span');
+          enemy.textContent = '👹';
+          enemy.className = 'enemy';
+          cell.appendChild(enemy);
+        }
+
+        // Мини-бой
+        const enemyRoll = Math.floor(Math.random() * 6) + 1;
+        alert(`👹 Enemy rolls: ${enemyRoll}`);
+
+        const playerRoll = Math.floor(Math.random() * 6) + 1;
+        alert(`🧍 You roll: ${playerRoll}`);
+
+        if (playerRoll < enemyRoll) {
+          playerHP = Math.max(0, playerHP - 25);
+          updateHealthBar();
+          alert('❌ You lost the battle and step back!');
+          if (currentCell > 0) currentCell--;
+          cells[currentCell].appendChild(player);
+        } else {
+          alert('✅ You won the battle!');
+        }
+      }
+    }
+
     function movePlayer(steps) {
       if (steps <= 0) return;
       let stepCount = 0;
@@ -200,6 +235,7 @@
         if (stepCount >= steps || currentCell >= cells.length - 1) {
           clearInterval(interval);
           checkForHealthPotion();
+          checkForEnemy();
           return;
         }
         currentCell++;
