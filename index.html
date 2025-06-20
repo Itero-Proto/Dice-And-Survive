@@ -1,401 +1,101 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Dice & Survive</title>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-        }
+  <meta charset="UTF-8">
+  <title>Dice & Survive</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-        #game-board {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 10px;
-            position: relative;
-        }
+    #board {
+      display: flex;
+      flex-direction: column-reverse;
+      height: 90vh;
+      width: 100px;
+      overflow: hidden;
+      border: 2px solid #333;
+    }
 
-        .controls {
-            padding: 15px;
-            background: white;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
+    .cell {
+      width: 100px;
+      height: 100px;
+      border: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1em;
+      position: relative;
+    }
 
-        .health-bar {
-            margin-bottom: 15px;
-            height: 20px;
-            background: #f3f3f3;
-            border-radius: 10px;
-            overflow: hidden;
-        }
+    .player {
+      position: absolute;
+      transition: all 0.5s ease;
+      font-size: 1.5em;
+    }
 
-        .health-progress {
-            height: 100%;
-            background: #2ecc71;
-            width: 100%;
-            transition: width 0.3s;
-        }
+    #dice {
+      margin: 20px;
+      font-size: 2em;
+      cursor: pointer;
+      transition: transform 0.5s ease;
+    }
 
-        .cell {
-            position: relative;
-            padding: 15px;
-            margin: 3px 0;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            height: 20px;
-        }
+    #dice.rolling {
+      animation: roll 0.5s infinite;
+    }
 
-        .character {
-            position: fixed;
-            font-size: 24px;
-            z-index: 10;
-            transition: transform 0.5s ease;
-            pointer-events: none;
-            will-change: transform;
-        }
-
-        .current-cell {
-            background: #4CAF50;
-            color: white;
-            font-weight: bold;
-        }
-
-        .revealed-trap {
-            background: #ffebee;
-            animation: trapReveal 0.5s;
-        }
-
-        .revealed-heal {
-            background: #e8f5e9;
-            animation: healReveal 0.5s;
-        }
-
-        @keyframes trapReveal {
-            from { background: #fff; }
-            to { background: #ffebee; }
-        }
-
-        @keyframes healReveal {
-            from { background: #fff; }
-            to { background: #e8f5e9; }
-        }
-
-        #dice-result {
-            font-size: 24px;
-            margin: 20px 0;
-            min-height: 60px;
-        }
-
-        button {
-            padding: 12px 24px;
-            font-size: 18px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 50px;
-            cursor: pointer;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-            transition: all 0.3s;
-        }
-
-        button:disabled {
-            background: #cccccc;
-        }
-
-        .dice {
-            font-size: 48px;
-            animation: diceRoll 1s ease-out;
-            display: inline-block;
-        }
-
-        @keyframes diceRoll {
-            0% { transform: rotate(0deg) scale(0.5); }
-            50% { transform: rotate(180deg) scale(1.2); }
-            100% { transform: rotate(360deg) scale(1); }
-        }
-
-        .event-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            z-index: 100;
-            max-width: 80%;
-            text-align: center;
-            animation: fadeIn 0.3s;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-        }
-
-        .event-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .trap-title {
-            color: #e74c3c;
-        }
-
-        .heal-title {
-            color: #2ecc71;
-        }
-
-        .event-description {
-            margin-bottom: 15px;
-        }
-
-        .close-event {
-            padding: 8px 16px;
-            background: #4CAF50;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+    @keyframes roll {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
-    <div id="game-board"></div>
-    <div class="character">👤</div>
 
-    <div class="controls">
-        <h1>🚀 Dice & Survive</h1>
-        <div class="health-bar">
-            <div class="health-progress" id="health-bar"></div>
-        </div>
-        <div id="health-text">Здоровье: 100/100</div>
-        <div id="dice-result">Готов к броску!</div>
-        <button onclick="rollDice()">🎲 Бросить кубик</button>
-    </div>
+  <div id="board"></div>
+  <div id="dice">🎲</div>
 
-    <script>
-        // Игровые константы
-        const totalCells = 100;
-        const trapCount = 20;
-        const healCount = 20;
-        const trapDamage = 25;
-        const healAmount = 25;
-        let currentPosition = 1;
-        let health = 100;
-        let trapCells = [];
-        let healCells = [];
-        const gameBoard = document.getElementById('game-board');
-        const character = document.querySelector('.character');
+  <script>
+    const board = document.getElementById('board');
+    const dice = document.getElementById('dice');
+    const player = document.createElement('div');
+    player.className = 'player';
+    player.textContent = '🧍';
 
-        // Инициализация игры
-        function initGame() {
-            // Генерация случайных ловушек
-            trapCells = [];
-            while(trapCells.length < trapCount) {
-                const randomCell = Math.floor(Math.random() * totalCells) + 1;
-                if (randomCell !== 1 && !trapCells.includes(randomCell)) {
-                    trapCells.push(randomCell);
-                }
-            }
-            
-            // Генерация случайных лечебных клеток
-            healCells = [];
-            while(healCells.length < healCount) {
-                const randomCell = Math.floor(Math.random() * totalCells) + 1;
-                if (randomCell !== 1 && !trapCells.includes(randomCell) && !healCells.includes(randomCell)) {
-                    healCells.push(randomCell);
-                }
-            }
-            
-            createBoard();
-            positionCharacter();
-        }
+    let currentCell = 0;
 
-        // Создание игрового поля
-        function createBoard() {
-            gameBoard.innerHTML = '';
-            
-            // Создаем клетки
-            for (let i = totalCells; i >= 1; i--) {
-                const cell = document.createElement('div');
-                cell.className = 'cell';
-                cell.id = `cell-${i}`;
-                
-                if (i === currentPosition) {
-                    cell.classList.add('current-cell');
-                }
-                
-                gameBoard.appendChild(cell);
-            }
-            
-            updateHealth();
-        }
+    // Создание клеток
+    for (let i = 1; i <= 100; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.index = i;
+      board.appendChild(cell);
+    }
 
-        // Позиционирование персонажа
-        function positionCharacter() {
-            const cell = document.getElementById(`cell-${currentPosition}`);
-            if (!cell) return;
-            
-            const cellRect = cell.getBoundingClientRect();
-            const boardRect = gameBoard.getBoundingClientRect();
-            
-            character.style.transform = `translate(
-                ${cellRect.left - boardRect.left + cellRect.width/2 - 12}px,
-                ${cellRect.top - boardRect.top + cellRect.height/2 - 12}px
-            )`;
-        }
+    // Поместить игрока в стартовую клетку
+    const cells = document.querySelectorAll('.cell');
+    cells[currentCell].appendChild(player);
 
-        // Прокрутка к игроку
-        function scrollToPlayer() {
-            const playerCell = document.getElementById(`cell-${currentPosition}`);
-            if (playerCell) {
-                playerCell.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'center'
-                });
-            }
-        }
+    function movePlayer(steps) {
+      let newPosition = Math.min(currentCell + steps, 99);
+      cells[newPosition].appendChild(player);
+      currentCell = newPosition;
+    }
 
-        // Обновление полоски здоровья
-        function updateHealth() {
-            const healthBar = document.getElementById('health-bar');
-            const healthText = document.getElementById('health-text');
-            healthBar.style.width = `${health}%`;
-            healthText.textContent = `Здоровье: ${health}/100`;
-            
-            if (health > 60) {
-                healthBar.style.background = '#2ecc71';
-            } else if (health > 30) {
-                healthBar.style.background = '#f39c12';
-            } else {
-                healthBar.style.background = '#e74c3c';
-            }
-        }
-
-        // Показ событий
-        function showEvent(type, title, description) {
-            const eventHtml = `
-                <div class="event-popup">
-                    <div class="event-title ${type}-title">${title}</div>
-                    <div class="event-description">${description}</div>
-                    <button class="close-event" onclick="this.parentElement.remove()">Понятно</button>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', eventHtml);
-        }
-
-        // Бросок кубика
-        function rollDice() {
-            const btn = document.querySelector('button');
-            btn.disabled = true;
-
-            const diceResult = document.getElementById('dice-result');
-            diceResult.innerHTML = '<div class="dice">🎲</div>';
-
-            let rollsLeft = 5;
-            const diceInterval = setInterval(() => {
-                const tempValue = Math.floor(Math.random() * 6) + 1;
-                diceResult.innerHTML = `<div class="dice">🎲<br>${tempValue}</div>`;
-                rollsLeft--;
-
-                if (rollsLeft === 0) {
-                    clearInterval(diceInterval);
-                    const finalValue = Math.floor(Math.random() * 6) + 1;
-                    diceResult.innerHTML = `<div class="dice">🎲<br>${finalValue}</div>`;
-                    movePlayer(finalValue);
-                    btn.disabled = false;
-                }
-            }, 200);
-        }
-
-        // Перемещение игрока с анимацией
-        function movePlayer(steps) {
-            const oldPosition = currentPosition;
-            currentPosition = Math.min(oldPosition + steps, totalCells);
-
-            // Убираем подсветку со старой клетки
-            const oldCell = document.getElementById(`cell-${oldPosition}`);
-            if (oldCell) oldCell.classList.remove('current-cell');
-
-            // Анимация перемещения по шагам
-            let step = 1;
-            const moveInterval = setInterval(() => {
-                if (oldPosition + step > currentPosition) {
-                    clearInterval(moveInterval);
-                    
-                    // Подсвечиваем новую клетку
-                    const newCell = document.getElementById(`cell-${currentPosition}`);
-                    if (newCell) newCell.classList.add('current-cell');
-                    
-                    checkCellEvent();
-                    scrollToPlayer();
-                    
-                    if (currentPosition === totalCells) {
-                        setTimeout(() => {
-                            showEvent('heal', '🎉 Победа!', 'Вы успешно прошли все 100 клеток!');
-                        }, 500);
-                    }
-                    return;
-                }
-                
-                // Плавное перемещение к следующей клетке
-                const nextCell = document.getElementById(`cell-${oldPosition + step}`);
-                if (nextCell) {
-                    const cellRect = nextCell.getBoundingClientRect();
-                    const boardRect = gameBoard.getBoundingClientRect();
-                    
-                    character.style.transform = `translate(
-                        ${cellRect.left - boardRect.left + cellRect.width/2 - 12}px,
-                        ${cellRect.top - boardRect.top + cellRect.height/2 - 12}px
-                    )`;
-                }
-                
-                step++;
-            }, 150); // Интервал анимации (меньше = быстрее)
-        }
-
-        // Проверка событий клетки
-        function checkCellEvent() {
-            const cell = document.getElementById(`cell-${currentPosition}`);
-            
-            if (trapCells.includes(currentPosition)) {
-                cell.classList.add('revealed-trap');
-                health = Math.max(0, health - trapDamage);
-                updateHealth();
-                
-                if (health <= 0) {
-                    showEvent('trap', '💀 Поражение', 'Вы потеряли все здоровье! Игра окончена.');
-                    document.querySelector('button').disabled = true;
-                } else {
-                    showEvent('trap', '⚠️ Ловушка', `Шипы нанесли ${trapDamage} урона! Осталось ${health} HP`);
-                }
-            } 
-            else if (healCells.includes(currentPosition)) {
-                cell.classList.add('revealed-heal');
-                health = Math.min(100, health + healAmount);
-                updateHealth();
-                showEvent('heal', '❤️ Лечение', `Вы восстановили ${healAmount} здоровья! Теперь ${health} HP`);
-            }
-        }
-
-        // Инициализация
-        Telegram.WebApp.ready();
-        Telegram.WebApp.expand();
-        initGame();
-    </script>
+    dice.addEventListener('click', () => {
+      dice.classList.add('rolling');
+      setTimeout(() => {
+        dice.classList.remove('rolling');
+        const roll = Math.floor(Math.random() * 6) + 1;
+        dice.textContent = `🎲 ${roll}`;
+        movePlayer(roll);
+      }, 800);
+    });
+  </script>
 </body>
 </html>
