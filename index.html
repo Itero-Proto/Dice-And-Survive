@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Dice & Survive</title>
     <meta charset="UTF-8">
@@ -13,6 +12,7 @@
             height: 100vh;
             margin: 0;
             padding: 0;
+            font-family: Arial, sans-serif;
         }
 
         #game-board {
@@ -28,6 +28,21 @@
             text-align: center;
         }
 
+        .health-bar {
+            margin-bottom: 15px;
+            height: 20px;
+            background: #f3f3f3;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .health-progress {
+            height: 100%;
+            background: #e74c3c;
+            width: 100%;
+            transition: width 0.3s;
+        }
+
         .cell {
             position: relative;
             padding: 15px;
@@ -37,6 +52,7 @@
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             transition: all 0.3s ease;
+            text-align: center;
         }
 
         .current {
@@ -45,9 +61,13 @@
             font-weight: bold;
         }
 
+        .trap {
+            background: #ffebee;
+        }
+
         #dice-result {
             font-size: 24px;
-            margin: 20px;
+            margin: 20px 0;
             min-height: 60px;
         }
 
@@ -79,50 +99,115 @@
         }
 
         @keyframes diceRoll {
-            0% {
-                transform: rotate(0deg) scale(0.5);
-            }
+            0% { transform: rotate(0deg) scale(0.5); }
+            50% { transform: rotate(180deg) scale(1.2); }
+            100% { transform: rotate(360deg) scale(1); }
+        }
 
-            50% {
-                transform: rotate(180deg) scale(1.2);
-            }
+        .event-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 100;
+            max-width: 80%;
+            text-align: center;
+            animation: fadeIn 0.3s;
+        }
 
-            100% {
-                transform: rotate(360deg) scale(1);
-            }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .event-title {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #e74c3c;
+        }
+
+        .event-description {
+            margin-bottom: 15px;
+        }
+
+        .close-event {
+            padding: 8px 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
     </style>
 </head>
-
 <body>
-    <div id="game-board"></div> <!-- Поле теперь занимает основное пространство -->
+    <div id="game-board"></div>
 
     <div class="controls">
         <h1>🚀 Dice & Survive</h1>
+        <div class="health-bar">
+            <div class="health-progress" id="health-bar"></div>
+        </div>
+        <div id="health-text">Здоровье: 100/100</div>
         <div id="dice-result">Готов к броску!</div>
         <button onclick="rollDice()">🎲 Бросить кубик</button>
     </div>
+
     <script>
-        let currentPosition = 1;
+        // Игровые константы
         const totalCells = 100;
+        const trapCells = [5, 15, 25, 35, 45, 55, 65, 75, 85, 95];
+        const trapDamage = 25;
+        let currentPosition = 1;
+        let health = 100;
         const gameBoard = document.getElementById('game-board');
 
+        // Инициализация игрового поля
         function createBoard() {
             gameBoard.innerHTML = '';
             for (let i = totalCells; i >= 1; i--) {
                 const cell = document.createElement('div');
                 cell.className = 'cell';
-                cell.textContent = `Клетка ${i}`;
+                
+                // Добавляем класс ловушки для специальных клеток
+                if (trapCells.includes(i)) {
+                    cell.classList.add('trap');
+                }
+                
                 if (i === currentPosition) {
                     cell.classList.add('current');
-                    cell.innerHTML = `👤 Клетка ${i}`;
+                    cell.innerHTML = `👤`;
                 }
                 gameBoard.appendChild(cell);
             }
-            // Один вызов с небольшой задержкой для стабильности
+            updateHealth();
             setTimeout(() => scrollToPlayer(), 50);
         }
 
+        // Обновление полоски здоровья
+        function updateHealth() {
+            const healthBar = document.getElementById('health-bar');
+            const healthText = document.getElementById('health-text');
+            healthBar.style.width = `${health}%`;
+            healthText.textContent = `Здоровье: ${health}/100`;
+            
+            // Меняем цвет в зависимости от уровня здоровья
+            if (health > 60) {
+                healthBar.style.background = '#2ecc71';
+            } else if (health > 30) {
+                healthBar.style.background = '#f39c12';
+            } else {
+                healthBar.style.background = '#e74c3c';
+                healthBar.style.animation = 'pulse 1s infinite';
+            }
+        }
+
+        // Прокрутка к игроку
         function scrollToPlayer() {
             const playerCell = document.querySelector('.current');
             if (playerCell) {
@@ -132,6 +217,20 @@
                 });
             }
         }
+
+        // Показ событий
+        function showEvent(title, description) {
+            const eventHtml = `
+                <div class="event-popup">
+                    <div class="event-title">${title}</div>
+                    <div class="event-description">${description}</div>
+                    <button class="close-event" onclick="this.parentElement.remove()">Понятно</button>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', eventHtml);
+        }
+
+        // Бросок кубика
         function rollDice() {
             const btn = document.querySelector('button');
             btn.disabled = true;
@@ -154,26 +253,30 @@
                 }
             }, 200);
         }
-        // Вызываем при создании поля и после каждого хода
+
+        // Перемещение игрока
         function movePlayer(steps) {
             const oldPosition = currentPosition;
             currentPosition = Math.min(oldPosition + steps, totalCells);
 
             const cells = document.querySelectorAll('.cell');
-
-            // 1. Убираем персонажа с предыдущей позиции
-            cells[totalCells - oldPosition].innerHTML = `Клетка ${oldPosition}`;
+            
+            // Очищаем предыдущую позицию
+            cells[totalCells - oldPosition].innerHTML = '';
             cells[totalCells - oldPosition].classList.remove('current');
 
             setTimeout(() => {
-                // 2. Добавляем персонажа на новую позицию
+                // Устанавливаем нового персонажа
                 cells[totalCells - currentPosition].classList.add('current');
-                cells[totalCells - currentPosition].innerHTML = `👤 Клетка ${currentPosition}`;
+                cells[totalCells - currentPosition].innerHTML = '👤';
                 scrollToPlayer();
+
+                // Проверяем события на новой клетке
+                checkCellEvent();
 
                 if (currentPosition === totalCells) {
                     setTimeout(() => {
-                        alert('🎉 Победа!');
+                        showEvent('🎉 Победа!', 'Вы успешно прошли все 100 клеток!');
                         if (window.Telegram && Telegram.WebApp) {
                             Telegram.WebApp.sendData(JSON.stringify({
                                 event: 'win',
@@ -184,11 +287,26 @@
                 }
             }, 300);
         }
+
+        // Проверка событий клетки
+        function checkCellEvent() {
+            if (trapCells.includes(currentPosition)) {
+                health = Math.max(0, health - trapDamage);
+                updateHealth();
+                
+                if (health <= 0) {
+                    showEvent('💀 Поражение', 'Вы потеряли все здоровья! Игра окончена.');
+                    document.querySelector('button').disabled = true;
+                } else {
+                    showEvent('⚠️ Ловушка', `Вы наступили на шипы и потеряли ${trapDamage} здоровья!`);
+                }
+            }
+        }
+
         // Инициализация
         Telegram.WebApp.ready();
         Telegram.WebApp.expand();
         createBoard();
     </script>
 </body>
-
 </html>
