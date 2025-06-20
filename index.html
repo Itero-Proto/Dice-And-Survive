@@ -1,130 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8" />
-  <title>Dice & Survive</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #f2f2f2;
-    }
+    <meta charset="UTF-8" />
+    <title>Dice & Survive</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f2f2f2;
+        }
 
-    #board-container {
-      height: 90vh;
-      overflow-y: auto;
-      border: 3px solid #444;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    }
+        #board-container {
+            height: 90vh;
+            overflow-y: auto;
+            border: 3px solid #444;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
 
-    #board {
-      display: flex;
-      flex-direction: column-reverse;
-      width: 120px;
-    }
+        #board {
+            display: flex;
+            flex-direction: column-reverse;
+            width: 120px;
+        }
 
-    .cell {
-      width: 120px;
-      height: 120px;
-      margin: 1px auto;
-      border-radius: 10px;
-      background: linear-gradient(145deg, #ffffff, #e6e6e6);
-      box-shadow: 2px 2px 5px #ccc, -2px -2px 5px #fff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: #444;
-      font-size: 1em;
-      position: relative;
-    }
+        .cell {
+            width: 120px;
+            height: 120px;
+            margin: 1px auto;
+            border-radius: 10px;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            box-shadow: 2px 2px 5px #ccc, -2px -2px 5px #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #444;
+            font-size: 1em;
+            position: relative;
+        }
 
-    .cell:nth-child(even) {
-      background: linear-gradient(145deg, #f0f0f0, #d8d8d8);
-    }
+        .cell:nth-child(even) {
+            background: linear-gradient(145deg, #f0f0f0, #d8d8d8);
+        }
 
-    .player {
-      position: absolute;
-      font-size: 2em;
-      transition: transform 0.4s ease;
-    }
+        .player {
+            position: absolute;
+            font-size: 2em;
+            transition: transform 0.4s ease;
+        }
 
-    #dice {
-      margin: 20px;
-      font-size: 2.5em;
-      cursor: pointer;
-      padding: 10px 20px;
-      background: linear-gradient(145deg, #ffffff, #e6e6e6);
-      border-radius: 12px;
-      box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
-      user-select: none;
-      transition: all 0.3s ease;
-    }
+        #dice {
+            margin: 20px;
+            font-size: 2.5em;
+            cursor: pointer;
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border-radius: 12px;
+            box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
 
-    #dice:hover {
-      transform: scale(1.1);
-    }
+        #dice:hover {
+            transform: scale(1.1);
+        }
 
-    #dice.rolling {
-      animation: roll 0.6s infinite linear;
-    }
+        #dice.rolling {
+            animation: roll 0.6s infinite linear;
+        }
 
-    @keyframes roll {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+        @keyframes roll {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
+
 <body>
 
-  <div id="board-container">
-    <div id="board"></div>
-  </div>
+    <div id="board-container">
+        <div id="board"></div>
+    </div>
 
-  <div id="dice">🎲</div>
+    <div id="dice">🎲</div>
 
-  <script>
-    const board = document.getElementById('board');
-    const dice = document.getElementById('dice');
-    const player = document.createElement('div');
-    player.className = 'player';
-    player.textContent = '🧍';
+    <script>
+        const board = document.getElementById('board');
+        const dice = document.getElementById('dice');
+        const player = document.createElement('div');
+        player.className = 'player';
+        player.textContent = '🧍';
 
-    let currentCell = 0;
+        let currentCell = 0;
 
-    // Создание клеток
-    for (let i = 1; i <= 100; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.index = i;
-      board.appendChild(cell);
-    }
+        // Создание клеток
+        for (let i = 1; i <= 100; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.index = i;
+            board.appendChild(cell);
+        }
 
-    const cells = document.querySelectorAll('.cell');
-    cells[currentCell].appendChild(player);
+        const cells = document.querySelectorAll('.cell');
+        cells[currentCell].appendChild(player);
+        // Прокрутка к стартовой клетке (1-й)
+        setTimeout(() => {
+            cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
+        }, 100);
 
-    function movePlayer(steps) {
-      let newPosition = Math.min(currentCell + steps, cells.length - 1);
-      currentCell = newPosition;
-      cells[newPosition].appendChild(player);
+        function movePlayer(steps) {
+            let newPosition = Math.min(currentCell + steps, cells.length - 1);
+            currentCell = newPosition;
+            cells[newPosition].appendChild(player);
 
-      // Прокрутка к новой клетке
-      cells[newPosition].scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
+            // Прокрутка к новой клетке
+            cells[newPosition].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
 
-    dice.addEventListener('click', () => {
-      dice.classList.add('rolling');
-      setTimeout(() => {
-        dice.classList.remove('rolling');
-        const roll = Math.floor(Math.random() * 6) + 1;
-        dice.textContent = `🎲 ${roll}`;
-        movePlayer(roll);
-      }, 800);
-    });
-  </script>
+        dice.addEventListener('click', () => {
+            dice.classList.add('rolling');
+            setTimeout(() => {
+                dice.classList.remove('rolling');
+                const roll = Math.floor(Math.random() * 6) + 1;
+                dice.textContent = `🎲 ${roll}`;
+                movePlayer(roll);
+            }, 800);
+        });
+    </script>
 </body>
+
 </html>
