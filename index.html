@@ -54,17 +54,15 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: center;
             height: 20px;
-            z-index: 1;
         }
 
         .character {
-            position: absolute;
+            position: fixed;
             font-size: 24px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 2;
-            top: 50%;
-            margin-top: -12px;
+            z-index: 10;
+            transition: transform 0.5s ease;
+            pointer-events: none;
+            will-change: transform;
         }
 
         .current-cell {
@@ -177,6 +175,7 @@
 </head>
 <body>
     <div id="game-board"></div>
+    <div class="character">👤</div>
 
     <div class="controls">
         <h1>🚀 Dice & Survive</h1>
@@ -199,8 +198,8 @@
         let health = 100;
         let trapCells = [];
         let healCells = [];
-        let character = null;
         const gameBoard = document.getElementById('game-board');
+        const character = document.querySelector('.character');
 
         // Инициализация игры
         function initGame() {
@@ -223,6 +222,7 @@
             }
             
             createBoard();
+            positionCharacter();
         }
 
         // Создание игрового поля
@@ -235,30 +235,28 @@
                 cell.className = 'cell';
                 cell.id = `cell-${i}`;
                 
-                // Создаем контейнер для персонажа внутри клетки
-                const characterContainer = document.createElement('div');
-                characterContainer.className = 'character-container';
-                characterContainer.style.position = 'relative';
-                characterContainer.style.height = '100%';
+                if (i === currentPosition) {
+                    cell.classList.add('current-cell');
+                }
                 
-                cell.appendChild(characterContainer);
                 gameBoard.appendChild(cell);
             }
             
-            // Создаем персонажа
-            character = document.createElement('div');
-            character.className = 'character';
-            character.textContent = '👤';
-            
-            // Помещаем персонажа в текущую клетку
-            const currentCell = document.getElementById(`cell-${currentPosition}`);
-            if (currentCell) {
-                currentCell.querySelector('.character-container').appendChild(character);
-                currentCell.classList.add('current-cell');
-            }
-            
             updateHealth();
-            scrollToPlayer();
+        }
+
+        // Позиционирование персонажа
+        function positionCharacter() {
+            const cell = document.getElementById(`cell-${currentPosition}`);
+            if (!cell) return;
+            
+            const cellRect = cell.getBoundingClientRect();
+            const boardRect = gameBoard.getBoundingClientRect();
+            
+            character.style.transform = `translate(
+                ${cellRect.left - boardRect.left + cellRect.width/2 - 12}px,
+                ${cellRect.top - boardRect.top + cellRect.height/2 - 12}px
+            )`;
         }
 
         // Прокрутка к игроку
@@ -279,7 +277,6 @@
             healthBar.style.width = `${health}%`;
             healthText.textContent = `Здоровье: ${health}/100`;
             
-            // Меняем цвет в зависимости от уровня здоровья
             if (health > 60) {
                 healthBar.style.background = '#2ecc71';
             } else if (health > 30) {
@@ -325,35 +322,25 @@
             }, 200);
         }
 
-        // Перемещение игрока
+        // Перемещение игрока с анимацией
         function movePlayer(steps) {
             const oldPosition = currentPosition;
             currentPosition = Math.min(oldPosition + steps, totalCells);
 
-            // Убираем персонажа со старой позиции
+            // Убираем подсветку со старой клетки
             const oldCell = document.getElementById(`cell-${oldPosition}`);
-            if (oldCell) {
-                oldCell.classList.remove('current-cell');
-                const oldCharacter = oldCell.querySelector('.character');
-                if (oldCharacter) {
-                    oldCharacter.remove();
-                }
-            }
+            if (oldCell) oldCell.classList.remove('current-cell');
 
-            // Добавляем персонажа на новую позицию
-            const newCell = document.getElementById(`cell-${currentPosition}`);
-            if (newCell) {
-                newCell.classList.add('current-cell');
-                const characterClone = character.cloneNode(true);
-                newCell.querySelector('.character-container').appendChild(characterClone);
-                character = characterClone;
-            }
-
-            // Анимация пошагового перемещения
+            // Анимация перемещения по шагам
             let step = 1;
             const moveInterval = setInterval(() => {
                 if (oldPosition + step > currentPosition) {
                     clearInterval(moveInterval);
+                    
+                    // Подсвечиваем новую клетку
+                    const newCell = document.getElementById(`cell-${currentPosition}`);
+                    if (newCell) newCell.classList.add('current-cell');
+                    
                     checkCellEvent();
                     scrollToPlayer();
                     
@@ -365,8 +352,20 @@
                     return;
                 }
                 
+                // Плавное перемещение к следующей клетке
+                const nextCell = document.getElementById(`cell-${oldPosition + step}`);
+                if (nextCell) {
+                    const cellRect = nextCell.getBoundingClientRect();
+                    const boardRect = gameBoard.getBoundingClientRect();
+                    
+                    character.style.transform = `translate(
+                        ${cellRect.left - boardRect.left + cellRect.width/2 - 12}px,
+                        ${cellRect.top - boardRect.top + cellRect.height/2 - 12}px
+                    )`;
+                }
+                
                 step++;
-            }, 100);
+            }, 150); // Интервал анимации (меньше = быстрее)
         }
 
         // Проверка событий клетки
