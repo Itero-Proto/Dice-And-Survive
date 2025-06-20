@@ -2,191 +2,277 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <title>Dice & Survive</title>
-    <style>
-        body {
-            margin: 0;
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: #f2f2f2;
-        }
+  <meta charset="UTF-8" />
+  <title>Dice & Survive</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: #f2f2f2;
+    }
 
-        #board-container {
-            height: 90vh;
-            overflow-y: auto;
-            border: 3px solid #444;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-        }
+    #health-bar {
+      width: 80%;
+      height: 20px;
+      background-color: #ddd;
+      border-radius: 10px;
+      margin: 15px 0;
+      overflow: hidden;
+      border: 2px solid #444;
+    }
 
-        #board {
-            display: flex;
-            flex-direction: column-reverse;
-            width: 130px;
-        }
+    #health-fill {
+      height: 100%;
+      width: 100%;
+      background-color: #4caf50;
+      transition: width 0.4s ease;
+    }
 
-        .cell {
-            width: 120px;
-            height: 120px;
-            margin: 1px auto;
-            border-radius: 10px;
+    #board-container {
+      height: 80vh;
+      overflow-y: auto;
+      border: 3px solid #444;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+    }
 
-            /* Светло-коричневый фон */
-            background-color: #e8d3b9;
-            /* можно попробовать #e0c8a0, #d8b98a и т.п. */
+    #board {
+      display: flex;
+      flex-direction: column-reverse;
+      width: 130px;
+    }
 
-            /* Контур */
-            border: 2px solid #a57c50;
+    .cell {
+      width: 120px;
+      height: 120px;
+      margin: 1px auto;
+      border-radius: 10px;
+      background-color: #e8d3b9;
+      border: 2px solid #a57c50;
+      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      color: #444;
+      font-size: 1em;
+      position: relative;
+    }
 
-            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: #444;
-            font-size: 1em;
-            position: relative;
-        }
+    .player {
+      position: absolute;
+      font-size: 2em;
+      animation: idle-bob 1s infinite ease-in-out;
+      z-index: 10;
+      transition: transform 0.3s ease;
+    }
 
-        .player {
-            position: absolute;
-            font-size: 2em;
-            animation: idle-bob 1s infinite ease-in-out;
-            z-index: 10;
-            transition: transform 0.3s ease;
-        }
+    @keyframes idle-bob {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
 
-        @keyframes idle-bob {
+    #dice {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5em;
+      cursor: pointer;
+      padding: 10px 20px;
+      background: linear-gradient(145deg, #ffffff, #e6e6e6);
+      border-radius: 12px;
+      box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
+      user-select: none;
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
 
-            0%,
-            100% {
-                transform: translateY(0);
-            }
+    #dice:hover {
+      transform: translateX(-50%) scale(1.1);
+    }
 
-            50% {
-                transform: translateY(-5px);
-            }
-        }
+    #dice.rolling {
+      animation: roll 0.6s infinite linear;
+    }
 
-        #dice {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 2.5em;
-            cursor: pointer;
-            padding: 10px 20px;
-            background: linear-gradient(145deg, #ffffff, #e6e6e6);
-            border-radius: 12px;
-            box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
-            user-select: none;
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
+    @keyframes roll {
+      0% { transform: translateX(-50%) rotate(0deg); }
+      100% { transform: translateX(-50%) rotate(360deg); }
+    }
 
+    #battle-popup, #game-over {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 200;
+    }
 
-        #dice:hover {
-            transform: translateX(-50%) scale(1.1);
-        }
-
-
-        #dice.rolling {
-            animation: roll 0.6s infinite linear;
-        }
-
-
-        @keyframes roll {
-            0% {
-                transform: translateX(-50%) rotate(0deg);
-            }
-
-            100% {
-                transform: translateX(-50%) rotate(360deg);
-            }
-        }
-    </style>
+    .popup-content {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 10px #000;
+    }
+  </style>
 </head>
 
 <body>
+  <div id="health-bar"><div id="health-fill"></div></div>
+  <div id="board-container"><div id="board"></div></div>
+  <div id="dice">🎲</div>
 
-    <div id="board-container">
-        <div id="board"></div>
+  <div id="battle-popup">
+    <div class="popup-content">
+      <p>Враг бросает кубик...</p>
+      <p id="enemy-roll"></p>
+      <p>Вы бросаете кубик...</p>
+      <p id="player-roll"></p>
+      <p id="battle-result"></p>
+      <button id="close-battle">OK</button>
     </div>
+  </div>
 
-    <div id="dice">🎲</div>
+  <div id="game-over">
+    <div class="popup-content">
+      <h2>☠️ Игра окончена</h2>
+      <p>Ваши HP закончились.</p>
+      <button onclick="location.reload()">Играть снова</button>
+    </div>
+  </div>
 
-    <script>
-        const board = document.getElementById('board');
-        const dice = document.getElementById('dice');
-        const player = document.createElement('div');
-        player.className = 'player';
-        player.textContent = '🧍';
+  <script>
+    const board = document.getElementById('board');
+    const dice = document.getElementById('dice');
+    const player = document.createElement('div');
+    player.className = 'player';
+    player.textContent = '🧍';
+    let currentCell = 0;
+    let playerHP = 100;
 
-        let currentCell = 0;
+    for (let i = 1; i <= 100; i++) {
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      cell.dataset.index = i;
+      board.appendChild(cell);
+    }
 
-        // Создание клеток
-        for (let i = 1; i <= 100; i++) {
-            const cell = document.createElement('div');
-            cell.className = 'cell';
-            cell.dataset.index = i;
-            board.appendChild(cell);
+    const cells = document.querySelectorAll('.cell');
+    cells[currentCell].appendChild(player);
+    setTimeout(() => {
+      cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
+    }, 100);
+
+    const enemyIndices = [];
+    while (enemyIndices.length < 20) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (!enemyIndices.includes(rand)) {
+        enemyIndices.push(rand);
+      }
+    }
+
+    function updateHealthBar() {
+      const healthFill = document.getElementById('health-fill');
+      healthFill.style.width = playerHP + '%';
+    }
+
+    function checkForBattle() {
+      if (enemyIndices.includes(currentCell)) {
+        const cell = cells[currentCell];
+        if (!cell.querySelector('.enemy')) {
+          const enemyIcon = document.createElement('span');
+          enemyIcon.className = 'enemy';
+          enemyIcon.textContent = '👹';
+          enemyIcon.style.fontSize = '1.5em';
+          cell.appendChild(enemyIcon);
         }
+        setTimeout(() => triggerBattle(), 400);
+      }
+    }
 
-        const cells = document.querySelectorAll('.cell');
+    function triggerBattle() {
+      const popup = document.getElementById('battle-popup');
+      const enemyRollElem = document.getElementById('enemy-roll');
+      const playerRollElem = document.getElementById('player-roll');
+      const resultElem = document.getElementById('battle-result');
+      const closeBtn = document.getElementById('close-battle');
+
+      popup.style.display = 'flex';
+      const enemyRoll = Math.floor(Math.random() * 6) + 1;
+      const playerRoll = Math.floor(Math.random() * 6) + 1;
+
+      enemyRollElem.textContent = `👹 Враг выбросил: ${enemyRoll}`;
+      playerRollElem.textContent = `🧍 Вы выбросили: ${playerRoll}`;
+
+      if (playerRoll >= enemyRoll) {
+        resultElem.textContent = '🎉 Вы победили!';
+      } else {
+        resultElem.textContent = '💀 Вы проиграли! -25 HP и шаг назад!';
+        playerHP = Math.max(0, playerHP - 25);
+        updateHealthBar();
+        if (playerHP === 0) {
+          setTimeout(() => {
+            document.getElementById('game-over').style.display = 'flex';
+          }, 800);
+        } else {
+          if (currentCell > 0) {
+            currentCell--;
+            cells[currentCell].appendChild(player);
+            cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            checkForBattle();
+          }
+        }
+      }
+
+      closeBtn.onclick = () => {
+        popup.style.display = 'none';
+      };
+    }
+
+    function movePlayer(steps) {
+      if (steps <= 0) return;
+      let stepCount = 0;
+
+      const interval = setInterval(() => {
+        if (stepCount >= steps || currentCell >= cells.length - 1) {
+          clearInterval(interval);
+          checkForBattle();
+          return;
+        }
+        currentCell++;
         cells[currentCell].appendChild(player);
-        // Прокрутка к стартовой клетке (1-й)
+        cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        stepCount++;
+      }, 400);
+    }
+
+    dice.addEventListener('click', () => {
+      if (dice.disabled || playerHP <= 0) return;
+
+      dice.disabled = true;
+      dice.classList.add('rolling');
+
+      setTimeout(() => {
+        dice.classList.remove('rolling');
+        const roll = Math.floor(Math.random() * 6) + 1;
+        dice.textContent = `🎲 ${roll}`;
+        movePlayer(roll);
         setTimeout(() => {
-            cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
-        }, 100);
-
-
-        function movePlayer(steps) {
-            if (steps <= 0) return;
-
-            let stepCount = 0;
-
-            const interval = setInterval(() => {
-                if (stepCount >= steps || currentCell >= cells.length - 1) {
-                    clearInterval(interval);
-                    return;
-                }
-
-                currentCell++;
-                cells[currentCell].appendChild(player);
-
-                // Прокрутка к игроку
-                cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                stepCount++;
-            }, 400); // задержка между шагами
-        }
-
-
-        dice.addEventListener('click', () => {
-            if (dice.disabled) return;
-
-            dice.disabled = true;
-            dice.classList.add('rolling');
-
-            setTimeout(() => {
-                dice.classList.remove('rolling');
-                const roll = Math.floor(Math.random() * 6) + 1;
-                dice.textContent = `🎲 ${roll}`;
-
-                movePlayer(roll);
-
-                // Включим кубик обратно после всех шагов
-                setTimeout(() => {
-                    dice.disabled = false;
-                }, roll * 400 + 500);
-
-            }, 800);
-        });
-
-    </script>
+          dice.disabled = false;
+        }, roll * 400 + 800);
+      }, 800);
+    });
+  </script>
 </body>
 
 </html>
