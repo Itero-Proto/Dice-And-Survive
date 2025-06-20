@@ -167,8 +167,6 @@
             setTimeout(() => {
                 // Добавляем класс только к новой позиции
                 cells[totalCells - currentPosition].classList.add('current');
-                // Очищаем предыдущую позицию
-                document.querySelector('.current')?.innerHTML = `Клетка ${oldPosition}`;
                 // Устанавливаем нового персонажа
                 cells[totalCells - currentPosition].innerHTML = `👤 Клетка ${currentPosition}`;
                 scrollToPlayer();
