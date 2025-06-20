@@ -95,15 +95,6 @@
       transform: translateX(-50%) scale(1.1);
     }
 
-    #dice.rolling {
-      animation: roll 0.6s infinite linear;
-    }
-
-    @keyframes roll {
-      0% { transform: translateX(-50%) rotate(0deg); }
-      100% { transform: translateX(-50%) rotate(360deg); }
-    }
-
     #battle-popup, #game-over {
       position: fixed;
       top: 0;
@@ -134,12 +125,12 @@
 
   <div id="battle-popup">
     <div class="popup-content">
-      <p>Враг бросает кубик...</p>
+      <p>👹 Враг бросил кубик:</p>
       <p id="enemy-roll"></p>
-      <p>Вы бросаете кубик...</p>
+      <p>🧍 Ваш ход! Бросьте кубик.</p>
       <p id="player-roll"></p>
       <p id="battle-result"></p>
-      <button id="close-battle">OK</button>
+      <button id="close-battle" style="display:none">OK</button>
     </div>
   </div>
 
@@ -159,6 +150,8 @@
     player.textContent = '🧍';
     let currentCell = 0;
     let playerHP = 100;
+    let inBattle = false;
+    let pendingEnemyRoll = null;
 
     for (let i = 1; i <= 100; i++) {
       const cell = document.createElement('div');
@@ -182,8 +175,7 @@
     }
 
     function updateHealthBar() {
-      const healthFill = document.getElementById('health-fill');
-      healthFill.style.width = playerHP + '%';
+      document.getElementById('health-fill').style.width = playerHP + '%';
     }
 
     function checkForBattle() {
@@ -196,25 +188,28 @@
           enemyIcon.style.fontSize = '1.5em';
           cell.appendChild(enemyIcon);
         }
-        setTimeout(() => triggerBattle(), 400);
+        setTimeout(() => startBattle(), 400);
       }
     }
 
-    function triggerBattle() {
+    function startBattle() {
+      inBattle = true;
       const popup = document.getElementById('battle-popup');
-      const enemyRollElem = document.getElementById('enemy-roll');
-      const playerRollElem = document.getElementById('player-roll');
+      document.getElementById('close-battle').style.display = 'none';
+      document.getElementById('player-roll').textContent = '';
+      document.getElementById('battle-result').textContent = '';
+      popup.style.display = 'flex';
+
+      pendingEnemyRoll = Math.floor(Math.random() * 6) + 1;
+      document.getElementById('enemy-roll').textContent = `${pendingEnemyRoll}`;
+    }
+
+    function resolveBattle(playerRoll) {
+      document.getElementById('player-roll').textContent = `${playerRoll}`;
       const resultElem = document.getElementById('battle-result');
       const closeBtn = document.getElementById('close-battle');
 
-      popup.style.display = 'flex';
-      const enemyRoll = Math.floor(Math.random() * 6) + 1;
-      const playerRoll = Math.floor(Math.random() * 6) + 1;
-
-      enemyRollElem.textContent = `👹 Враг выбросил: ${enemyRoll}`;
-      playerRollElem.textContent = `🧍 Вы выбросили: ${playerRoll}`;
-
-      if (playerRoll >= enemyRoll) {
+      if (playerRoll >= pendingEnemyRoll) {
         resultElem.textContent = '🎉 Вы победили!';
       } else {
         resultElem.textContent = '💀 Вы проиграли! -25 HP и шаг назад!';
@@ -234,15 +229,17 @@
         }
       }
 
+      closeBtn.style.display = 'inline-block';
       closeBtn.onclick = () => {
-        popup.style.display = 'none';
+        document.getElementById('battle-popup').style.display = 'none';
+        inBattle = false;
+        pendingEnemyRoll = null;
       };
     }
 
     function movePlayer(steps) {
       if (steps <= 0) return;
       let stepCount = 0;
-
       const interval = setInterval(() => {
         if (stepCount >= steps || currentCell >= cells.length - 1) {
           clearInterval(interval);
@@ -259,9 +256,21 @@
     dice.addEventListener('click', () => {
       if (dice.disabled || playerHP <= 0) return;
 
+      if (inBattle && pendingEnemyRoll !== null) {
+        dice.disabled = true;
+        dice.classList.add('rolling');
+        setTimeout(() => {
+          dice.classList.remove('rolling');
+          const playerRoll = Math.floor(Math.random() * 6) + 1;
+          dice.textContent = `🎲`;
+          resolveBattle(playerRoll);
+          dice.disabled = false;
+        }, 800);
+        return;
+      }
+
       dice.disabled = true;
       dice.classList.add('rolling');
-
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
