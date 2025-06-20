@@ -19,6 +19,7 @@
             flex-grow: 1;
             overflow-y: auto;
             padding: 10px;
+            position: relative;
         }
 
         .controls {
@@ -53,14 +54,17 @@
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             text-align: center;
             height: 20px;
+            z-index: 1;
         }
 
-        .cell-with-character::after {
-            content: '👤';
+        .character {
             position: absolute;
+            font-size: 24px;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 24px;
+            z-index: 2;
+            top: 50%;
+            margin-top: -12px;
         }
 
         .current-cell {
@@ -195,6 +199,7 @@
         let health = 100;
         let trapCells = [];
         let healCells = [];
+        let character = null;
         const gameBoard = document.getElementById('game-board');
 
         // Инициализация игры
@@ -230,11 +235,26 @@
                 cell.className = 'cell';
                 cell.id = `cell-${i}`;
                 
-                if (i === currentPosition) {
-                    cell.classList.add('current-cell', 'cell-with-character');
-                }
+                // Создаем контейнер для персонажа внутри клетки
+                const characterContainer = document.createElement('div');
+                characterContainer.className = 'character-container';
+                characterContainer.style.position = 'relative';
+                characterContainer.style.height = '100%';
                 
+                cell.appendChild(characterContainer);
                 gameBoard.appendChild(cell);
+            }
+            
+            // Создаем персонажа
+            character = document.createElement('div');
+            character.className = 'character';
+            character.textContent = '👤';
+            
+            // Помещаем персонажа в текущую клетку
+            const currentCell = document.getElementById(`cell-${currentPosition}`);
+            if (currentCell) {
+                currentCell.querySelector('.character-container').appendChild(character);
+                currentCell.classList.add('current-cell');
             }
             
             updateHealth();
@@ -313,21 +333,20 @@
             // Убираем персонажа со старой позиции
             const oldCell = document.getElementById(`cell-${oldPosition}`);
             if (oldCell) {
-                oldCell.classList.remove('cell-with-character');
+                oldCell.classList.remove('current-cell');
+                const oldCharacter = oldCell.querySelector('.character');
+                if (oldCharacter) {
+                    oldCharacter.remove();
+                }
             }
 
             // Добавляем персонажа на новую позицию
             const newCell = document.getElementById(`cell-${currentPosition}`);
             if (newCell) {
-                newCell.classList.add('cell-with-character');
-                
-                // Убираем подсветку со всех клеток
-                document.querySelectorAll('.current-cell').forEach(el => {
-                    el.classList.remove('current-cell');
-                });
-                
-                // Подсвечиваем текущую клетку
                 newCell.classList.add('current-cell');
+                const characterClone = character.cloneNode(true);
+                newCell.querySelector('.character-container').appendChild(characterClone);
+                character = characterClone;
             }
 
             // Анимация пошагового перемещения
@@ -346,17 +365,8 @@
                     return;
                 }
                 
-                // Временное отображение перемещения
-                const tempCell = document.getElementById(`cell-${oldPosition + step}`);
-                if (tempCell) {
-                    tempCell.classList.add('cell-with-character');
-                    setTimeout(() => {
-                        tempCell.classList.remove('cell-with-character');
-                    }, 200);
-                }
-                
                 step++;
-            }, 300);
+            }, 100);
         }
 
         // Проверка событий клетки
