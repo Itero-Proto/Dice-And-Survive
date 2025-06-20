@@ -52,7 +52,6 @@
             border: 1px solid #ddd;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
             text-align: center;
             height: 20px;
         }
@@ -64,6 +63,7 @@
             z-index: 10;
             left: 50%;
             transform: translateX(-50%);
+            pointer-events: none;
         }
 
         .current-cell {
@@ -233,11 +233,10 @@
                 const cell = document.createElement('div');
                 cell.className = 'cell';
                 cell.id = `cell-${i}`;
-                cell.textContent = i; // Номер клетки
                 gameBoard.appendChild(cell);
             }
             
-            // Создаем персонажа
+            // Создаем и позиционируем персонажа
             character = document.createElement('div');
             character.className = 'character';
             character.textContent = '👤';
