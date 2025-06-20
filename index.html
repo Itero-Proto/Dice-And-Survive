@@ -2,268 +2,292 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
-  <title>Dice & Survive</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      background: #f2f2f2;
-    }
+    <meta charset="UTF-8" />
+    <title>Dice & Survive</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #f2f2f2;
+        }
 
-    #health-bar {
-      width: 80%;
-      height: 20px;
-      background-color: #ddd;
-      border-radius: 10px;
-      margin: 15px 0;
-      overflow: hidden;
-      border: 2px solid #444;
-    }
+        .heal-popup {
+            position: absolute;
+            right: -80px;
+            top: 10px;
+            background: #fff;
+            border: 1px solid #aaa;
+            padding: 4px 6px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
+            animation: fadeUp 1.5s forwards;
+        }
 
-    #health-fill {
-      height: 100%;
-      width: 100%;
-      background-color: #4caf50;
-      transition: width 0.4s ease;
-    }
+        #health-bar {
+            width: 80%;
+            height: 20px;
+            background-color: #ddd;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 2px solid #444;
+        }
 
-    #board-container {
-      height: 80vh;
-      overflow-y: auto;
-      border: 3px solid #444;
-      border-radius: 12px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    }
+        #health-fill {
+            height: 100%;
+            width: 100%;
+            background-color: #4caf50;
+            transition: width 0.4s ease;
+        }
 
-    #board {
-      display: flex;
-      flex-direction: column-reverse;
-      width: 130px;
-    }
+        #board-container {
+            height: 80vh;
+            overflow-y: auto;
+            border: 3px solid #444;
+            border-radius: 12px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+        }
 
-    .cell {
-      width: 120px;
-      height: 120px;
-      margin: 1px auto;
-      border-radius: 10px;
-      background-color: #e8d3b9;
-      border: 2px solid #a57c50;
-      box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: bold;
-      color: #444;
-      font-size: 1em;
-      position: relative;
-    }
+        #board {
+            display: flex;
+            flex-direction: column-reverse;
+            width: 130px;
+        }
 
-    .player {
-      position: absolute;
-      font-size: 2em;
-      animation: idle-bob 1s infinite ease-in-out;
-      z-index: 10;
-      transition: transform 0.3s ease;
-    }
+        .cell {
+            width: 120px;
+            height: 120px;
+            margin: 1px auto;
+            border-radius: 10px;
+            background-color: #e8d3b9;
+            border: 2px solid #a57c50;
+            box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: #444;
+            font-size: 1em;
+            position: relative;
+        }
 
-    .heal-popup {
-      position: absolute;
-      right: -80px;
-      top: 10px;
-      background: #fff;
-      border: 1px solid #aaa;
-      padding: 4px 6px;
-      border-radius: 6px;
-      font-size: 0.8em;
-      box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.2);
-      animation: fadeUp 1.5s forwards;
-    }
+        .player {
+            position: absolute;
+            font-size: 2em;
+            animation: idle-bob 1s infinite ease-in-out;
+            z-index: 10;
+            transition: transform 0.3s ease;
+        }
 
-    @keyframes fadeUp {
-      0% { opacity: 0; transform: translateY(10px); }
-      50% { opacity: 1; }
-      100% { opacity: 0; transform: translateY(-10px); }
-    }
 
-    @keyframes idle-bob {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
-    }
 
-    #dice {
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-size: 2.5em;
-      cursor: pointer;
-      padding: 10px 20px;
-      background: linear-gradient(145deg, #ffffff, #e6e6e6);
-      border-radius: 12px;
-      box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
-      user-select: none;
-      transition: all 0.3s ease;
-      z-index: 300;
-    }
+        @keyframes fadeUp {
+            0% {
+                opacity: 0;
+                transform: translateY(10px);
+            }
 
-    #dice:hover {
-      transform: translateX(-50%) scale(1.1);
-    }
+            50% {
+                opacity: 1;
+            }
 
-    #dice.rolling {
-      animation: roll 0.6s infinite linear;
-    }
+            100% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+        }
 
-    @keyframes roll {
-      0% {
-        transform: translateX(-50%) rotate(0deg);
-      }
-      100% {
-        transform: translateX(-50%) rotate(360deg);
-      }
-    }
-  </style>
+        @keyframes idle-bob {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-5px);
+            }
+        }
+
+        #dice {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2.5em;
+            cursor: pointer;
+            padding: 10px 20px;
+            background: linear-gradient(145deg, #ffffff, #e6e6e6);
+            border-radius: 12px;
+            box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
+            user-select: none;
+            transition: all 0.3s ease;
+            z-index: 300;
+        }
+
+        #dice:hover {
+            transform: translateX(-50%) scale(1.1);
+        }
+
+        #dice.rolling {
+            animation: roll 0.6s infinite linear;
+        }
+
+        @keyframes roll {
+            0% {
+                transform: translateX(-50%) rotate(0deg);
+            }
+
+            100% {
+                transform: translateX(-50%) rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
 <body>
-  <div id="health-bar"><div id="health-fill"></div></div>
-  <div id="board-container"><div id="board"></div></div>
-  <div id="dice">🎲</div>
+    <div id="health-bar">
+        <div id="health-fill"></div>
+    </div>
+    <div id="board-container">
+        <div id="board"></div>
+    </div>
+    <div id="dice">🎲</div>
 
-  <script>
-    const board = document.getElementById('board');
-    const dice = document.getElementById('dice');
-    const player = document.createElement('div');
-    player.className = 'player';
-    player.textContent = '🧍';
+    <script>
+        const board = document.getElementById('board');
+        const dice = document.getElementById('dice');
+        const player = document.createElement('div');
+        player.className = 'player';
+        player.textContent = '🧍';
 
-    let currentCell = 0;
-    let playerHP = 100;
+        let currentCell = 0;
+        let playerHP = 100;
 
-    for (let i = 1; i <= 100; i++) {
-      const cell = document.createElement('div');
-      cell.className = 'cell';
-      cell.dataset.index = i;
-      board.appendChild(cell);
-    }
-
-    const cells = document.querySelectorAll('.cell');
-    cells[currentCell].appendChild(player);
-    setTimeout(() => {
-      cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
-    }, 100);
-
-    function updateHealthBar() {
-      document.getElementById('health-fill').style.width = playerHP + '%';
-    }
-
-    // HEALTH POTIONS
-    const healthCells = [];
-    const enemyCells = [];
-    while (enemyCells.length < 20) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (!enemyCells.includes(rand)) enemyCells.push(rand);
-    }
-
-    while (healthCells.length < 20) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (!healthCells.includes(rand) && !enemyCells.includes(rand)) healthCells.push(rand);
-    }
-
-    function checkForHealthPotion() {
-      const cell = cells[currentCell];
-      if (healthCells.includes(currentCell)) {
-        if (!cell.querySelector('.heal-icon')) {
-          const heal = document.createElement('span');
-          heal.textContent = '❤️';
-          heal.className = 'heal-icon';
-          cell.appendChild(heal);
-
-          const popup = document.createElement('div');
-          popup.className = 'heal-popup';
-          popup.textContent = '+25 HP ❤️';
-          cell.appendChild(popup);
-
-          setTimeout(() => {
-            popup.remove();
-            heal.remove();
-          }, 1500);
-
-          playerHP = Math.min(100, playerHP + 25);
-          updateHealthBar();
-        }
-      }
-    }
-
-    function checkForEnemy() {
-      const cell = cells[currentCell];
-      if (enemyCells.includes(currentCell)) {
-        if (!cell.querySelector('.enemy')) {
-          const enemy = document.createElement('span');
-          enemy.textContent = '👹';
-          enemy.className = 'enemy';
-          cell.appendChild(enemy);
+        for (let i = 1; i <= 100; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'cell';
+            cell.dataset.index = i;
+            board.appendChild(cell);
         }
 
-        // Мини-бой
-        const enemyRoll = Math.floor(Math.random() * 6) + 1;
-        alert(`👹 Enemy rolls: ${enemyRoll}`);
-
-        const playerRoll = Math.floor(Math.random() * 6) + 1;
-        alert(`🧍 You roll: ${playerRoll}`);
-
-        if (playerRoll < enemyRoll) {
-          playerHP = Math.max(0, playerHP - 25);
-          updateHealthBar();
-          alert('❌ You lost the battle and step back!');
-          if (currentCell > 0) currentCell--;
-          cells[currentCell].appendChild(player);
-        } else {
-          alert('✅ You won the battle!');
-        }
-      }
-    }
-
-    function movePlayer(steps) {
-      if (steps <= 0) return;
-      let stepCount = 0;
-      const interval = setInterval(() => {
-        if (stepCount >= steps || currentCell >= cells.length - 1) {
-          clearInterval(interval);
-          checkForHealthPotion();
-          checkForEnemy();
-          return;
-        }
-        currentCell++;
+        const cells = document.querySelectorAll('.cell');
         cells[currentCell].appendChild(player);
-        cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
-        stepCount++;
-      }, 400);
-    }
-
-    dice.addEventListener('click', () => {
-      if (dice.disabled || playerHP <= 0) return;
-
-      dice.disabled = true;
-      dice.classList.add('rolling');
-
-      setTimeout(() => {
-        dice.classList.remove('rolling');
-        const roll = Math.floor(Math.random() * 6) + 1;
-        dice.textContent = `🎲 ${roll}`;
-        movePlayer(roll);
         setTimeout(() => {
-          dice.disabled = false;
-        }, roll * 400 + 800);
-      }, 800);
-    });
+            cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
+        }, 100);
 
-    updateHealthBar();
-  </script>
+        function updateHealthBar() {
+            document.getElementById('health-fill').style.width = playerHP + '%';
+        }
+
+        // HEALTH POTIONS
+        const healthCells = [];
+        const enemyCells = [];
+        while (enemyCells.length < 20) {
+            let rand = Math.floor(Math.random() * 98) + 1;
+            if (!enemyCells.includes(rand)) enemyCells.push(rand);
+        }
+
+        while (healthCells.length < 20) {
+            let rand = Math.floor(Math.random() * 98) + 1;
+            if (!healthCells.includes(rand) && !enemyCells.includes(rand)) healthCells.push(rand);
+        }
+
+        function checkForHealthPotion() {
+            const cell = cells[currentCell];
+            if (healthCells.includes(currentCell)) {
+                if (!cell.querySelector('.heal-icon')) {
+                    const heal = document.createElement('span');
+                    heal.textContent = '❤️';
+                    heal.className = 'heal-icon';
+                    cell.appendChild(heal);
+
+                    const popup = document.createElement('div');
+                    popup.className = 'heal-popup';
+                    popup.textContent = '+25 HP ❤️';
+                    cell.appendChild(popup);
+
+                    setTimeout(() => {
+                        popup.remove();
+                        heal.remove();
+                    }, 1500);
+
+                    playerHP = Math.min(100, playerHP + 25);
+                    updateHealthBar();
+                }
+            }
+        }
+
+        function checkForEnemy() {
+            const cell = cells[currentCell];
+            if (enemyCells.includes(currentCell)) {
+                if (!cell.querySelector('.enemy')) {
+                    const enemy = document.createElement('span');
+                    enemy.textContent = '👹';
+                    enemy.className = 'enemy';
+                    cell.appendChild(enemy);
+                }
+
+                // Мини-бой
+                const enemyRoll = Math.floor(Math.random() * 6) + 1;
+                alert(`👹 Enemy rolls: ${enemyRoll}`);
+
+                const playerRoll = Math.floor(Math.random() * 6) + 1;
+                alert(`🧍 You roll: ${playerRoll}`);
+
+                if (playerRoll < enemyRoll) {
+                    playerHP = Math.max(0, playerHP - 25);
+                    updateHealthBar();
+                    alert('❌ You lost the battle and step back!');
+                    if (currentCell > 0) currentCell--;
+                    cells[currentCell].appendChild(player);
+                } else {
+                    alert('✅ You won the battle!');
+                }
+            }
+        }
+
+        function movePlayer(steps) {
+            if (steps <= 0) return;
+            let stepCount = 0;
+            const interval = setInterval(() => {
+                if (stepCount >= steps || currentCell >= cells.length - 1) {
+                    clearInterval(interval);
+                    checkForHealthPotion();
+                    checkForEnemy();
+                    return;
+                }
+                currentCell++;
+                cells[currentCell].appendChild(player);
+                cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+                stepCount++;
+            }, 400);
+        }
+
+        dice.addEventListener('click', () => {
+            if (dice.disabled || playerHP <= 0) return;
+
+            dice.disabled = true;
+            dice.classList.add('rolling');
+
+            setTimeout(() => {
+                dice.classList.remove('rolling');
+                const roll = Math.floor(Math.random() * 6) + 1;
+                dice.textContent = `🎲 ${roll}`;
+                movePlayer(roll);
+                setTimeout(() => {
+                    dice.disabled = false;
+                }, roll * 400 + 800);
+            }, 800);
+        });
+
+        updateHealthBar();
+    </script>
 </body>
 
 </html>
