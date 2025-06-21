@@ -291,15 +291,19 @@
       const cell = cells[currentCell];
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
         usedHealthCells.add(currentCell);
+
+        // Всплывающее сообщение о зелье
         const popup = document.createElement('div');
         popup.className = 'heal-popup';
-        popup.innerHTML = '<span style="margin-right:5px">❤️</span> +25 HP';
+        popup.innerHTML = '❤️ Найдено зелье, которое восстановило 25 единиц жизни';
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
+
         playerHP = Math.min(100, playerHP + 25);
         updateHealthBar();
       }
     }
+
 
     function checkForEnemy() {
       const cell = cells[currentCell];
