@@ -69,8 +69,13 @@
     }
 
     @keyframes flashRed {
-      0% { background-color: #ff9999; }
-      100% { background-color: #e8d3b9; }
+      0% {
+        background-color: #ff9999;
+      }
+
+      100% {
+        background-color: #e8d3b9;
+      }
     }
 
     .player {
@@ -81,7 +86,8 @@
       transition: transform 0.3s ease;
     }
 
-    .heal-popup, .trap-popup {
+    .heal-popup,
+    .trap-popup {
       position: absolute;
       right: 0px;
       top: 0px;
@@ -89,7 +95,7 @@
       border-radius: 8px;
       font-size: 0.9em;
       font-weight: bold;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
       animation: fadeUp 4s forwards;
       z-index: 20;
     }
@@ -107,15 +113,37 @@
     }
 
     @keyframes fadeUp {
-      0% { opacity: 0; transform: translateY(10px); }
-      10% { opacity: 1; transform: translateY(0); }
-      80% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(-10px); }
+      0% {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      10% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      80% {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
     }
 
     @keyframes idle-bob {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
     }
 
     #dice {
@@ -143,11 +171,17 @@
     }
 
     @keyframes roll {
-      0% { transform: translateX(-50%) rotate(0deg); }
-      100% { transform: translateX(-50%) rotate(360deg); }
+      0% {
+        transform: translateX(-50%) rotate(0deg);
+      }
+
+      100% {
+        transform: translateX(-50%) rotate(360deg);
+      }
     }
 
-    #battleModal, #gameOverModal {
+    #battleModal,
+    #gameOverModal {
       position: fixed;
       top: 50%;
       left: 50%;
@@ -161,7 +195,8 @@
       text-align: center;
     }
 
-    #closeBattleBtn, #restartBtn {
+    #closeBattleBtn,
+    #restartBtn {
       margin-top: 15px;
       padding: 6px 16px;
       font-weight: bold;
@@ -172,9 +207,14 @@
     }
   </style>
 </head>
+
 <body>
-  <div id="health-bar"><div id="health-fill"></div></div>
-  <div id="board-container"><div id="board"></div></div>
+  <div id="health-bar">
+    <div id="health-fill"></div>
+  </div>
+  <div id="board-container">
+    <div id="board"></div>
+  </div>
   <div id="dice">🎲</div>
 
   <div id="battleModal">
@@ -292,18 +332,36 @@
     function checkForTrap() {
       const cell = cells[currentCell];
       if (trapCells.includes(currentCell)) {
+
+        // Добавим иконку шипов, если её ещё нет
+        if (!cell.querySelector('.trap')) {
+          const trap = document.createElement('span');
+          trap.textContent = '🪤';
+          trap.className = 'trap';
+          cell.appendChild(trap);
+        }
+
+        // Всплывающее сообщение
         const popup = document.createElement('div');
         popup.className = 'trap-popup';
-        popup.innerHTML = '<span style="margin-right:5px">🩸</span> Ты ранен!';
+        popup.innerHTML = '🪤🩸 Ты попал в ловушку с шипами и потерял 25 единиц здоровья!';
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
+
         playerHP = Math.max(0, playerHP - 25);
         flashCell(cell);
         if (currentCell > 0) currentCell--;
         cells[currentCell].appendChild(player);
         updateHealthBar();
+
+        // Проверка на конец игры
+        if (playerHP <= 0) {
+          alert("💀 Игра окончена! У вас закончились жизни.");
+          dice.disabled = true;
+        }
       }
     }
+
 
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
@@ -351,4 +409,5 @@
     updateHealthBar();
   </script>
 </body>
+
 </html>
