@@ -353,7 +353,6 @@
 
         playerHP = Math.max(0, playerHP - 25);
         flashCell(cell);
-        if (currentCell > 0) currentCell--;
         cells[currentCell].appendChild(player);
         updateHealthBar();
 
