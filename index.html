@@ -321,7 +321,6 @@
           playerHP = Math.max(0, playerHP - 25);
           flashCell(cell);
           battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
-          if (currentCell > 0) currentCell--;
           cells[currentCell].appendChild(player);
         } else {
           battleOutcome.textContent = `✅ Ты победил!`;
@@ -340,7 +339,7 @@
         // Добавим иконку шипов, если её ещё нет
         if (!cell.querySelector('.trap')) {
           const trap = document.createElement('span');
-          trap.textContent = '🪤';
+          trap.textContent = '🕳️';
           trap.className = 'trap';
           cell.appendChild(trap);
         }
