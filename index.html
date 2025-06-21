@@ -379,7 +379,10 @@
       if (playerLostBattle && currentCell > 0) {
         movePlayer(-1); // плавный отступ назад
       }
+
+      playerLostBattle = false; // ← обязательно!
     };
+
 
 
     restartBtn.onclick = () => {
