@@ -377,7 +377,14 @@
         dice.disabled = true;
         gameOverModal.style.display = 'block';
       }
-      
+      updateGoldCounter();
+
+    }
+    function updateGoldCounter() {
+      const counter = document.getElementById('goldCounter');
+      counter.textContent = `💰 ${goldCount}`;
+      counter.classList.add('flash');
+      setTimeout(() => counter.classList.remove('flash'), 400);
     }
 
     function showWinModal() {
@@ -574,13 +581,8 @@
         }, roll * 400 + 800);
       }, 800);
     });
-    function updateGoldCounter() {
-      const counter = document.getElementById('goldCounter');
-      counter.textContent = `💰 ${goldCount}`;
-      counter.classList.add('flash');
-      setTimeout(() => counter.classList.remove('flash'), 400);
-    }
 
+    updateHealthBar();
   </script>
 
 </body>
