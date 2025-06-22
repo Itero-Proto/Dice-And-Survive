@@ -350,7 +350,7 @@
     const winRestartBtn = document.getElementById('winRestartBtn');
     let diceRollsCount = 0;
     let goldCount = 0; // счётчик золота
-
+    let inBattleMode = false;
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
     const player = document.createElement('div');
@@ -497,7 +497,6 @@
       }
     }
 
-
     function checkForEnemy() {
       const cell = cells[currentCell];
       if (enemyCells.includes(currentCell)) {
@@ -508,17 +507,14 @@
           cell.appendChild(enemy);
         }
 
-        // Показать окно боя без броска
-        battleInfo.textContent = `Ты встретил врага! Приготовься к броску.`;
+        battleInfo.textContent = `Ты встретил врага! Брось кубик.`;
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
-        dice.style.display = 'none';
-        rollBattleBtn.style.display = 'inline-block';
+        dice.style.display = 'block'; // кубик видим
         closeBattleBtn.style.display = 'none';
-        awaitingRoll = true;
+        inBattleMode = true; // включаем боевой режим
       }
     }
-
 
     function checkForTrap() {
       const cell = cells[currentCell];
@@ -603,19 +599,58 @@
 
     dice.addEventListener('click', () => {
       if (dice.disabled || playerHP <= 0) return;
+
+      if (inBattleMode) {
+        // Бросок кубика в бою
+        dice.disabled = true;
+        dice.classList.add('rolling');
+
+        setTimeout(() => {
+          dice.classList.remove('rolling');
+
+          const enemyRoll = Math.floor(Math.random() * 6) + 1;
+          const playerRoll = Math.floor(Math.random() * 6) + 1;
+
+          battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
+
+          if (playerRoll < enemyRoll) {
+            playerHP = Math.max(0, playerHP - 25);
+            flashCell(cells[currentCell]);
+            battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
+            playerLostBattle = true;
+          } else {
+            battleOutcome.textContent = `✅ Ты победил!`;
+            playerLostBattle = false;
+          }
+
+          updateHealthBar();
+          closeBattleBtn.style.display = 'inline-block';
+          dice.disabled = false;
+          dice.style.display = 'none';
+          inBattleMode = false;
+
+        }, 800);
+
+        return;
+      }
+
+      // Обычный бросок (не бой)
       diceRollsCount++;
       dice.disabled = true;
       dice.classList.add('rolling');
+
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
         dice.textContent = `🎲 ${roll}`;
         movePlayer(roll);
+
         setTimeout(() => {
           dice.disabled = false;
         }, roll * 400 + 800);
       }, 800);
     });
+
 
     updateHealthBar();
   </script>
