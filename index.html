@@ -294,8 +294,8 @@
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
         usedHealthCells.add(currentCell);
         // Быстрое моргание клетки
-        cell.classList.add('quick-flash');
-        setTimeout(() => cell.classList.remove('quick-flash'), 1500);
+        cell.classList.add('potion');
+        setTimeout(() => cell.classList.remove('potion'), 1500);
         // Всплывающее сообщение о зелье
         const popup = document.createElement('div');
         popup.className = 'heal-popup';
