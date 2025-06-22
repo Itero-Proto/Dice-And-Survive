@@ -411,6 +411,16 @@
   </div>
 
   <script>
+    const diceSound = document.getElementById('diceSound');
+    const battleSound = document.getElementById('battleSound');
+    const potionSound = document.getElementById('potionSound');
+    const goldSound = document.getElementById('goldSound');
+    const trapSound = document.getElementById('trapSound');
+    const winBattleSound = document.getElementById('winBattleSound');
+    const gameOverSound = document.getElementById('gameOverSound');
+    const battleLostSound = document.getElementById('battleLostSound');
+    const winGameSound = document.getElementById('winGameSound');
+
     const winModal = document.getElementById('winModal');
     const finalStats = document.getElementById('finalStats');
     const winRestartBtn = document.getElementById('winRestartBtn');
@@ -455,6 +465,7 @@
       if (playerHP <= 0) {
         dice.disabled = true;
         gameOverModal.style.display = 'block';
+        gameOverSound.play();
       }
 
     }
@@ -464,6 +475,7 @@
 
       if (changed) {
         counter.classList.add('flash');
+        goldSound.play();
         setTimeout(() => counter.classList.remove('flash'), 400);
       }
     }
@@ -481,7 +493,7 @@
       } else {
         achievement = "🏆 Жадный до победы!";
       }
-
+      winGameSound.play();
       finalStats.innerHTML = `Пройдено за ${diceRollsCount} дней<br>💰: ${goldCount}<br>${achievement}`;
       winModal.style.display = 'block';
 
@@ -535,6 +547,7 @@
           potionIcon.className = 'potion-icon';
           potionIcon.textContent = '🧪';
           cell.appendChild(potionIcon);
+          potionSound.play();
         }
 
         cell.classList.add('potion');
@@ -556,7 +569,7 @@
         gold.textContent = '💰';
         gold.className = 'gold';
         cell.appendChild(gold);
-
+        goldSound.play();
         const goldGain = Math.floor(Math.random() * 5) + 1; // от 1 до 5
         goldCount += goldGain;
         updateGoldCounter(true); // ← вот ЭТО сюда
@@ -577,6 +590,7 @@
           enemy.textContent = '👹';
           enemy.className = 'enemy';
           cell.appendChild(enemy);
+          battleSound.play();
         }
 
         battleInfo.textContent = `⚔️ Ты встретил врага! Бросай кубик`;
@@ -596,6 +610,7 @@
           trap.textContent = '🕳️';
           trap.className = 'trap';
           cell.appendChild(trap);
+          trapSound.play();
         }
         flashCell(cell);
         const popup = document.createElement('div');
@@ -653,7 +668,7 @@
         // Бросок кубика в бою
         dice.disabled = true;
         dice.classList.add('rolling');
-
+        diceSound.play();
         setTimeout(() => {
           dice.classList.remove('rolling');
 
@@ -666,9 +681,11 @@
             playerHP = Math.max(0, playerHP - 25);
             flashCell(cells[currentCell]);
             battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
+            battleLostSound.play();
             playerLostBattle = true;
           } else {
             battleOutcome.textContent = `✅ Ты победил!`;
+            winBattleSound.play();
             playerLostBattle = false;
           }
 
@@ -687,7 +704,7 @@
       diceRollsCount++;
       dice.disabled = true;
       dice.classList.add('rolling');
-
+      diceSound.play();
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
@@ -703,6 +720,15 @@
 
     updateHealthBar();
   </script>
+  <audio id="diceSound" src="sounds/dice-roll.mp3"></audio>
+  <audio id="battleSound" src="sounds/battle.mp3"></audio>
+  <audio id="potionSound" src="sounds/potion.mp3"></audio>
+  <audio id="goldSound" src="sounds/gold.mp3"></audio>
+  <audio id="trapSound" src="sounds/trap.mp3"></audio>
+  <audio id="winGameSound" src="sounds/winGame.mp3"></audio>
+  <audio id="winBattleSound" src="sounds/winBattle.mp3"></audio>
+  <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
+  <audio id="battleLostSound" src="sounds/battleLost.mp3"></audio>
 
 </body>
 
