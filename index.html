@@ -112,6 +112,21 @@
       color: #d32f2f;
     }
 
+    .cell.treasure {
+      background: radial-gradient(circle, #ffd700 20%, #e8d3b9 80%);
+      animation: glow 2s infinite alternate;
+    }
+
+    @keyframes glow {
+      from {
+        box-shadow: 0 0 5px #ffd700;
+      }
+
+      to {
+        box-shadow: 0 0 20px #ffd700;
+      }
+    }
+
     @keyframes fadeUp {
       0% {
         opacity: 0;
@@ -299,7 +314,8 @@
         popup.innerHTML = '❤️ Найдено зелье, которое восстановило 25 единиц жизни';
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
-
+        cell.classList.add('treasure');
+        setTimeout(() => cell.classList.remove('treasure'), 2000);
         playerHP = Math.min(100, playerHP + 25);
         updateHealthBar();
       }
