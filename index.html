@@ -334,6 +334,8 @@
   <div id="battleModal">
     <div id="battleInfo"></div>
     <div id="battleOutcome"></div>
+    <button id="rollBattleBtn">БРОСИТЬ КУБИК</button>
+
     <button id="closeBattleBtn">OK</button>
   </div>
 
@@ -494,7 +496,6 @@
         setTimeout(() => popup.remove(), 4000);
       }
     }
-
     function checkForEnemy() {
       const cell = cells[currentCell];
       if (enemyCells.includes(currentCell)) {
@@ -513,6 +514,7 @@
         inBattleMode = true; // включаем боевой режим
       }
     }
+
 
     function checkForTrap() {
       const cell = cells[currentCell];
