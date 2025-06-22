@@ -435,12 +435,8 @@
         popup.innerHTML = `💰 Найдено золото: +${gained}`;
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
-
-        // Обновление интерфейса
-        document.getElementById('gold-display').textContent = `💰 ${goldCount}`;
       }
     }
-
 
     function checkForEnemy() {
       const cell = cells[currentCell];
