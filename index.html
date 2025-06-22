@@ -94,15 +94,16 @@
     .heal-popup,
     .trap-popup {
       position: fixed;
-      right: 0px;
-      top: 50%;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: 0.9em;
-      font-weight: bold;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-      animation: fadeUp 4s forwards;
-      z-index: 20;
+      top: 10%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      border: 3px solid #444;
+      padding: 20px;
+      border-radius: 12px;
+      z-index: 1000;
+      display: none;
+      text-align: center;
     }
 
     .heal-popup {
