@@ -281,7 +281,13 @@
   <div id="board-container">
     <div id="board"></div>
   </div>
-  <div id="dice">🎲</div>
+  <div
+    style="display: flex; align-items: center; gap: 12px; position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%); z-index: 300;">
+    <div id="dice">🎲</div>
+    <div id="gold-display" style="font-size: 1.3em; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000;">💰 0
+    </div>
+  </div>
+
   <div id="winModal">
     <div>🎉 Поздравляем! Вы достигли финиша!</div>
     <div id="finalStats">Пройдено за Х бросков</div>
@@ -429,8 +435,12 @@
         popup.innerHTML = `💰 Найдено золото: +${gained}`;
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
+
+        // Обновление интерфейса
+        document.getElementById('gold-display').textContent = `💰 ${goldCount}`;
       }
     }
+
 
     function checkForEnemy() {
       const cell = cells[currentCell];
