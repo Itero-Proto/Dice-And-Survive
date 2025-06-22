@@ -362,13 +362,25 @@
       animation: gold-shake 0.5s infinite;
     }
 
+    @keyframes potionPulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.25);
+      }
+    }
+
     .potion-icon {
       position: absolute;
       top: 5px;
-      right: 30px;
-      /* чтобы не пересекалось с врагами и золотом */
+      right: 5px;
       font-size: 1.4em;
       z-index: 5;
+      animation: potionPulse 2s infinite ease-in-out;
     }
   </style>
 </head>
