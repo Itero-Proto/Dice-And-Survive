@@ -83,6 +83,28 @@
       /* Ярко-красный */
     }
 
+    @keyframes gold-shake {
+      0% {
+        transform: translate(0, 0);
+      }
+
+      25% {
+        transform: translate(1px, -1px);
+      }
+
+      50% {
+        transform: translate(-1px, 1px);
+      }
+
+      75% {
+        transform: translate(1px, 1px);
+      }
+
+      100% {
+        transform: translate(0, 0);
+      }
+    }
+
     .player {
       position: absolute;
       font-size: 2em;
@@ -337,6 +359,16 @@
       right: 5px;
       font-size: 1.4em;
       z-index: 5;
+      animation: gold-shake 0.5s infinite;
+    }
+
+    .potion-icon {
+      position: absolute;
+      top: 5px;
+      right: 30px;
+      /* чтобы не пересекалось с врагами и золотом */
+      font-size: 1.4em;
+      z-index: 5;
     }
   </style>
 </head>
@@ -486,6 +518,13 @@
       const cell = cells[currentCell];
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
         usedHealthCells.add(currentCell);
+        if (!cell.querySelector('.potion-icon')) {
+          const potionIcon = document.createElement('span');
+          potionIcon.className = 'potion-icon';
+          potionIcon.textContent = '🧪';
+          cell.appendChild(potionIcon);
+        }
+
         cell.classList.add('potion');
         setTimeout(() => cell.classList.remove('potion'), 1500);
         const popup = document.createElement('div');
