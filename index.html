@@ -271,8 +271,24 @@
       animation: confetti 3s linear forwards;
       z-index: 999;
     }
+
+    #goldCounter {
+      position: fixed;
+      right: 25px;
+      bottom: 25px;
+      background: #fff8dc;
+      border: 2px solid #d4af37;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #8b7500;
+      z-index: 100;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+    }
   </style>
 </head>
+<div id="goldCounter">💰 0</div>
 
 <body>
   <div id="health-bar">
@@ -343,6 +359,8 @@
         dice.disabled = true;
         gameOverModal.style.display = 'block';
       }
+      updateGoldCounter();
+
     }
 
     function showWinModal() {
@@ -430,6 +448,8 @@
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
       }
+      updateGoldCounter();
+
     }
 
     function checkForEnemy() {
@@ -539,6 +559,11 @@
     });
 
     updateHealthBar();
+
+    function updateGoldCounter() {
+      document.getElementById('goldCounter').textContent = `💰 ${goldCount}`;
+    }
+
   </script>
 
 </body>
