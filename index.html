@@ -299,11 +299,12 @@
   </div>
 
   <script>
-    // Добавь в начало скрипта (после других DOM-элементов)
     const winModal = document.getElementById('winModal');
     const finalStats = document.getElementById('finalStats');
     const winRestartBtn = document.getElementById('winRestartBtn');
-    let diceRollsCount = 0; // Счётчик бросков
+    let diceRollsCount = 0;
+    let goldCount = 0; // счётчик золота
+
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
     const player = document.createElement('div');
@@ -321,6 +322,7 @@
     let currentCell = 0;
     let playerHP = 100;
     const usedHealthCells = new Set();
+    const usedGoldCells = new Set();
 
     for (let i = 1; i <= 100; i++) {
       const cell = document.createElement('div');
@@ -342,12 +344,23 @@
         gameOverModal.style.display = 'block';
       }
     }
-    // Функция показа победы
+
     function showWinModal() {
       dice.disabled = true;
-      finalStats.textContent = `Пройдено за ${diceRollsCount} бросков`;
+
+      // Выбор ачивки по количеству золота
+      let achievement = "";
+      if (goldCount === 0) {
+        achievement = "🏆 Жадность не твоя черта";
+      } else if (goldCount <= 15) {
+        achievement = "🏆 Любитель сокровищ";
+      } else {
+        achievement = "🏆 Жадный до победы!";
+      }
+
+      finalStats.innerHTML = `Пройдено за ${diceRollsCount} бросков<br>💰 Золото: ${goldCount}<br>${achievement}`;
       winModal.style.display = 'block';
-      // Создаём конфетти
+
       for (let i = 0; i < 50; i++) {
         setTimeout(() => {
           const confetti = document.createElement('div');
@@ -360,16 +373,17 @@
         }, i * 100);
       }
     }
-    // Обработчик рестарта из окна победы
+
     winRestartBtn.onclick = () => {
       location.reload();
     };
+
     function flashCell(cell) {
       cell.classList.add('flash-red');
-      setTimeout(() => cell.classList.remove('flash-red'), 900); // 0.3s * 3 = 0.9s
+      setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
 
-    const healthCells = [], enemyCells = [], trapCells = [];
+    const healthCells = [], enemyCells = [], trapCells = [], goldCells = [];
 
     while (enemyCells.length < 20) {
       let rand = Math.floor(Math.random() * 98) + 1;
@@ -383,15 +397,17 @@
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!trapCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand)) trapCells.push(rand);
     }
+    while (goldCells.length < 20) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (!goldCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand) && !trapCells.includes(rand)) goldCells.push(rand);
+    }
 
     function checkForHealthPotion() {
       const cell = cells[currentCell];
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
         usedHealthCells.add(currentCell);
-        // Быстрое моргание клетки
         cell.classList.add('potion');
         setTimeout(() => cell.classList.remove('potion'), 1500);
-        // Всплывающее сообщение о зелье
         const popup = document.createElement('div');
         popup.className = 'heal-popup';
         popup.innerHTML = '❤️ Найдено зелье, которое восстановило 25 единиц жизни';
@@ -402,6 +418,19 @@
       }
     }
 
+    function checkForGold() {
+      const cell = cells[currentCell];
+      if (goldCells.includes(currentCell) && !usedGoldCells.has(currentCell)) {
+        usedGoldCells.add(currentCell);
+        const gained = Math.floor(Math.random() * 5) + 1; // от 1 до 5
+        goldCount += gained;
+        const popup = document.createElement('div');
+        popup.className = 'heal-popup';
+        popup.innerHTML = `💰 Найдено золото: +${gained}`;
+        cell.appendChild(popup);
+        setTimeout(() => popup.remove(), 4000);
+      }
+    }
 
     function checkForEnemy() {
       const cell = cells[currentCell];
@@ -422,7 +451,7 @@
           playerHP = Math.max(0, playerHP - 25);
           flashCell(cell);
           battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
-          playerLostBattle = true; // ← Ставим флаг
+          playerLostBattle = true;
         } else {
           battleOutcome.textContent = `✅ Ты победил!`;
           playerLostBattle = false;
@@ -435,11 +464,9 @@
       }
     }
 
-
     function checkForTrap() {
       const cell = cells[currentCell];
       if (trapCells.includes(currentCell)) {
-
         if (!cell.querySelector('.trap')) {
           const trap = document.createElement('span');
           trap.textContent = '🕳️';
@@ -447,22 +474,14 @@
           cell.appendChild(trap);
         }
         flashCell(cell);
-        // Всплывающее сообщение
         const popup = document.createElement('div');
         popup.className = 'trap-popup';
         popup.innerHTML = '🕳️ Ты попал в ловушку с шипами и потерял 25 единиц здоровья!';
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
-
         playerHP = Math.max(0, playerHP - 25);
         cells[currentCell].appendChild(player);
         updateHealthBar();
-
-        // Проверка на конец игры
-        if (playerHP <= 0) {
-          alert("💀 Игра окончена! У вас закончились жизни.");
-          dice.disabled = true;
-        }
       }
     }
 
@@ -470,19 +489,16 @@
       battleModal.style.display = 'none';
       dice.style.display = 'block';
       closeBattleBtn.style.display = 'none';
-
       if (playerLostBattle && currentCell > 0) {
         currentCell--;
         cells[currentCell].appendChild(player);
       }
     };
 
-
     restartBtn.onclick = () => {
       location.reload();
     };
 
-    // Обновляем movePlayer() для проверки победы
     function movePlayer(steps) {
       if (steps <= 0) return;
       let stepCount = 0;
@@ -490,9 +506,10 @@
         if (stepCount >= steps || currentCell >= cells.length - 1) {
           clearInterval(interval);
           if (currentCell >= cells.length - 1) {
-            showWinModal(); // Проверка победы
+            showWinModal();
           } else {
             checkForHealthPotion();
+            checkForGold();
             checkForEnemy();
             checkForTrap();
           }
@@ -505,10 +522,9 @@
       }, 400);
     }
 
-    // Обновляем обработчик кубика для подсчёта бросков
     dice.addEventListener('click', () => {
       if (dice.disabled || playerHP <= 0) return;
-      diceRollsCount++; // Увеличиваем счётчик
+      diceRollsCount++;
       dice.disabled = true;
       dice.classList.add('rolling');
       setTimeout(() => {
@@ -524,6 +540,7 @@
 
     updateHealthBar();
   </script>
+
 </body>
 
 </html>
