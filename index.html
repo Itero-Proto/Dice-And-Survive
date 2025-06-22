@@ -195,8 +195,8 @@
       transform: translate(-50%, -50%);
       width: 50%;
       height: 10%;
-      background: white;
-      border: 3px solid #444;
+      background: rgb(127, 127, 127);
+      border: 3px solid #5c0000;
       padding: 20px;
       border-radius: 12px;
       z-index: 1000;
@@ -220,8 +220,8 @@
       top: 10%;
       left: 50%;
       transform: translateX(-50%);
-      background: white;
-      border: 3px solid #4CAF50;
+      background: rgb(242, 255, 0);
+      border: 3px solid #0059ff;
       padding: 20px;
       border-radius: 12px;
       z-index: 1000;
@@ -332,9 +332,9 @@
   </div>
   <div id="dice">🎲</div>
   <div id="winModal">
-    <div>🎉 Поздравляем! Вы достигли финиша!</div>
-    <div id="finalStats">Пройдено за Х бросков</div>
-    <button id="winRestartBtn">Играть снова</button>
+    <div>🎉 Поздравляем! Приключение завершено!</div>
+    <div id="finalStats">За Х дней</div>
+    <button id="winRestartBtn">ЗАНОВО</button>
   </div>
   <div id="battleModal">
     <div id="battleInfo"></div>
@@ -343,8 +343,8 @@
   </div>
 
   <div id="gameOverModal">
-    <div>💀 Игра окончена! У вас закончились жизни.</div>
-    <button id="restartBtn">НАЧАТЬ ЗАНОВО</button>
+    <div>💀 Вы погибли! </div>
+    <button id="restartBtn">ЗАНОВО</button>
   </div>
 
   <script>
@@ -419,7 +419,7 @@
         achievement = "🏆 Жадный до победы!";
       }
 
-      finalStats.innerHTML = `Пройдено за ${diceRollsCount} бросков<br>💰 Золото: ${goldCount}<br>${achievement}`;
+      finalStats.innerHTML = `Пройдено за ${diceRollsCount} дней<br>💰: ${goldCount}<br>${achievement}`;
       winModal.style.display = 'block';
 
       for (let i = 0; i < 50; i++) {
@@ -471,7 +471,7 @@
         setTimeout(() => cell.classList.remove('potion'), 1500);
         const popup = document.createElement('div');
         popup.className = 'heal-popup';
-        popup.innerHTML = '❤️ Найдено зелье, которое восстановило 25 единиц жизни';
+        popup.innerHTML = 'Найдено зелье, которое восстановило 25❤️';
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
         playerHP = Math.min(100, playerHP + 25);
@@ -493,7 +493,7 @@
 
         const popup = document.createElement('div');
         popup.className = 'heal-popup'; // можно создать gold-popup если хочешь
-        popup.innerHTML = `💰 Найдено золото: +${goldGain}`;
+        popup.innerHTML = `Найдено золото: +${goldGain}`;
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
       }
@@ -509,10 +509,10 @@
           cell.appendChild(enemy);
         }
 
-        battleInfo.textContent = `Ты встретил врага! Брось кубик.`;
+        battleInfo.textContent = `⚔️ Ты встретил врага! Бросай кубик`;
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
-        dice.style.display = 'block'; // кубик видим
+        dice.style.display = 'block';
         closeBattleBtn.style.display = 'none';
         inBattleMode = true; // включаем боевой режим
       }
@@ -530,7 +530,7 @@
         flashCell(cell);
         const popup = document.createElement('div');
         popup.className = 'trap-popup';
-        popup.innerHTML = '🕳️ Ты попал в ловушку с шипами и потерял 25 единиц здоровья!';
+        popup.innerHTML = 'Ты упал в яму, но выбрался потеряв много сил -25❤️!';
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
         playerHP = Math.max(0, playerHP - 25);
