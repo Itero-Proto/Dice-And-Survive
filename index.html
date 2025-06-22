@@ -661,7 +661,6 @@
     }
 
     dice.addEventListener('click', () => {
-      diceSound.play();
       if (dice.disabled || playerHP <= 0) return;
 
       if (inBattleMode) {
@@ -704,6 +703,7 @@
       dice.disabled = true;
       dice.classList.add('rolling');
       setTimeout(() => {
+        diceSound.play();
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
         dice.textContent = `🎲 ${roll}`;
