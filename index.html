@@ -465,20 +465,24 @@
 
     function checkForGold() {
       const cell = cells[currentCell];
-      if (goldCells.includes(currentCell) && !usedGoldCells.has(currentCell)) {
-        usedGoldCells.add(currentCell);
-        const gained = Math.floor(Math.random() * 5) + 1; // от 1 до 5
+      if (goldCells.includes(currentCell) && !cell.querySelector('.gold')) {
+        const gold = document.createElement('span');
+        gold.textContent = '💰';
+        gold.className = 'gold';
+        cell.appendChild(gold);
+
+        const goldGain = Math.floor(Math.random() * 5) + 1; // от 1 до 5
         goldCount += goldGain;
         updateGoldCounter(true); // ← вот ЭТО сюда
+
         const popup = document.createElement('div');
-        popup.className = 'heal-popup';
-        popup.innerHTML = `💰 Найдено золото: +${gained}`;
+        popup.className = 'heal-popup'; // можно создать gold-popup если хочешь
+        popup.innerHTML = `💰 Найдено золото: +${goldGain}`;
         cell.appendChild(popup);
         setTimeout(() => popup.remove(), 4000);
       }
-      updateGoldCounter();
-
     }
+
 
     function checkForEnemy() {
       const cell = cells[currentCell];
