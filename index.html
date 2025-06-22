@@ -703,7 +703,6 @@
       diceRollsCount++;
       dice.disabled = true;
       dice.classList.add('rolling');
-      diceSound.play();
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
