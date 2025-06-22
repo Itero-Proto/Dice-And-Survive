@@ -334,6 +334,8 @@
   <div id="battleModal">
     <div id="battleInfo"></div>
     <div id="battleOutcome"></div>
+    <button id="rollBattleBtn">БРОСИТЬ КУБИК</button>
+
     <button id="closeBattleBtn">OK</button>
   </div>
 
@@ -358,6 +360,8 @@
     const closeBattleBtn = document.getElementById('closeBattleBtn');
     const gameOverModal = document.getElementById('gameOverModal');
     const restartBtn = document.getElementById('restartBtn');
+    const rollBattleBtn = document.getElementById('rollBattleBtn');
+    let awaitingRoll = false;
 
     player.className = 'player';
     player.textContent = '🧍';
@@ -504,27 +508,17 @@
           cell.appendChild(enemy);
         }
 
-        const enemyRoll = Math.floor(Math.random() * 6) + 1;
-        const playerRoll = Math.floor(Math.random() * 6) + 1;
-
-        battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
-
-        if (playerRoll < enemyRoll) {
-          playerHP = Math.max(0, playerHP - 25);
-          flashCell(cell);
-          battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
-          playerLostBattle = true;
-        } else {
-          battleOutcome.textContent = `✅ Ты победил!`;
-          playerLostBattle = false;
-        }
-
-        updateHealthBar();
+        // Показать окно боя без броска
+        battleInfo.textContent = `Ты встретил врага! Приготовься к броску.`;
+        battleOutcome.textContent = '';
         battleModal.style.display = 'block';
         dice.style.display = 'none';
-        closeBattleBtn.style.display = 'inline-block';
+        rollBattleBtn.style.display = 'inline-block';
+        closeBattleBtn.style.display = 'none';
+        awaitingRoll = true;
       }
     }
+
 
     function checkForTrap() {
       const cell = cells[currentCell];
@@ -546,6 +540,29 @@
         updateHealthBar();
       }
     }
+    rollBattleBtn.onclick = () => {
+      if (!awaitingRoll) return;
+
+      const enemyRoll = Math.floor(Math.random() * 6) + 1;
+      const playerRoll = Math.floor(Math.random() * 6) + 1;
+
+      battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
+
+      if (playerRoll < enemyRoll) {
+        playerHP = Math.max(0, playerHP - 25);
+        flashCell(cells[currentCell]);
+        battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
+        playerLostBattle = true;
+      } else {
+        battleOutcome.textContent = `✅ Ты победил!`;
+        playerLostBattle = false;
+      }
+
+      updateHealthBar();
+      rollBattleBtn.style.display = 'none';
+      closeBattleBtn.style.display = 'inline-block';
+      awaitingRoll = false;
+    };
 
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
