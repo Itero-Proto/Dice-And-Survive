@@ -70,13 +70,16 @@
       animation: flashRed 3s ease;
     }
 
-    @keyframes flashRed {
-      0% {
-        background-color: #ffffff;
+    @keyframes flash-red {
+
+      0%,
+      100% {
+        background-color: #98621f;
       }
 
-      100% {
-        background-color: #7d0000;
+      /* Исходный цвет */
+      50% {
+        background-color: #a90000;
       }
     }
 
@@ -352,7 +355,9 @@
           trap.className = 'trap';
           cell.appendChild(trap);
         }
-
+        // Быстрое моргание клетки
+        cell.classList.add('flash-red');
+        setTimeout(() => cell.classList.remove('flash-red'), 1500);
         // Всплывающее сообщение
         const popup = document.createElement('div');
         popup.className = 'trap-popup';
