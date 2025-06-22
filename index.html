@@ -384,6 +384,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="goldCounter">💰 0</div>
   <div id="health-bar">
@@ -408,7 +409,16 @@
     <div>💀 Вы погибли! </div>
     <button id="restartBtn">ЗАНОВО</button>
   </div>
-
+  <!-- ВСЕ элементы, включая <audio> -->
+  <audio id="diceSound" src="sounds/dice-roll.mp3"></audio>
+  <audio id="battleSound" src="sounds/battle.mp3"></audio>
+  <audio id="potionSound" src="sounds/potion.mp3"></audio>
+  <audio id="goldSound" src="sounds/gold.mp3"></audio>
+  <audio id="trapSound" src="sounds/trap.mp3"></audio>
+  <audio id="winGameSound" src="sounds/winGame.mp3"></audio>
+  <audio id="winBattleSound" src="sounds/winBattle.mp3"></audio>
+  <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
+  <audio id="battleLostSound" src="sounds/battleLost.mp3"></audio>
   <script>
     const diceSound = document.getElementById('diceSound');
     const battleSound = document.getElementById('battleSound');
@@ -661,6 +671,7 @@
     }
 
     dice.addEventListener('click', () => {
+      diceSound.play();
       if (dice.disabled || playerHP <= 0) return;
 
       if (inBattleMode) {
@@ -702,6 +713,7 @@
       diceRollsCount++;
       dice.disabled = true;
       dice.classList.add('rolling');
+      diceSound.play();
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
@@ -717,15 +729,7 @@
 
     updateHealthBar();
   </script>
-  <audio id="diceSound" src="sounds/dice-roll.mp3"></audio>
-  <audio id="battleSound" src="sounds/battle.mp3"></audio>
-  <audio id="potionSound" src="sounds/potion.mp3"></audio>
-  <audio id="goldSound" src="sounds/gold.mp3"></audio>
-  <audio id="trapSound" src="sounds/trap.mp3"></audio>
-  <audio id="winGameSound" src="sounds/winGame.mp3"></audio>
-  <audio id="winBattleSound" src="sounds/winBattle.mp3"></audio>
-  <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
-  <audio id="battleLostSound" src="sounds/battleLost.mp3"></audio>
+
 
 </body>
 
