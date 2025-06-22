@@ -64,23 +64,23 @@
     }
 
     .cell.flash-red {
-      animation: quickFlash 0.5s linear 3;
-      /* 3 повторения */
-      background-color: #7d0000 !important;
-      animation: flashRed 3s ease;
+      animation: quickFlashRed 0.3s linear 3;
+      /* 3 быстрых моргания */
     }
 
-    @keyframes flash-red {
+    @keyframes quickFlashRed {
 
       0%,
       100% {
         background-color: #98621f;
       }
 
-      /* Исходный цвет */
+      /* Исходный цвет клетки */
       50% {
-        background-color: #a90000;
+        background-color: #ff0000;
       }
+
+      /* Ярко-красный */
     }
 
     .player {
@@ -274,7 +274,7 @@
 
     function flashCell(cell) {
       cell.classList.add('flash-red');
-      setTimeout(() => cell.classList.remove('flash-red'), 2000);
+      setTimeout(() => cell.classList.remove('flash-red'), 900); // 0.3s * 3 = 0.9s
     }
 
     const healthCells = [], enemyCells = [], trapCells = [];
@@ -355,9 +355,7 @@
           trap.className = 'trap';
           cell.appendChild(trap);
         }
-        // Быстрое моргание клетки
-        cell.classList.add('flash-red');
-        setTimeout(() => cell.classList.remove('flash-red'), 1500);
+        flashCell(cell);
         // Всплывающее сообщение
         const popup = document.createElement('div');
         popup.className = 'trap-popup';
@@ -366,7 +364,6 @@
         setTimeout(() => popup.remove(), 4000);
 
         playerHP = Math.max(0, playerHP - 25);
-        flashCell(cell);
         cells[currentCell].appendChild(player);
         updateHealthBar();
 
