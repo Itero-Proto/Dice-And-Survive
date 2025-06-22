@@ -661,13 +661,13 @@
     }
 
     dice.addEventListener('click', () => {
+      diceSound.play();
       if (dice.disabled || playerHP <= 0) return;
 
       if (inBattleMode) {
         // Бросок кубика в бою
         dice.disabled = true;
         dice.classList.add('rolling');
-        diceSound.play();
         setTimeout(() => {
           dice.classList.remove('rolling');
 
