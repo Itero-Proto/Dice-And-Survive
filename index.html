@@ -286,6 +286,24 @@
       z-index: 100;
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     }
+
+    @keyframes goldFlash {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.3);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    #goldCounter.flash {
+      animation: goldFlash 0.4s ease;
+    }
   </style>
 </head>
 <div id="goldCounter">💰 0</div>
@@ -557,11 +575,11 @@
         }, roll * 400 + 800);
       }, 800);
     });
-
-    updateHealthBar();
-
     function updateGoldCounter() {
-      document.getElementById('goldCounter').textContent = `💰 ${goldCount}`;
+      const counter = document.getElementById('goldCounter');
+      counter.textContent = `💰 ${goldCount}`;
+      counter.classList.add('flash');
+      setTimeout(() => counter.classList.remove('flash'), 400);
     }
 
   </script>
