@@ -379,12 +379,16 @@
       }
 
     }
-    function updateGoldCounter() {
+    function updateGoldCounter(changed = false) {
       const counter = document.getElementById('goldCounter');
       counter.textContent = `💰 ${goldCount}`;
-      counter.classList.add('flash');
-      setTimeout(() => counter.classList.remove('flash'), 400);
+
+      if (changed) {
+        counter.classList.add('flash');
+        setTimeout(() => counter.classList.remove('flash'), 400);
+      }
     }
+
 
     function showWinModal() {
       dice.disabled = true;
@@ -464,7 +468,8 @@
       if (goldCells.includes(currentCell) && !usedGoldCells.has(currentCell)) {
         usedGoldCells.add(currentCell);
         const gained = Math.floor(Math.random() * 5) + 1; // от 1 до 5
-        goldCount += gained;
+        goldCount += goldGain;
+        updateGoldCounter(true); // ← вот ЭТО сюда
         const popup = document.createElement('div');
         popup.className = 'heal-popup';
         popup.innerHTML = `💰 Найдено золото: +${gained}`;
