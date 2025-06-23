@@ -764,7 +764,9 @@
           dice.disabled = false;   // вот здесь разблокируем кубик — бой завершён
           dice.style.display = 'block';  // показываем кубик на всякий
 
-          inBattleMode = false;  // завершаем боевой режим
+          inBattleMode = false;
+
+          battleModal.style.display = 'none';  // <-- Добавлено скрытие окна
 
         }, 800);
 
