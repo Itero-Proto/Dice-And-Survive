@@ -615,6 +615,29 @@
         updateHealthBar();
       }
     }
+    function checkForMerchant() {
+      const cell = cells[currentCell];
+      if (merchantCells.includes(currentCell) && !visitedMerchants.has(currentCell)) {
+        visitedMerchants.add(currentCell);
+
+        // Добавляем иконку торговца
+        if (!cell.querySelector('.merchant')) {
+          const merchant = document.createElement('span');
+          merchant.textContent = '🧙‍♂️';
+          merchant.className = 'merchant';
+          cell.appendChild(merchant);
+        }
+
+        // Блокируем кубик
+        dice.disabled = true;
+
+        // Проигрываем звук
+        document.getElementById('merchantSound').play();
+
+        // Показываем окно торговца
+        merchantModal.style.display = 'block';
+      }
+    }
 
     function checkForGold() {
       const cell = cells[currentCell];
@@ -705,21 +728,7 @@
             checkForGold();
             checkForEnemy();
             checkForTrap();
-            if (merchantCells.includes(currentCell) && !visitedMerchants.has(currentCell)) {
-              visitedMerchants.add(currentCell);
-              const merchant = document.createElement('span');
-              merchant.textContent = '🧙‍♂️';
-              merchant.className = 'merchant';
-              cell.appendChild(merchantCells);
-              cells[currentCell].appendChild(merchant);
-
-              // 🔊 Проиграть звук
-              document.getElementById('merchantSound').play();
-
-              merchantModal.style.display = 'block';
-            }
-
-
+            checkForMerchant();
           }
           return;
         }
@@ -796,10 +805,12 @@
         updateHealthBar();
       }
       merchantModal.style.display = 'none';
+      dice.disabled = false; // ← теперь можно бросать кубик
     };
 
     declineMerchantBtn.onclick = () => {
       merchantModal.style.display = 'none';
+      dice.disabled = false; // ← теперь тоже можно
     };
 
   </script>
