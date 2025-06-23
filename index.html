@@ -699,7 +699,7 @@
       cell.classList.add('flash-red');
       setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
-    while (enemyCells.length < 20) {
+    while (enemyCells.length < 15) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!enemyCells.includes(rand)) enemyCells.push(rand);
     }
@@ -707,7 +707,7 @@
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!healthCells.includes(rand) && !enemyCells.includes(rand)) healthCells.push(rand);
     }
-    while (trapCells.length < 20) {
+    while (trapCells.length < 15) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!trapCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand)) trapCells.push(rand);
     }
