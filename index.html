@@ -239,8 +239,12 @@
         width: 90%;
         /* Займет 90% ширины экрана */
         max-width: 280px;
-        /* Но не шире 280px */
-        min-height: 120px;
+        min-height: auto;
+        /* Убираем фиксированную минимальную высоту */
+        height: auto;
+        /* Автоматическая высота по содержимому */
+        padding: 12px;
+        /* Уменьшаем отступы */
         background: rgb(127, 127, 127);
         border: 3px solid #5c0000;
         padding: 15px;
