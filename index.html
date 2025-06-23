@@ -232,6 +232,10 @@
     @media (max-width: 768px) {
       #battleModal {
         top: 65%;
+        left: 50%;
+        /* Добавьте это для центрирования */
+        transform: translate(-50%, -50%);
+        /* Добавьте это для точного центрирования */
         width: 80%;
         min-height: 120px;
         background: rgb(127, 127, 127);
@@ -242,6 +246,17 @@
         display: none;
         text-align: center;
         box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+        /* Добавьте для мобильной адаптации: */
+        max-width: 300px;
+        /* Чтобы не растягивалось слишком широко */
+        font-size: 14px;
+        /* Уменьшенный текст для мобилок */
+      }
+
+      /* Опционально: адаптируем кнопку */
+      #closeBattleBtn {
+        padding: 10px 20px;
+        font-size: 14px;
       }
     }
 
