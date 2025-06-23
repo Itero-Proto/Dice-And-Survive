@@ -11,34 +11,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      background:
-        linear-gradient(to bottom,
-          #007a29,
-          #009d32);
-      position: relative;
-      overflow: hidden;
-    }
-
-    body::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M30,100 Q40,60 50,80 T70,100" stroke="%23007a29" fill="none" stroke-width="2"/></svg>');
-      background-size: 100px 100px;
-      animation: grassMove 20s linear infinite;
-    }
-
-    @keyframes grassMove {
-      from {
-        background-position: 0 0;
-      }
-
-      to {
-        background-position: 100px 100px;
-      }
+      background-color: #009d32;
+      background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 100 100"><path d="M30,100 Q40,60 50,80 T70,100" stroke="%23007a29" fill="none" stroke-width="2"/><path d="M10,100 Q20,70 40,90 T60,100" stroke="%23007a29" fill="none" stroke-width="1"/></svg>');
+      background-size: 25px 25px;
     }
 
     #health-bar {
