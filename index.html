@@ -739,8 +739,12 @@
         // Закрываем окно боя при следующем клике после боя
         battleModal.style.display = 'none';
         battleResultShown = false;
-        // Продолжаем игру, если нужно, например:
-        // movePlayer(0); // или другой код для продолжения
+        // Если игрок проиграл, откат на 1 клетку
+        if (playerLostBattle && currentCell > 0) {
+          currentCell--;
+          cells[currentCell].appendChild(player);
+          cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
         return;
       }
 
