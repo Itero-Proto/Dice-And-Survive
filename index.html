@@ -488,6 +488,7 @@
     let inBattleMode = false;
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
+    dice.style.display = 'block';
     const player = document.createElement('div');
     const battleModal = document.getElementById('battleModal');
     const battleInfo = document.getElementById('battleInfo');
@@ -685,13 +686,10 @@
           cell.appendChild(enemy);
           battleSound.play();
         }
-
         battleInfo.textContent = `⚔️ Ты встретил врага! Бросай кубик`;
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
-        dice.style.display = 'block';
-        closeBattleBtn.style.display = 'none';
-        inBattleMode = true; // включаем боевой режим
+        inBattleMode = true; // Только включаем боевой режим
       }
     }
 
