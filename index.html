@@ -422,7 +422,6 @@
   <div id="battleModal">
     <div id="battleInfo"></div>
     <div id="battleOutcome"></div>
-    <button id="closeBattleBtn">OK</button>
   </div>
 
   <div id="gameOverModal">
@@ -651,7 +650,6 @@
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
         dice.style.display = 'block';
-        closeBattleBtn.style.display = 'none';
         inBattleMode = true; // включаем боевой режим
       }
     }
@@ -678,15 +676,16 @@
       }
     }
 
-    closeBattleBtn.onclick = () => {
+    // Добавить автоматическое скрытие окна:
+    setTimeout(() => {
       battleModal.style.display = 'none';
-      dice.style.display = 'block';
-      closeBattleBtn.style.display = 'none';
+      dice.style.display = 'block'; // показываем кубик для продолжения
+      inBattleMode = false;
       if (playerLostBattle && currentCell > 0) {
         currentCell--;
         cells[currentCell].appendChild(player);
       }
-    };
+    }, 3500); // 3.5 секунды — можешь изменить под себя
 
     restartBtn.onclick = () => {
       location.reload();
