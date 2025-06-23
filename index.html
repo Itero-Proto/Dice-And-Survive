@@ -409,6 +409,15 @@
     <div>💀 Вы погибли! </div>
     <button id="restartBtn">ЗАНОВО</button>
   </div>
+  <div id="merchantModal"
+    style="display: none; position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
+  background: #fff8dc; border: 3px solid #8b5e3c; padding: 20px; border-radius: 12px; z-index: 1000; text-align: center; width: 300px;">
+    <div style="font-size: 1.2em; margin-bottom: 10px;">🧙‍♂️ Таинственный торговец предлагает восстановить 25❤️ за 5💰
+    </div>
+    <button id="buyHealBtn">Купить</button>
+    <button id="declineMerchantBtn">Отказаться</button>
+  </div>
+
   <!-- ВСЕ элементы, включая <audio> -->
   <audio id="diceSound" src="sounds/dice-roll.mp3"></audio>
   <audio id="battleSound" src="sounds/battle.mp3"></audio>
@@ -429,6 +438,10 @@
     const gameOverSound = document.getElementById('gameOverSound');
     const battleLostSound = document.getElementById('battleLostSound');
     const winGameSound = document.getElementById('winGameSound');
+    const merchantModal = document.getElementById('merchantModal');
+    const buyHealBtn = document.getElementById('buyHealBtn');
+    const declineMerchantBtn = document.getElementById('declineMerchantBtn');
+    const visitedMerchants = new Set();
 
     const winModal = document.getElementById('winModal');
     const finalStats = document.getElementById('finalStats');
@@ -461,6 +474,16 @@
       cell.className = 'cell';
       cell.dataset.index = i;
       board.appendChild(cell);
+      if (merchantCells.includes(i)) {
+        const merchantIcon = document.createElement('span');
+        merchantIcon.textContent = '🧙‍♂️';
+        merchantIcon.style.position = 'absolute';
+        merchantIcon.style.left = '5px';
+        merchantIcon.style.top = '5px';
+        merchantIcon.style.fontSize = '1.3em';
+        cell.appendChild(merchantIcon);
+      }
+
     }
 
     const cells = document.querySelectorAll('.cell');
@@ -528,7 +551,8 @@
       setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
 
-    const healthCells = [], enemyCells = [], trapCells = [], goldCells = [];
+    const healthCells = [], enemyCells = [], trapCells = [], goldCells = [], merchantCells = [];
+
 
     while (enemyCells.length < 20) {
       let rand = Math.floor(Math.random() * 98) + 1;
@@ -546,7 +570,18 @@
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!goldCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand) && !trapCells.includes(rand)) goldCells.push(rand);
     }
-
+    while (merchantCells.length < 5) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (
+        !merchantCells.includes(rand) &&
+        !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) &&
+        !trapCells.includes(rand) &&
+        !goldCells.includes(rand)
+      ) {
+        merchantCells.push(rand);
+      }
+    }
     function checkForHealthPotion() {
       const cell = cells[currentCell];
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
@@ -660,6 +695,11 @@
             checkForGold();
             checkForEnemy();
             checkForTrap();
+            if (merchantCells.includes(currentCell) && !visitedMerchants.has(currentCell)) {
+              visitedMerchants.add(currentCell);
+              merchantModal.style.display = 'block';
+            }
+
           }
           return;
         }
@@ -728,6 +768,20 @@
 
 
     updateHealthBar();
+    buyHealBtn.onclick = () => {
+      if (goldCount >= 5) {
+        goldCount -= 5;
+        playerHP = Math.min(100, playerHP + 25);
+        updateGoldCounter(true);
+        updateHealthBar();
+      }
+      merchantModal.style.display = 'none';
+    };
+
+    declineMerchantBtn.onclick = () => {
+      merchantModal.style.display = 'none';
+    };
+
   </script>
 
 
