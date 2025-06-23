@@ -736,7 +736,6 @@
       if (dice.disabled || playerHP <= 0) return;
 
       if (inBattleMode) {
-        // Бросок кубика в бою
         dice.disabled = true;
         dice.classList.add('rolling');
         setTimeout(() => {
@@ -760,10 +759,24 @@
           }
 
           updateHealthBar();
-          closeBattleBtn.style.display = 'inline-block';
-          dice.disabled = false;
+
+          // Скрываем кубик и делаем окно боя видимым (если нужно)
           dice.style.display = 'none';
-          inBattleMode = false;
+          battleModal.style.display = 'block';
+
+          // Запускаем таймер на автоматическое скрытие окна боя
+          setTimeout(() => {
+            battleModal.style.display = 'none';
+            dice.style.display = 'block'; // Показываем кубик для продолжения
+            inBattleMode = false;
+
+            if (playerLostBattle && currentCell > 0) {
+              currentCell--;
+              cells[currentCell].appendChild(player);
+            }
+          }, 3500);
+
+          dice.disabled = false;
 
         }, 800);
 
