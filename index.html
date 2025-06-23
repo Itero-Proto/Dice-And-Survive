@@ -462,11 +462,15 @@
       }
     }
 
-    #inventory {
-      background: rgba(40, 40, 40, 0.9);
-      border: 2px solid #4CAF50;
-      color: white;
-      font-size: 14px;
+    @media (max-width: 768px) {
+      #inventory {
+        left: 2px;
+        top: auto;
+        bottom: 70px;
+        /* Чтобы не мешало кубику */
+        transform: none;
+        width: 70px;
+      }
     }
 
     #use-potion-btn {
@@ -508,11 +512,11 @@
     <div id="battleOutcome"></div>
     <button id="closeBattleBtn">OK</button>
   </div>
-  <div id="inventory" style="position: fixed; left: 10px; top: 50%; transform: translateY(-50%); 
-     background: rgba(0,0,0,0.7); border-radius: 10px; padding: 10px; z-index: 100; color: white;">
-    <div>Инвентарь:</div>
-    <div id="potions-count">🧪: 0</div>
-    <button id="use-potion-btn" style="margin-top: 5px; padding: 5px;">Выпить зелье</button>
+  <div id="inventory" style="position: fixed; left: 5px; top: 50%; transform: translateY(-50%); 
+     background: rgba(40,40,40,0.9); border: 2px solid #4CAF50; border-radius: 8px; 
+     padding: 5px; z-index: 100; color: white; display: flex; align-items: center; gap: 5px;">
+    <span id="potions-count" style="font-size: 18px;">🧪0</span>
+    <button id="use-potion-btn" style="padding: 2px 5px; font-size: 10px;">+</button>
   </div>
   <div id="gameOverModal">
     <div>💀 Вы погибли! </div>
