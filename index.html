@@ -402,6 +402,26 @@
         opacity: 0.3;
       }
     }
+
+    .shake {
+      animation: shake 0.5s linear;
+    }
+
+    @keyframes shake {
+
+      0%,
+      100% {
+        transform: translateX(0);
+      }
+
+      25% {
+        transform: translateX(-5px);
+      }
+
+      75% {
+        transform: translateX(5px);
+      }
+    }
   </style>
 </head>
 
@@ -704,6 +724,7 @@
 
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
+      dice.disabled = false; // Разблокировать после закрытия
       dice.style.display = 'block';
       closeBattleBtn.style.display = 'none';
       if (playerLostBattle && currentCell > 0) {
@@ -757,6 +778,8 @@
           battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
 
           if (playerRoll < enemyRoll) {
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 500);
             playerHP = Math.max(0, playerHP - 25);
             flashCell(cells[currentCell]);
             battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
@@ -772,6 +795,7 @@
           closeBattleBtn.style.display = 'inline-block';
           dice.disabled = false;
           dice.style.display = 'none';
+          dice.disabled = true; // Заблокировать
           inBattleMode = false;
 
         }, 800);
