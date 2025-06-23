@@ -716,6 +716,8 @@
               document.getElementById('merchantSound').play();
 
               merchantModal.style.display = 'block';
+              dice.disabled = true;
+
             }
 
 
@@ -796,11 +798,14 @@
         updateHealthBar();
       }
       merchantModal.style.display = 'none';
+      dice.disabled = false;   // разблокируем кубик
     };
 
     declineMerchantBtn.onclick = () => {
       merchantModal.style.display = 'none';
+      dice.disabled = false;   // разблокируем кубик
     };
+
 
   </script>
 
