@@ -757,8 +757,8 @@
     }
 
     dice.addEventListener('click', () => {
-      diceSound.play();
       if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
+      diceSound.play();
 
       if (inBattleMode) {
         dice.disabled = true;
@@ -788,11 +788,9 @@
           updateHealthBar();
           inBattleMode = false;
 
-          // Автоматически закрываем окно через 2.5 секунды
           setTimeout(() => {
             battleModal.style.display = 'none';
             dice.disabled = false;
-            dice.style.display = 'block'; // ← Важно: показываем кубик!
             if (playerLostBattle && currentCell > 0) {
               currentCell--;
               cells[currentCell].appendChild(player);
@@ -802,7 +800,7 @@
         return;
       }
 
-      // Обычный бросок (не в битве)
+      // Обычный бросок
       diceRollsCount++;
       dice.disabled = true;
       dice.classList.add('rolling');
