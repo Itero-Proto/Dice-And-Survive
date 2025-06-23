@@ -463,7 +463,6 @@
     const buyHealBtn = document.getElementById('buyHealBtn');
     const declineMerchantBtn = document.getElementById('declineMerchantBtn');
     const visitedMerchants = new Set();
-    let inMerchantMode = false;
 
     const winModal = document.getElementById('winModal');
     const finalStats = document.getElementById('finalStats');
@@ -471,6 +470,10 @@
     let diceRollsCount = 0;
     let goldCount = 0; // счётчик золота
     let inBattleMode = false;
+    let inMerchantMode = false;
+    let playerLostBattle = false;
+    let battleResultShown = false;
+
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
     const player = document.createElement('div');
@@ -481,11 +484,9 @@
     const gameOverModal = document.getElementById('gameOverModal');
     const restartBtn = document.getElementById('restartBtn');
     let awaitingRoll = false;
-    let battleResultShown = false;
 
     player.className = 'player';
     player.textContent = '🧍';
-    let playerLostBattle = false;
 
     let currentCell = 0;
     let playerHP = 100;
@@ -704,7 +705,31 @@
     }, 3500); // 3.5 секунды — можешь изменить под себя
 
     restartBtn.onclick = () => {
-      location.reload();
+      // Если ты не используешь location.reload(), тогда:
+      currentCell = 0;
+      playerHP = 100;
+      goldCount = 0;
+      diceRollsCount = 0;
+      inBattleMode = false;
+      inMerchantMode = false;
+      playerLostBattle = false;
+      battleResultShown = false;
+      visitedMerchants.clear();
+      usedHealthCells.clear();
+      usedGoldCells.clear();
+
+      // Очистка клеток и UI
+      cells.forEach(cell => {
+        cell.innerHTML = '';
+        cell.classList.remove('potion');
+      });
+
+      // Повторное добавление игрока
+      cells[currentCell].appendChild(player);
+      updateHealthBar();
+      updateGoldCounter();
+      gameOverModal.style.display = 'none';
+      dice.disabled = false;
     };
 
     function movePlayer(steps) {
