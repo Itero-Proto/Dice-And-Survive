@@ -761,7 +761,6 @@
       if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
 
       if (inBattleMode) {
-        // Бросок кубика в бою
         dice.disabled = true;
         dice.classList.add('rolling');
         setTimeout(() => {
@@ -787,40 +786,32 @@
           }
 
           updateHealthBar();
-
-          closeBattleBtn.style.display = 'inline-block';
-          dice.disabled = false;
-          dice.style.display = 'none';
           inBattleMode = false;
-          // Автоматически скрываем окно через 2.5 секунды
+
+          // Автоматически закрываем окно через 2.5 секунды
           setTimeout(() => {
             battleModal.style.display = 'none';
             dice.disabled = false;
-            dice.style.display = 'block'; // ← Вернуть кубик на экран!
+            dice.style.display = 'block'; // ← Важно: показываем кубик!
             if (playerLostBattle && currentCell > 0) {
               currentCell--;
               cells[currentCell].appendChild(player);
             }
           }, 2500);
         }, 800);
-
         return;
       }
 
-      // Обычный бросок (не бой)
+      // Обычный бросок (не в битве)
       diceRollsCount++;
       dice.disabled = true;
       dice.classList.add('rolling');
-      diceSound.play();
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
         dice.textContent = `🎲 ${roll}`;
         movePlayer(roll);
-
-        setTimeout(() => {
-          dice.disabled = false;
-        }, roll * 400 + 800);
+        setTimeout(() => dice.disabled = false, roll * 400 + 800);
       }, 800);
     });
 
