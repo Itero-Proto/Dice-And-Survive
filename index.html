@@ -468,6 +468,7 @@
     let playerHP = 100;
     const usedHealthCells = new Set();
     const usedGoldCells = new Set();
+    const healthCells = [], enemyCells = [], trapCells = [], goldCells = [], merchantCells = [];
 
     for (let i = 1; i <= 100; i++) {
       const cell = document.createElement('div');
@@ -550,10 +551,6 @@
       cell.classList.add('flash-red');
       setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
-
-    const healthCells = [], enemyCells = [], trapCells = [], goldCells = [], merchantCells = [];
-
-
     while (enemyCells.length < 20) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!enemyCells.includes(rand)) enemyCells.push(rand);
