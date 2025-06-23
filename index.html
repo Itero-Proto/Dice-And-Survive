@@ -464,7 +464,7 @@
     const buyHealBtn = document.getElementById('buyHealBtn');
     const declineMerchantBtn = document.getElementById('declineMerchantBtn');
     const visitedMerchants = new Set();
-
+    let isInteractingWithMerchant = false;
     const winModal = document.getElementById('winModal');
     const finalStats = document.getElementById('finalStats');
     const winRestartBtn = document.getElementById('winRestartBtn');
@@ -618,7 +618,8 @@
     function checkForMerchant() {
       const cell = cells[currentCell];
       if (merchantCells.includes(currentCell) && !visitedMerchants.has(currentCell)) {
-        visitedMerchants.add(currentCell);
+        isInteractingWithMerchant = true; // Блокируем взаимодействия
+        dice.disabled = true;
 
         // Добавляем иконку торговца
         if (!cell.querySelector('.merchant')) {
@@ -741,7 +742,7 @@
 
     dice.addEventListener('click', () => {
       diceSound.play();
-      if (dice.disabled || playerHP <= 0) return;
+      if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
 
       if (inBattleMode) {
         // Бросок кубика в бою
@@ -805,11 +806,13 @@
         updateHealthBar();
       }
       merchantModal.style.display = 'none';
+      isInteractingWithMerchant = false; // Разблокируем
       dice.disabled = false;
     };
 
     declineMerchantBtn.onclick = () => {
       merchantModal.style.display = 'none';
+      isInteractingWithMerchant = false; // Разблокируем
       dice.disabled = false;
     };
 
