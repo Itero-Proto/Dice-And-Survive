@@ -463,6 +463,7 @@
     const buyHealBtn = document.getElementById('buyHealBtn');
     const declineMerchantBtn = document.getElementById('declineMerchantBtn');
     const visitedMerchants = new Set();
+    let inMerchantMode = false;
 
     const winModal = document.getElementById('winModal');
     const finalStats = document.getElementById('finalStats');
@@ -654,6 +655,20 @@
         inBattleMode = true; // включаем боевой режим
       }
     }
+    function checkForMerchant() {
+      if (merchantCells.includes(currentCell) && !visitedMerchants.has(currentCell)) {
+        visitedMerchants.add(currentCell);
+        const cell = cells[currentCell];
+        const merchant = document.createElement('span');
+        merchant.textContent = '🧙‍♂️';
+        merchant.className = 'merchant';
+        cell.appendChild(merchant);
+
+        document.getElementById('merchantSound').play();
+        merchantModal.style.display = 'block';
+        inMerchantMode = true; // ← важное добавление
+      }
+    }
 
     function checkForTrap() {
       const cell = cells[currentCell];
@@ -705,23 +720,7 @@
             checkForGold();
             checkForEnemy();
             checkForTrap();
-            if (merchantCells.includes(currentCell) && !visitedMerchants.has(currentCell)) {
-              visitedMerchants.add(currentCell);
-              const cell = cells[currentCell];      // Получаем текущую клетку
-              const merchant = document.createElement('span');
-              merchant.textContent = '🧙‍♂️';
-              merchant.className = 'merchant';
-              cell.appendChild(merchant);
-
-              document.getElementById('merchantSound').play();
-
-              merchantModal.style.display = 'block';
-              dice.disabled = true;
-
-            }
-
-
-
+            checkForMerchant();
           }
           return;
         }
@@ -733,7 +732,8 @@
     }
 
     dice.addEventListener('click', () => {
-      if (dice.disabled || playerHP <= 0) return;
+      if (inMerchantMode || inBattleMode || dice.disabled || playerHP <= 0) return;
+
 
       if (battleResultShown && !inBattleMode) {
         // Закрываем окно боя при следующем клике после боя
@@ -813,12 +813,12 @@
         updateHealthBar();
       }
       merchantModal.style.display = 'none';
-      dice.disabled = false;   // разблокируем кубик
+      inMerchantMode = false; // ← вот здесь
     };
 
     declineMerchantBtn.onclick = () => {
       merchantModal.style.display = 'none';
-      dice.disabled = false;   // разблокируем кубик
+      inMerchantMode = false;
     };
 
 
