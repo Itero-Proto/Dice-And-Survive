@@ -761,17 +761,20 @@
       if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
 
       if (inBattleMode) {
+        // Бросок кубика в бою
         dice.disabled = true;
         dice.classList.add('rolling');
-
         setTimeout(() => {
           dice.classList.remove('rolling');
+
           const enemyRoll = Math.floor(Math.random() * 6) + 1;
           const playerRoll = Math.floor(Math.random() * 6) + 1;
 
           battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
 
           if (playerRoll < enemyRoll) {
+            document.body.classList.add('shake');
+            setTimeout(() => document.body.classList.remove('shake'), 500);
             playerHP = Math.max(0, playerHP - 25);
             flashCell(cells[currentCell]);
             battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
@@ -784,13 +787,16 @@
           }
 
           updateHealthBar();
-          inBattleMode = false;
 
+          closeBattleBtn.style.display = 'inline-block';
+          dice.disabled = false;
+          dice.style.display = 'none';
+          dice.disabled = true; // Заблокировать
+          inBattleMode = false;
           // Автоматически скрываем окно через 2.5 секунды
           setTimeout(() => {
             battleModal.style.display = 'none';
             dice.disabled = false;
-
             // Если игрок проиграл — отступаем
             if (playerLostBattle && currentCell > 0) {
               currentCell--;
@@ -798,6 +804,7 @@
             }
           }, 2500); // Задержка перед закрытием
         }, 800);
+
         return;
       }
 
