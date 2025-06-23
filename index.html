@@ -467,6 +467,16 @@
 </head>
 
 <body>
+  <div id="leaderboard-modal" style="display: none; position: fixed; top: 50%; left: 50%; 
+     transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.9); color: white; 
+     padding: 20px; border-radius: 10px; border: 2px solid #4CAF50; z-index: 1000;
+     max-width: 300px; width: 80%; text-align: center;">
+    <h3 style="margin-top: 0;">🏆 Таблица рекордов</h3>
+    <ol id="leaderboard-list" style="text-align: left; padding-left: 20px;"></ol>
+    <button id="close-leaderboard" style="margin-top: 15px; padding: 5px 10px;
+          background: #4CAF50; color: white; border: none; border-radius: 5px;
+          cursor: pointer;">Закрыть</button>
+  </div>
   <div id="goldCounter">💰 0</div>
   <div id="health-bar">
     <div id="health-fill"></div>
@@ -475,6 +485,12 @@
     <div id="board"></div>
   </div>
   <div id="dice">🎲</div>
+  <div style="position: fixed; bottom: 30px; left: 10px; display: flex; gap: 10px;">
+    <button id="show-leaderboard" style="padding: 10px; background: #5a3e2b; 
+          color: white; border: none; border-radius: 8px; cursor: pointer;
+          font-weight: bold;">Таблица рекордов</button>
+  </div>
+  </div>
   <div id="winModal">
     <div>🎉 Поздравляем! Приключение завершено!</div>
     <div id="finalStats">За Х дней</div>
@@ -518,6 +534,8 @@
   <audio id="merchantSound" src="sounds/merchant.mp3"></audio>
 
   <script>
+    // В начале скрипта (с другими переменными)
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
     // Добавляем переменные в начало скрипта
     let potionCount = 0;
     const potionsCountElement = document.getElementById('potions-count');
@@ -594,6 +612,25 @@
       cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
     }, 100);
 
+    function showLeaderboard() {
+      const list = document.getElementById('leaderboard-list');
+      const sorted = [...leaderboard]
+        .sort((a, b) => a.rolls - b.rolls || b.gold - a.gold)
+        .slice(0, 10);
+
+      list.innerHTML = sorted.map((entry, i) =>
+        `<li>${i + 1}. ${entry.name}: ${entry.rolls} бросков, ${entry.gold}💰</li>`
+      ).join('');
+
+      document.getElementById('leaderboard-modal').style.display = 'block';
+    }
+    // Показ таблицы
+    document.getElementById('show-leaderboard').addEventListener('click', showLeaderboard);
+
+    // Закрытие
+    document.getElementById('close-leaderboard').addEventListener('click', () => {
+      document.getElementById('leaderboard-modal').style.display = 'none';
+    });
     function updateHealthBar() {
       document.getElementById('health-fill').style.width = playerHP + '%';
       if (playerHP <= 0) {
@@ -642,6 +679,16 @@
           setTimeout(() => confetti.remove(), 3000);
         }, i * 100);
       }
+      const playerName = prompt('Поздравляем! Введите имя для таблицы рекордов:', 'Игрок');
+      if (playerName) {
+        leaderboard.push({
+          name: playerName.substring(0, 15), // Ограничиваем длину имени
+          rolls: diceRollsCount,
+          gold: goldCount,
+          date: new Date().toLocaleDateString()
+        });
+        localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+      }
     }
 
     winRestartBtn.onclick = () => {
@@ -656,7 +703,7 @@
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!enemyCells.includes(rand)) enemyCells.push(rand);
     }
-    while (healthCells.length < 20) {
+    while (healthCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!healthCells.includes(rand) && !enemyCells.includes(rand)) healthCells.push(rand);
     }
@@ -668,7 +715,7 @@
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!goldCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand) && !trapCells.includes(rand)) goldCells.push(rand);
     }
-    while (merchantCells.length < 5) {
+    while (merchantCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (
         !merchantCells.includes(rand) &&
