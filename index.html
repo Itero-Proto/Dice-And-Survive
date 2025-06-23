@@ -464,12 +464,12 @@
 
     @media (max-width: 768px) {
       #inventory {
-        left: 2px;
-        top: auto;
-        bottom: 70px;
-        /* Чтобы не мешало кубику */
-        transform: none;
-        width: 70px;
+        min-width: 80px;
+        /* Минимальная ширина */
+        width: auto;
+        /* Ширина по содержимому */
+        padding: 6px;
+        /* Уменьшенные отступы */
       }
     }
 
