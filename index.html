@@ -791,18 +791,17 @@
           closeBattleBtn.style.display = 'inline-block';
           dice.disabled = false;
           dice.style.display = 'none';
-          dice.disabled = true; // Заблокировать
           inBattleMode = false;
           // Автоматически скрываем окно через 2.5 секунды
           setTimeout(() => {
             battleModal.style.display = 'none';
             dice.disabled = false;
-            // Если игрок проиграл — отступаем
+            dice.style.display = 'block'; // ← Вернуть кубик на экран!
             if (playerLostBattle && currentCell > 0) {
               currentCell--;
               cells[currentCell].appendChild(player);
             }
-          }, 2500); // Задержка перед закрытием
+          }, 2500);
         }, 800);
 
         return;
