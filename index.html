@@ -402,26 +402,6 @@
         opacity: 0.3;
       }
     }
-
-    .shake {
-      animation: shake 0.5s linear;
-    }
-
-    @keyframes shake {
-
-      0%,
-      100% {
-        transform: translateX(0);
-      }
-
-      25% {
-        transform: translateX(-5px);
-      }
-
-      75% {
-        transform: translateX(5px);
-      }
-    }
   </style>
 </head>
 
@@ -438,6 +418,11 @@
     <div>🎉 Поздравляем! Приключение завершено!</div>
     <div id="finalStats">За Х дней</div>
     <button id="winRestartBtn">ЗАНОВО</button>
+  </div>
+  <div id="battleModal">
+    <div id="battleInfo"></div>
+    <div id="battleOutcome"></div>
+    <button id="closeBattleBtn">OK</button>
   </div>
 
   <div id="gameOverModal">
@@ -488,7 +473,6 @@
     let inBattleMode = false;
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
-    dice.style.display = 'block';
     const player = document.createElement('div');
     const battleModal = document.getElementById('battleModal');
     const battleInfo = document.getElementById('battleInfo');
@@ -686,10 +670,13 @@
           cell.appendChild(enemy);
           battleSound.play();
         }
+
         battleInfo.textContent = `⚔️ Ты встретил врага! Бросай кубик`;
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
-        inBattleMode = true; // Только включаем боевой режим
+        dice.style.display = 'block';
+        closeBattleBtn.style.display = 'none';
+        inBattleMode = true; // включаем боевой режим
       }
     }
 
@@ -717,7 +704,6 @@
 
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
-      dice.disabled = false; // Разблокировать после закрытия
       dice.style.display = 'block';
       closeBattleBtn.style.display = 'none';
       if (playerLostBattle && currentCell > 0) {
@@ -755,10 +741,11 @@
     }
 
     dice.addEventListener('click', () => {
-      if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
       diceSound.play();
+      if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
 
       if (inBattleMode) {
+        // Бросок кубика в бою
         dice.disabled = true;
         dice.classList.add('rolling');
         setTimeout(() => {
@@ -770,8 +757,6 @@
           battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
 
           if (playerRoll < enemyRoll) {
-            document.body.classList.add('shake');
-            setTimeout(() => document.body.classList.remove('shake'), 500);
             playerHP = Math.max(0, playerHP - 25);
             flashCell(cells[currentCell]);
             battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
@@ -784,30 +769,30 @@
           }
 
           updateHealthBar();
+          closeBattleBtn.style.display = 'inline-block';
+          dice.disabled = false;
+          dice.style.display = 'none';
           inBattleMode = false;
 
-          setTimeout(() => {
-            battleModal.style.display = 'none';
-            dice.disabled = false;
-            if (playerLostBattle && currentCell > 0) {
-              currentCell--;
-              cells[currentCell].appendChild(player);
-            }
-          }, 2500);
         }, 800);
+
         return;
       }
 
-      // Обычный бросок
+      // Обычный бросок (не бой)
       diceRollsCount++;
       dice.disabled = true;
       dice.classList.add('rolling');
+      diceSound.play();
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
         dice.textContent = `🎲 ${roll}`;
         movePlayer(roll);
-        setTimeout(() => dice.disabled = false, roll * 400 + 800);
+
+        setTimeout(() => {
+          dice.disabled = false;
+        }, roll * 400 + 800);
       }, 800);
     });
 
