@@ -761,16 +761,14 @@
 
           updateHealthBar();
 
-          dice.disabled = false;   // вот здесь разблокируем кубик — бой завершён
-          dice.style.display = 'block';  // показываем кубик на всякий
+          dice.disabled = false;
+          dice.style.display = 'block';
 
           inBattleMode = false;
 
           battleModal.style.display = 'none';  // <-- Добавлено скрытие окна
 
         }, 800);
-
-        return;
       }
 
 
