@@ -383,20 +383,24 @@
       animation: potionPulse 2s infinite ease-in-out;
     }
 
-    @keyframes merchantAppear {
-      0% {
-        transform: scale(0);
-        opacity: 0;
-      }
-
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
+    .merchant {
+      position: absolute;
+      top: 5px;
+      font-size: 1.9em;
+      z-index: 1;
+      animation: merchantBlink 2s infinite ease-in-out;
     }
 
-    .merchant-icon {
-      animation: merchantAppear 0.6s ease-out;
+    @keyframes merchantBlink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0.3;
+      }
     }
   </style>
 </head>
@@ -703,20 +707,17 @@
             checkForTrap();
             if (merchantCells.includes(currentCell) && !visitedMerchants.has(currentCell)) {
               visitedMerchants.add(currentCell);
-              const merchantIcon = document.createElement('span');
-              merchantIcon.textContent = '🧙‍♂️';
-              merchantIcon.className = 'merchant-icon';
-              merchantIcon.style.position = 'absolute';
-              merchantIcon.style.left = '5px';
-              merchantIcon.style.top = '5px';
-              merchantIcon.style.fontSize = '1.3em';
-              cells[currentCell].appendChild(merchantIcon);
+              const cell = cells[currentCell];      // Получаем текущую клетку
+              const merchant = document.createElement('span');
+              merchant.textContent = '🧙‍♂️';
+              merchant.className = 'merchant';
+              cell.appendChild(merchant);
 
-              // 🔊 Проиграть звук
               document.getElementById('merchantSound').play();
 
               merchantModal.style.display = 'block';
             }
+
 
 
           }
