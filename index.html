@@ -541,7 +541,7 @@
   <audio id="merchantSound" src="sounds/merchant.mp3"></audio>
 
   <script>
-    
+
     let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
     let potionCount = 0;
     const potionsCountElement = document.getElementById('potions-count');
@@ -687,13 +687,32 @@
       }
       const playerName = prompt('Поздравляем! Введите имя для таблицы рекордов:', 'Игрок');
       if (playerName) {
-        leaderboard.push({
+        const newRecord = {
           name: playerName.substring(0, 15), // Ограничиваем длину имени
           rolls: diceRollsCount,
           gold: goldCount,
           date: new Date().toLocaleDateString()
-        });
+        };
+
+        // Сохраняем в localStorage (для клиентской таблицы, если она нужна)
+        let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+        leaderboard.push(newRecord);
         localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+
+        // *** НОВОЕ: Отправляем данные в Telegram-бот ***
+        // Формируем объект с типом "game_result"
+        const dataToSend = {
+          type: "game_result",
+          name: newRecord.name,
+          rolls: newRecord.rolls,
+          gold: newRecord.gold,
+          date: newRecord.date
+        };
+
+        // Проверяем, что WebApp доступен (только если игра запущена из Telegram)
+        if (window.Telegram && window.Telegram.WebApp) {
+          window.Telegram.WebApp.sendData(JSON.stringify(dataToSend));
+        }
       }
     }
 
