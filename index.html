@@ -506,11 +506,11 @@
   <div id="battleModal">
     <div id="battleInfo"></div>
     <div id="battleOutcome"></div>
-    <button id="closeBattleBtn">OK</button>
-    <button id="fightBtn">Сражаться</button>
-    <button id="fleeBtn">Убежать</button>
-
+    <button id="fightBtn">СРАЖАТЬСЯ</button>
+    <button id="fleeBtn">УБЕЖАТЬ</button>
+    <button id="closeBattleBtn" style="display: none;">OK</button>
   </div>
+
   <div id="inventory" style="position: fixed; left: 10px; top: 50%; transform: translateY(-50%);
      background: rgba(106, 106, 106, 0.9); border: 1px solid #000000; border-radius: 8px;
      padding: 8px 5px; z-index: 100; color: white; display: flex; flex-direction: column; align-items: center;
@@ -567,6 +567,10 @@
         setTimeout(() => popup.remove(), 2000);
       }
     });
+    const fightBtn = document.getElementById('fightBtn');
+    const fleeBtn = document.getElementById('fleeBtn');
+    const defeatedEnemies = new Set();
+
     const diceSound = document.getElementById('diceSound');
     const battleSound = document.getElementById('battleSound');
     const potionSound = document.getElementById('potionSound');
@@ -811,7 +815,7 @@
 
     function checkForEnemy() {
       const cell = cells[currentCell];
-      if (enemyCells.includes(currentCell)) {
+      if (enemyCells.includes(currentCell) && !defeatedEnemies.has(currentCell)) {
         if (!cell.querySelector('.enemy')) {
           const enemy = document.createElement('span');
           enemy.textContent = '👹';
@@ -825,10 +829,12 @@
         battleModal.style.display = 'block';
         fightBtn.style.display = 'inline-block';
         fleeBtn.style.display = 'inline-block';
-        dice.style.display = 'none'; // Скрываем кубик
-
+        closeBattleBtn.style.display = 'none';
+        dice.style.display = 'none';
+        inBattleMode = true;
       }
     }
+
 
     function checkForTrap() {
       const cell = cells[currentCell];
@@ -858,6 +864,7 @@
       battleModal.style.display = 'none';
       dice.style.display = 'block';
       closeBattleBtn.style.display = 'none';
+      inBattleMode = false;
       if (playerLostBattle && currentCell > 0) {
         currentCell--;
         cells[currentCell].appendChild(player);
@@ -870,14 +877,18 @@
       inBattleMode = true;
     };
     fleeBtn.onclick = () => {
-      battleModal.style.display = 'none';
-      if (currentCell > 1) currentCell -= 2;
-      else currentCell = 0;
-      playerHP = Math.max(0, playerHP - 10); // Потеря HP
+      fightBtn.style.display = 'none';
+      fleeBtn.style.display = 'none';
+      battleOutcome.textContent = `🏃 Побег! Потеряно 10❤️ и отступление на 2 клетки`;
+      trapSound.play(); // Используем звук ловушки
+      playerHP = Math.max(0, playerHP - 10);
       updateHealthBar();
+      currentCell = Math.max(0, currentCell - 2);
       cells[currentCell].appendChild(player);
-      playerLostBattle = false;
+      cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      cells[currentCell].appendChild(player);
       flashCell(cells[currentCell]);
+      closeBattleBtn.style.display = 'inline-block';
     };
     restartBtn.onclick = () => {
       location.reload();
