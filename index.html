@@ -976,13 +976,18 @@
     }
 
     dice.addEventListener('click', () => {
-      diceSound.play();
-      if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant || inBattleMode) return;
+      // 1. Проверяем базовые условия блокировки
+      if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
 
+      // 2. Воспроизводим звук
+      diceSound.play();
+
+      // 3. Разделяем логику для боя и обычного хода
       if (inBattleMode) {
         // Бросок кубика в бою
         dice.disabled = true;
         dice.classList.add('rolling');
+
         setTimeout(() => {
           dice.classList.remove('rolling');
 
@@ -1007,33 +1012,28 @@
 
           updateHealthBar();
           closeBattleBtn.style.display = 'inline-block';
-          dice.disabled = false;
-          dice.style.display = 'none';
+          dice.style.display = 'none'; // Скрываем кубик после боя
           inBattleMode = false;
-
         }, 800);
 
-        return;
-      }
-
-      // Обычный бросок (не бой)
-      diceRollsCount++;
-      dice.disabled = true;
-      dice.classList.add('rolling');
-      diceSound.play();
-      setTimeout(() => {
-        dice.classList.remove('rolling');
-        const roll = Math.floor(Math.random() * 6) + 1;
-        dice.textContent = `🎲 ${roll}`;
-        movePlayer(roll);
+      } else {
+        // Обычный бросок
+        diceRollsCount++;
+        dice.disabled = true;
+        dice.classList.add('rolling');
 
         setTimeout(() => {
-          dice.disabled = false;
-        }, roll * 400 + 800);
-      }, 800);
+          dice.classList.remove('rolling');
+          const roll = Math.floor(Math.random() * 6) + 1;
+          dice.textContent = `🎲 ${roll}`;
+          movePlayer(roll);
+
+          setTimeout(() => {
+            dice.disabled = false;
+          }, roll * 400 + 800);
+        }, 800);
+      }
     });
-
-
     updateHealthBar();
     buyHealBtn.onclick = () => {
       if (goldCount >= 5) {
