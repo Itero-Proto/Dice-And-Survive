@@ -835,47 +835,48 @@
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
 
-        // Создаём кнопки динамически (если их ещё нет)
-        if (!document.getElementById('fightBtn')) {
-          const fightBtn = document.createElement('button');
-          fightBtn.id = 'fightBtn';
-          fightBtn.textContent = 'СРАЖАТЬСЯ';
-          battleModal.appendChild(fightBtn);
+        // Очищаем старые кнопки (если есть)
+        const oldFightBtn = document.getElementById('fightBtn');
+        const oldFleeBtn = document.getElementById('fleeBtn');
+        if (oldFightBtn) oldFightBtn.remove();
+        if (oldFleeBtn) oldFleeBtn.remove();
 
-          const fleeBtn = document.createElement('button');
-          fleeBtn.id = 'fleeBtn';
-          fleeBtn.textContent = 'УБЕЖАТЬ';
-          battleModal.appendChild(fleeBtn);
+        // Создаём новые кнопки
+        const fightBtn = document.createElement('button');
+        fightBtn.id = 'fightBtn';
+        fightBtn.textContent = 'СРАЖАТЬСЯ';
+        battleModal.appendChild(fightBtn);
 
-          // Обработчики событий (перенесём их из старого кода)
-          fightBtn.onclick = () => {
-            fightBtn.style.display = 'none';
-            fleeBtn.style.display = 'none';
-            dice.style.display = 'block';
-            inBattleMode = true;
-          };
+        const fleeBtn = document.createElement('button');
+        fleeBtn.id = 'fleeBtn';
+        fleeBtn.textContent = 'УБЕЖАТЬ';
+        battleModal.appendChild(fleeBtn);
 
-          fleeBtn.onclick = () => {
-            fightBtn.style.display = 'none';
-            fleeBtn.style.display = 'none';
-            battleOutcome.textContent = `🏃 Побег! Потеряно 10❤️ и отступление на 2 клетки`;
-            trapSound.play();
-            playerHP = Math.max(0, playerHP - 10);
-            updateHealthBar();
-            currentCell = Math.max(0, currentCell - 2);
-            cells[currentCell].appendChild(player);
-            cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
-            flashCell(cells[currentCell]);
-            closeBattleBtn.style.display = 'inline-block';
-          };
-        } else {
-          // Если кнопки уже есть, просто показываем их
-          document.getElementById('fightBtn').style.display = 'inline-block';
-          document.getElementById('fleeBtn').style.display = 'inline-block';
-        }
+        // Вешаем обработчики НАПРЯМУЮ (не через onclick)
+        fightBtn.addEventListener('click', () => {
+          fightBtn.style.display = 'none';
+          fleeBtn.style.display = 'none';
+          dice.style.display = 'block';
+          inBattleMode = true;
+        });
+
+        fleeBtn.addEventListener('click', () => {
+          fightBtn.style.display = 'none';
+          fleeBtn.style.display = 'none';
+          battleOutcome.textContent = `🏃 Побег! Потеряно 10❤️ и отступление на 2 клетки`;
+          trapSound.play();
+          playerHP = Math.max(0, playerHP - 10);
+          updateHealthBar();
+          currentCell = Math.max(0, currentCell - 2);
+          cells[currentCell].appendChild(player);
+          cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          flashCell(cells[currentCell]);
+          closeBattleBtn.style.display = 'inline-block';
+          inBattleMode = false; // Важно: сбрасываем режим боя
+        });
 
         dice.style.display = 'none';
-        inBattleMode = true;
+        closeBattleBtn.style.display = 'none';
       }
     }
     function checkForTrap() {
@@ -963,6 +964,7 @@
     dice.addEventListener('click', () => {
       diceSound.play();
       if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
+      console.log("Кубик кликабелен!"); // Для отладки
 
       if (inBattleMode) {
         // Бросок кубика в бою
