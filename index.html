@@ -144,27 +144,6 @@
       color: #d32f2f;
     }
 
-    .cell.potion {
-
-      animation: quickFlash 0.5s linear 3;
-      /* 3 повторения */
-    }
-
-    @keyframes quickFlash {
-
-      0%,
-      100% {
-        background-color: #98621f;
-      }
-
-      /* Исходный цвет */
-      50% {
-        background-color: #00ff22;
-      }
-
-      /* Ярко-зеленый */
-    }
-
     @keyframes idle-bob {
 
       0%,
@@ -792,7 +771,6 @@
           potionIcon.className = 'potion-icon';
           potionIcon.textContent = '🧪';
           cell.appendChild(potionIcon);
-
 
           // Добавляем обработчик клика
           potionIcon.addEventListener('click', () => {
