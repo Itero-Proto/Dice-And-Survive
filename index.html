@@ -258,6 +258,8 @@
         margin: 0 auto;
         /* Дополнительное центрирование */
         font-size: 14px;
+        display: none;
+        /* Убедитесь, что модальное окно тоже скрыто */
       }
     }
 
@@ -834,7 +836,7 @@
           cell.appendChild(enemy);
           battleSound.play();
         }
-
+        fightBtn.style.display = 'inline-block'; // Показываем кнопки
         battleInfo.textContent = `⚔️ Ты встретил врага! Что будешь делать?`;
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
@@ -873,6 +875,7 @@
 
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
+      fightBtn.style.display = 'none'; // Скрываем кнопки
       dice.style.display = 'block';
       closeBattleBtn.style.display = 'none';
       inBattleMode = false;
