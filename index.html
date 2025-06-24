@@ -525,7 +525,7 @@
   <div id="merchantModal"
     style="display: none; position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
   background: #fff8dc; border: 3px solid #8b5e3c; padding: 20px; border-radius: 12px; z-index: 1000; text-align: center; width: 300px;">
-    <div style="font-size: 1.2em; margin-bottom: 10px;">🧙‍♂️ Таинственный торговец предлагает купить зелье за 5💰
+    <div style="font-size: 1.2em; margin-bottom: 10px;">🧙‍♂️ Таинственный незнакомец вылечит тебя за 5💰
     </div>
     <button id="buyHealBtn">Вылечиться</button>
     <button id="declineMerchantBtn">Отказаться</button>
@@ -792,6 +792,9 @@
 
         // Показываем окно торговца
         merchantModal.style.display = 'block';
+        // Обновляем состояние кнопки при открытии
+        buyHealBtn.disabled = goldCount < 5;
+        buyHealBtn.style.opacity = goldCount < 5 ? "0.5" : "1";
       }
     }
 
@@ -1017,7 +1020,17 @@
         goldCount -= 5;
         updateGoldCounter(true);
 
-        // Восстанавливаем 50 HP (но не больше максимума)
+        // Анимация лечения: мигание здоровья
+        const healthBar = document.getElementById('health-fill');
+        healthBar.style.transition = "none"; // Отключаем плавность для резкого мигания
+        healthBar.style.backgroundColor = "#00ff00"; // Зелёный цвет
+
+        setTimeout(() => {
+          healthBar.style.transition = "width 0.4s ease"; // Возвращаем анимацию
+          healthBar.style.backgroundColor = "#a60000"; // Возвращаем красный
+        }, 300);
+
+        // Восстановление HP
         playerHP = Math.min(100, playerHP + 50);
         updateHealthBar();
 
@@ -1025,16 +1038,15 @@
         isInteractingWithMerchant = false;
         dice.disabled = false;
 
-        // Показываем сообщение о лечении
         const popup = document.createElement('div');
         popup.className = 'heal-popup';
-        popup.textContent = 'Восстановлено 50❤️';
+        popup.textContent = 'Куплено зелье (+50❤️)';
         document.body.appendChild(popup);
         setTimeout(() => popup.remove(), 2000);
 
-        // Проигрываем звук зелья
         potionSound.play();
-      } else {
+      }
+      else {
         // Если не хватает золота, показываем сообщение
         const popup = document.createElement('div');
         popup.className = 'trap-popup';
