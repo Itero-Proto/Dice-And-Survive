@@ -507,6 +507,9 @@
     <div id="battleInfo"></div>
     <div id="battleOutcome"></div>
     <button id="closeBattleBtn">OK</button>
+    <button id="fightBtn">Сражаться</button>
+    <button id="fleeBtn">Убежать</button>
+
   </div>
   <div id="inventory" style="position: fixed; left: 10px; top: 50%; transform: translateY(-50%);
      background: rgba(106, 106, 106, 0.9); border: 1px solid #000000; border-radius: 8px;
@@ -817,12 +820,13 @@
           battleSound.play();
         }
 
-        battleInfo.textContent = `⚔️ Ты встретил врага! Бросай кубик`;
+        battleInfo.textContent = `⚔️ Ты встретил врага! Что будешь делать?`;
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
-        dice.style.display = 'block';
-        closeBattleBtn.style.display = 'none';
-        inBattleMode = true; // включаем боевой режим
+        fightBtn.style.display = 'inline-block';
+        fleeBtn.style.display = 'inline-block';
+        dice.style.display = 'none'; // Скрываем кубик
+
       }
     }
 
@@ -859,7 +863,22 @@
         cells[currentCell].appendChild(player);
       }
     };
-
+    fightBtn.onclick = () => {
+      fightBtn.style.display = 'none';
+      fleeBtn.style.display = 'none';
+      dice.style.display = 'block';
+      inBattleMode = true;
+    };
+    fleeBtn.onclick = () => {
+      battleModal.style.display = 'none';
+      if (currentCell > 1) currentCell -= 2;
+      else currentCell = 0;
+      playerHP = Math.max(0, playerHP - 10); // Потеря HP
+      updateHealthBar();
+      cells[currentCell].appendChild(player);
+      playerLostBattle = false;
+      flashCell(cells[currentCell]);
+    };
     restartBtn.onclick = () => {
       location.reload();
     };
