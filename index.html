@@ -856,7 +856,6 @@
         document.getElementById('fleeBtn').style.display = 'block';
 
         battleModal.style.display = 'block';
-        dice.style.display = 'none'; // Скрываем кубик
       }
     }
     function fleeFromBattle() {
@@ -876,11 +875,13 @@
         battleModal.style.display = 'none';
         movePlayer(0); // Обновляем позицию
       }, 1500);
+      inBattleMode = false; // Сбрасываем флаг битвы
     }
 
     // Привязываем к кнопке
     document.getElementById('fleeBtn').addEventListener('click', fleeFromBattle);
     function startBattle() {
+      inBattleMode = true; // Добавляем этот флаг
       // Скрываем кнопки выбора
       document.getElementById('fightBtn').style.display = 'none';
       document.getElementById('fleeBtn').style.display = 'none';
@@ -936,8 +937,9 @@
     }
 
     closeBattleBtn.onclick = () => {
+      inBattleMode = false; // Сбрасываем флаг битвы
+      dice.style.display = 'block'; // Возвращаем кубик
       battleModal.style.display = 'none';
-      dice.style.display = 'block';
       closeBattleBtn.style.display = 'none';
       if (playerLostBattle && currentCell > 0) {
         currentCell--;
@@ -975,7 +977,7 @@
 
     dice.addEventListener('click', () => {
       diceSound.play();
-      if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
+      if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant || inBattleMode) return;
 
       if (inBattleMode) {
         // Бросок кубика в бою
