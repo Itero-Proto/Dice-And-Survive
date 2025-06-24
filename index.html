@@ -1028,8 +1028,11 @@
           dice.textContent = `🎲 ${roll}`;
           movePlayer(roll);
 
+          // Разблокируем кубик после завершения движения
           setTimeout(() => {
-            dice.disabled = false;
+            if (playerHP > 0 && currentCell < cells.length - 1) {
+              dice.disabled = false;
+            }
           }, roll * 400 + 800);
         }, 800);
       }
