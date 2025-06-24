@@ -506,6 +506,7 @@
   <div id="battleModal">
     <div id="battleInfo"></div>
     <div id="battleOutcome"></div>
+    <button id="closeBattleBtn">OK</button>
     <button id="fightBtn">Сражаться</button>
     <button id="fleeBtn">Убежать</button>
 
@@ -855,6 +856,7 @@
 
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
+      dice.style.display = 'block';
       closeBattleBtn.style.display = 'none';
       if (playerLostBattle && currentCell > 0) {
         currentCell--;
