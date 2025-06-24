@@ -926,23 +926,22 @@
       }
     };
     fightBtn.onclick = () => {
-      battleModal.style.display = 'none'; // Скрываем ВСЁ окно боя
+      battleModal.style.display = 'none';
       dice.style.display = 'block';
-      inBattleMode = true; // Теперь кубик работает для броска в бою
+      inBattleMode = true;
+      dice.disabled = false; // Разрешаем бросок кубика
     };
     fleeBtn.onclick = () => {
-      fightBtn.style.display = 'none';
-      fleeBtn.style.display = 'none';
-      battleOutcome.textContent = `🏃 Побег! Потеряно 10❤️ и отступление на 2 клетки`;
-      trapSound.play(); // Используем звук ловушки
+      battleModal.style.display = 'none';
       playerHP = Math.max(0, playerHP - 10);
-      updateHealthBar();
       currentCell = Math.max(0, currentCell - 2);
       cells[currentCell].appendChild(player);
       cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
-      cells[currentCell].appendChild(player);
+      updateHealthBar();
       flashCell(cells[currentCell]);
-      closeBattleBtn.style.display = 'inline-block';
+      trapSound.play();
+      dice.style.display = 'block';
+      dice.disabled = false;
     };
     restartBtn.onclick = () => {
       location.reload();
@@ -980,15 +979,19 @@
       dice.classList.add('rolling');
 
       if (inBattleMode) {
-        // Режим боя
+        // Боевой режим
         setTimeout(() => {
           dice.classList.remove('rolling');
 
           const enemyRoll = Math.floor(Math.random() * 6) + 1;
           const playerRoll = Math.floor(Math.random() * 6) + 1;
 
+          // Показываем результаты боя
           battleModal.style.display = 'block';
           battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
+          closeBattleBtn.style.display = 'inline-block';
+          fightBtn.style.display = 'none';
+          fleeBtn.style.display = 'none';
 
           if (playerRoll < enemyRoll) {
             // Проигрыш
@@ -1006,15 +1009,15 @@
             playerLostBattle = false;
             defeatedEnemies.add(currentCell);
 
-            const cell = cells[currentCell];
-            const enemy = cell.querySelector('.enemy');
+            // Удаляем врага
+            const enemy = cells[currentCell].querySelector('.enemy');
             if (enemy) enemy.remove();
 
             // Добавляем золото
             const gold = document.createElement('span');
             gold.textContent = '💰';
             gold.className = 'gold';
-            cell.appendChild(gold);
+            cells[currentCell].appendChild(gold);
 
             gold.addEventListener('click', () => {
               const goldGain = Math.floor(Math.random() * 10) + 1;
@@ -1025,23 +1028,24 @@
               const popup = document.createElement('div');
               popup.className = 'heal-popup';
               popup.innerHTML = `Найдено золото: +${goldGain}`;
-              cell.appendChild(popup);
+              cells[currentCell].appendChild(popup);
               setTimeout(() => popup.remove(), 4000);
             });
           }
 
           updateHealthBar();
-          closeBattleBtn.style.display = 'inline-block';
-          fightBtn.style.display = 'none';
-          fleeBtn.style.display = 'none';
-          dice.style.display = 'none';
-          inBattleMode = false;
 
-          // Автоматически закрываем окно боя через 2 секунды
+          // Автоматическое закрытие через 2 секунды
           setTimeout(() => {
             battleModal.style.display = 'none';
             dice.style.display = 'block';
             dice.disabled = false;
+
+            if (playerLostBattle) {
+              currentCell = Math.max(0, currentCell - 1);
+              cells[currentCell].appendChild(player);
+              cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
           }, 2000);
         }, 800);
       } else {
