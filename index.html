@@ -575,7 +575,6 @@
     <button id="declineMerchantBtn">Отказаться</button>
   </div>
 
-  <!-- ВСЕ элементы, включая <audio> -->
   <audio id="diceSound" src="sounds/dice-roll.mp3"></audio>
   <audio id="battleSound" src="sounds/battle.mp3"></audio>
   <audio id="potionSound" src="sounds/potion.mp3"></audio>
@@ -586,7 +585,7 @@
   <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
   <audio id="battleLostSound" src="sounds/battleLost.mp3"></audio>
   <audio id="merchantSound" src="sounds/merchant.mp3"></audio>
-
+  <audio id="runawaySound" src="sounds/runaway.mp3"></audio>
   <script>
     // В начале скрипта (с другими переменными)
     let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
@@ -831,7 +830,6 @@
         // Блокируем кубик
         dice.disabled = true;
 
-        // Проигрываем звук
         document.getElementById('merchantSound').play();
 
         // Показываем окно торговца
@@ -845,7 +843,7 @@
     function checkForGold() {
       const cell = cells[currentCell];
       if (goldCells.includes(currentCell) && !usedGoldCells.has(currentCell)) {
-        usedGoldCells.add(currentCell); // чтобы не забирать дважды
+        usedGoldCells.add(currentCell);
 
         const gold = document.createElement('span');
         gold.textContent = '💰';
@@ -879,7 +877,7 @@
           battleSound.play();
         }
 
-        battleInfo.textContent = `⚔️ Ты встретил врага! Что будешь делать?`;
+        battleInfo.textContent = `⚔️ Повстречался какой-то враг`;
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
         fightBtn.style.display = 'inline-block';
@@ -934,8 +932,8 @@
     fleeBtn.onclick = () => {
       fightBtn.style.display = 'none';
       fleeBtn.style.display = 'none';
-      battleOutcome.textContent = `🏃 Побег! Потеряно 10❤️ и отступление на 2 клетки`;
-      trapSound.play(); // Используем звук ловушки
+      battleOutcome.textContent = `🏃 Ты отступил на -2 клетки, и потерял -10❤️`;
+      runawaySound.play();
       playerHP = Math.max(0, playerHP - 10);
       updateHealthBar();
       currentCell = Math.max(0, currentCell - 2);
@@ -987,12 +985,12 @@
           const enemyRoll = Math.floor(Math.random() * 6) + 1;
           const playerRoll = Math.floor(Math.random() * 6) + 1;
 
-          battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
+          battleInfo.textContent = `👹 Враг нанёс: ${enemyRoll} | 🧍 Ты нанёс: ${playerRoll}`;
 
           if (playerRoll < enemyRoll) {
             playerHP = Math.max(0, playerHP - 25);
             flashCell(cells[currentCell]);
-            battleOutcome.textContent = `❌ Ты проиграл и отступаешь на 1 клетку!`;
+            battleOutcome.textContent = `❌ Ты проиграл. -25❤️ и отброшен на 1 клетку!`;
             document.body.classList.add('shake');
             setTimeout(() => document.body.classList.remove('shake'), 500);
             battleLostSound.play();
@@ -1019,7 +1017,7 @@
               updateGoldCounter(true);
 
               const popup = document.createElement('div');
-              popup.className = 'heal-popup'; // можно создать отдельный gold-popup при желании
+              popup.className = 'heal-popup';
               popup.innerHTML = `Найдено золото: +${goldGain}`;
               cell.appendChild(popup);
               setTimeout(() => popup.remove(), 4000);
