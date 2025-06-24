@@ -973,19 +973,18 @@
     }
 
     dice.addEventListener('click', () => {
-      diceSound.play();
-      if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
-
       if (inBattleMode) {
-        // Бросок кубика в бою
         dice.disabled = true;
         dice.classList.add('rolling');
+
         setTimeout(() => {
           dice.classList.remove('rolling');
 
           const enemyRoll = Math.floor(Math.random() * 6) + 1;
           const playerRoll = Math.floor(Math.random() * 6) + 1;
 
+          // Показываем окно боя с результатами
+          battleModal.style.display = 'block'; // <- Вот это важно!
           battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
 
           if (playerRoll < enemyRoll) {
@@ -1001,62 +1000,39 @@
             winBattleSound.play();
             playerLostBattle = false;
 
-            // Удаляем врага
+            // Удаляем врага и добавляем золото
             const cell = cells[currentCell];
             const enemy = cell.querySelector('.enemy');
             if (enemy) enemy.remove();
 
-            // Создаём сундук с золотом
             const gold = document.createElement('span');
             gold.textContent = '💰';
             gold.className = 'gold';
             cell.appendChild(gold);
 
             gold.addEventListener('click', () => {
-              const goldGain = Math.floor(Math.random() * 10) + 1; // от 1 до 10
+              const goldGain = Math.floor(Math.random() * 10) + 1;
               goldCount += goldGain;
               updateGoldCounter(true);
+              gold.remove();
 
               const popup = document.createElement('div');
-              popup.className = 'heal-popup'; // можно создать отдельный gold-popup при желании
+              popup.className = 'heal-popup';
               popup.innerHTML = `Найдено золото: +${goldGain}`;
               cell.appendChild(popup);
               setTimeout(() => popup.remove(), 4000);
-
-              gold.remove(); // удаляем сундук после сбора
             });
           }
 
-
           updateHealthBar();
           closeBattleBtn.style.display = 'inline-block';
-          dice.disabled = false;
-          dice.style.display = 'none';
+          fightBtn.style.display = 'none'; // Убираем кнопки "Сражаться/Убежать"
+          fleeBtn.style.display = 'none';
+          dice.style.display = 'none'; // Скрываем кубик после боя
           inBattleMode = false;
-
         }, 800);
-
-        return;
       }
-
-      // Обычный бросок (не бой)
-      diceRollsCount++;
-      dice.disabled = true;
-      dice.classList.add('rolling');
-      diceSound.play();
-      setTimeout(() => {
-        dice.classList.remove('rolling');
-        const roll = Math.floor(Math.random() * 6) + 1;
-        dice.textContent = `🎲 ${roll}`;
-        movePlayer(roll);
-
-        setTimeout(() => {
-          dice.disabled = false;
-        }, roll * 400 + 800);
-      }, 800);
     });
-
-
     updateHealthBar();
     buyHealBtn.onclick = () => {
       if (goldCount >= 5) {
