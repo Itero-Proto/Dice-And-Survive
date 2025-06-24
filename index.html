@@ -744,28 +744,30 @@
     function checkForHealthPotion() {
       const cell = cells[currentCell];
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
-        usedHealthCells.add(currentCell);
-
         if (!cell.querySelector('.potion-icon')) {
           const potionIcon = document.createElement('span');
           potionIcon.className = 'potion-icon';
           potionIcon.textContent = '🧪';
           cell.appendChild(potionIcon);
           potionSound.play();
+
+          // Добавляем обработчик клика
+          potionIcon.addEventListener('click', () => {
+            usedHealthCells.add(currentCell); // Помечаем клетку как использованную
+            potionCount++;
+            potionsCountElement.textContent = `${potionCount}`;
+            potionIcon.remove(); // Удаляем зелье с клетки
+
+            const popup = document.createElement('div');
+            popup.className = 'heal-popup';
+            popup.textContent = 'Зелье добавлено в инвентарь!';
+            cell.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000);
+          });
         }
 
         cell.classList.add('potion');
         setTimeout(() => cell.classList.remove('potion'), 1500);
-
-        // Вместо автоматического лечения - добавляем в инвентарь
-        potionCount++;
-        potionsCountElement.textContent = `${potionCount}`;
-
-        const popup = document.createElement('div');
-        popup.className = 'heal-popup';
-        popup.textContent = 'Найдено зелье (+1 к инвентарю)';
-        cell.appendChild(popup);
-        setTimeout(() => popup.remove(), 2000);
       }
     }
     function checkForMerchant() {
