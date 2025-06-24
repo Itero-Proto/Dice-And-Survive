@@ -926,10 +926,9 @@
       }
     };
     fightBtn.onclick = () => {
-      fightBtn.style.display = 'none';
-      fleeBtn.style.display = 'none';
+      battleModal.style.display = 'none'; // Скрываем ВСЁ окно боя
       dice.style.display = 'block';
-      inBattleMode = true;
+      inBattleMode = true; // Теперь кубик работает для броска в бою
     };
     fleeBtn.onclick = () => {
       fightBtn.style.display = 'none';
