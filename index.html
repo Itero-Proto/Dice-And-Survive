@@ -914,22 +914,24 @@
         updateHealthBar();
       }
     }
-
+    // Обновите обработчик кнопки "OK":
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
       dice.style.display = 'block';
-      closeBattleBtn.style.display = 'none';
-      inBattleMode = false;
-      if (playerLostBattle && currentCell > 0) {
-        currentCell--;
+      dice.disabled = false;
+
+      if (playerLostBattle) {
+        currentCell = Math.max(0, currentCell - 1);
         cells[currentCell].appendChild(player);
+        cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        playerLostBattle = false;
       }
     };
+    // Обновите обработчик кнопки "Сражаться":
     fightBtn.onclick = () => {
       battleModal.style.display = 'none';
       dice.style.display = 'block';
       inBattleMode = true;
-      dice.disabled = false; // Разрешаем бросок кубика
     };
     fleeBtn.onclick = () => {
       battleModal.style.display = 'none';
@@ -979,7 +981,6 @@
       dice.classList.add('rolling');
 
       if (inBattleMode) {
-        // Боевой режим
         setTimeout(() => {
           dice.classList.remove('rolling');
 
@@ -989,9 +990,12 @@
           // Показываем результаты боя
           battleModal.style.display = 'block';
           battleInfo.textContent = `👹 Враг бросил: ${enemyRoll} | 🧍 Ты бросил: ${playerRoll}`;
+
+          // Всегда показываем кнопку OK
           closeBattleBtn.style.display = 'inline-block';
           fightBtn.style.display = 'none';
           fleeBtn.style.display = 'none';
+          dice.style.display = 'none';
 
           if (playerRoll < enemyRoll) {
             // Проигрыш
@@ -1034,19 +1038,6 @@
           }
 
           updateHealthBar();
-
-          // Автоматическое закрытие через 2 секунды
-          setTimeout(() => {
-            battleModal.style.display = 'none';
-            dice.style.display = 'block';
-            dice.disabled = false;
-
-            if (playerLostBattle) {
-              currentCell = Math.max(0, currentCell - 1);
-              cells[currentCell].appendChild(player);
-              cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
-          }, 2000);
         }, 800);
       } else {
         // Обычный бросок
