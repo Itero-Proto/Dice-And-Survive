@@ -463,6 +463,30 @@
         transform: translateX(5px);
       }
     }
+
+    /* Стили для кнопок в окне битвы */
+    #fightBtn:hover {
+      background: #d00 !important;
+    }
+
+    #fleeBtn:hover {
+      background: #6d4c35 !important;
+    }
+
+    /* Анимация отступления */
+    @keyframes slideBack {
+      0% {
+        transform: translateX(0);
+      }
+
+      100% {
+        transform: translateX(-30px);
+      }
+    }
+
+    .slide-back {
+      animation: slideBack 0.4s ease;
+    }
   </style>
 </head>
 
@@ -504,9 +528,14 @@
     <button id="winRestartBtn">ЗАНОВО</button>
   </div>
   <div id="battleModal">
-    <div id="battleInfo"></div>
+    <div id="battleInfo">⚔️ Враг блокирует путь! Выберите действие:</div>
+    <div style="margin: 15px 0; display: flex; gap: 10px;">
+      <button id="fightBtn"
+        style="background: #a00; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; flex: 1;">СРАЖАТЬСЯ</button>
+      <button id="fleeBtn"
+        style="background: #5a3e2b; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; flex: 1;">ОТСТУПИТЬ</button>
+    </div>
     <div id="battleOutcome"></div>
-    <button id="closeBattleBtn">OK</button>
   </div>
   <div id="inventory" style="position: fixed; left: 10px; top: 50%; transform: translateY(-50%);
      background: rgba(106, 106, 106, 0.9); border: 1px solid #000000; border-radius: 8px;
@@ -809,29 +838,57 @@
     function checkForEnemy() {
       const cell = cells[currentCell];
       if (enemyCells.includes(currentCell)) {
-        battleModal.innerHTML = `
-      <div>⚔️ Враг блокирует путь!</div>
-      <div style="margin: 15px 0;">
-        <button id="fightBtn" style="background: #a00; color: white; padding: 8px 15px; border: none; border-radius: 5px; margin-right: 10px; cursor: pointer;">Сражаться</button>
-        <button id="fleeBtn" style="background: #5a3e2b; color: white; padding: 8px 15px; border: none; border-radius: 5px; cursor: pointer;">Убежать</button>
-      </div>
-      <div id="battleOutcome"></div>
-    `;
-        battleModal.style.display = 'block';
+        // Добавляем врага на клетку (как раньше)
+        if (!cell.querySelector('.enemy')) {
+          const enemy = document.createElement('span');
+          enemy.className = 'enemy';
+          enemy.textContent = '👹';
+          cell.appendChild(enemy);
+          battleSound.play();
+        }
 
-        document.getElementById('fightBtn').onclick = startBattle;
-        document.getElementById('fleeBtn').onclick = fleeFromBattle;
+        // Обновляем текст окна
+        battleInfo.innerHTML = '⚔️ Враг блокирует путь! Выберите действие:';
+        battleOutcome.innerHTML = '';
+
+        // Показываем кнопки (изначально скрыты в CSS)
+        document.getElementById('fightBtn').style.display = 'block';
+        document.getElementById('fleeBtn').style.display = 'block';
+
+        battleModal.style.display = 'block';
+        dice.style.display = 'none'; // Скрываем кубик
       }
     }
     function fleeFromBattle() {
+      // 1. Визуальные эффекты
+      flashCell(cells[currentCell]);
+      document.body.classList.add('shake');
+      setTimeout(() => document.body.classList.remove('shake'), 500);
+
+      // 2. Механика отката
       playerHP = Math.max(0, playerHP - 10); // -10 HP
-      currentCell = Math.max(0, currentCell - 2); // Откат на 2 клетки
+      currentCell = Math.max(0, currentCell - 2); // 2 клетки назад
+
+      // 3. Обновляем интерфейс
       updateHealthBar();
-      battleModal.style.display = 'none';
-      movePlayer(0); // Обновляем позицию
-      flashCell(cells[currentCell]); // Подсветка клетки
+      battleOutcome.innerHTML = 'Вы отступили! -10❤, -2 клетки';
+      setTimeout(() => {
+        battleModal.style.display = 'none';
+        movePlayer(0); // Обновляем позицию
+      }, 1500);
     }
+
+    // Привязываем к кнопке
+    document.getElementById('fleeBtn').addEventListener('click', fleeFromBattle);
     function startBattle() {
+      // Скрываем кнопки выбора
+      document.getElementById('fightBtn').style.display = 'none';
+      document.getElementById('fleeBtn').style.display = 'none';
+
+      // Старая логика битвы (с кубиком)
+      battleInfo.innerHTML = 'Бросайте кубик!';
+      dice.style.display = 'block';
+      dice.disabled = false;
       const enemyRoll = Math.floor(Math.random() * 6) + 1;
       const playerRoll = Math.floor(Math.random() * 6) + 1;
 
