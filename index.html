@@ -231,6 +231,50 @@
       }
     }
 
+    #battleModal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 280px;
+      background: rgb(127, 127, 127);
+      border: 3px solid #5c0000;
+      padding: 15px;
+      border-radius: 12px;
+      z-index: 1000;
+      display: none;
+      /* По умолчанию скрыто */
+      text-align: center;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    }
+
+    /* Стили для кнопок в бою */
+    #fightBtn,
+    #fleeBtn {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin: 5px;
+    }
+
+    #fightBtn:hover,
+    #fleeBtn:hover {
+      background: #45a049;
+    }
+
+    #closeBattleBtn {
+      background: #a00;
+      color: white;
+      border: none;
+      padding: 8px 15px;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
     @media (max-width: 768px) {
       #battleModal {
         position: fixed;
@@ -1017,36 +1061,36 @@
     updateHealthBar();
     buyHealBtn.onclick = () => {
       if (goldCount >= 5) {
-    goldCount -= 5;
-    updateGoldCounter(true);
+        goldCount -= 5;
+        updateGoldCounter(true);
 
-    // Анимация лечения: мигание здоровья
-    const healthBar = document.getElementById('health-fill');
-    healthBar.style.transition = "none"; // Отключаем плавность для резкого мигания
-    healthBar.style.backgroundColor = "#00ff00"; // Зелёный цвет
-    
-    setTimeout(() => {
-      healthBar.style.transition = "width 0.4s ease"; // Возвращаем анимацию
-      healthBar.style.backgroundColor = "#a60000"; // Возвращаем красный
-    }, 300);
+        // Анимация лечения: мигание здоровья
+        const healthBar = document.getElementById('health-fill');
+        healthBar.style.transition = "none"; // Отключаем плавность для резкого мигания
+        healthBar.style.backgroundColor = "#00ff00"; // Зелёный цвет
 
-    // Восстановление HP
-    playerHP = Math.min(100, playerHP + 50);
-    updateHealthBar();
+        setTimeout(() => {
+          healthBar.style.transition = "width 0.4s ease"; // Возвращаем анимацию
+          healthBar.style.backgroundColor = "#a60000"; // Возвращаем красный
+        }, 300);
 
-    merchantModal.style.display = 'none';
-    isInteractingWithMerchant = false;
-    dice.disabled = false;
+        // Восстановление HP
+        playerHP = Math.min(100, playerHP + 50);
+        updateHealthBar();
 
-    const popup = document.createElement('div');
-    popup.className = 'heal-popup';
-    popup.textContent = 'Куплено зелье (+50❤️)';
-    document.body.appendChild(popup);
-    setTimeout(() => popup.remove(), 2000);
+        merchantModal.style.display = 'none';
+        isInteractingWithMerchant = false;
+        dice.disabled = false;
 
-    potionSound.play();
-  } 
-  else {
+        const popup = document.createElement('div');
+        popup.className = 'heal-popup';
+        popup.textContent = 'Куплено зелье (+50❤️)';
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 2000);
+
+        potionSound.play();
+      }
+      else {
         // Если не хватает золота, показываем сообщение
         const popup = document.createElement('div');
         popup.className = 'trap-popup';
