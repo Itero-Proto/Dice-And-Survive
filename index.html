@@ -749,7 +749,7 @@
           potionIcon.className = 'potion-icon';
           potionIcon.textContent = '🧪';
           cell.appendChild(potionIcon);
-          potionSound.play();
+
 
           // Добавляем обработчик клика
           potionIcon.addEventListener('click', () => {
@@ -757,7 +757,7 @@
             potionCount++;
             potionsCountElement.textContent = `${potionCount}`;
             potionIcon.remove(); // Удаляем зелье с клетки
-
+            potionSound.play();
             const popup = document.createElement('div');
             popup.className = 'heal-popup';
             popup.textContent = 'Зелье добавлено в инвентарь!';
