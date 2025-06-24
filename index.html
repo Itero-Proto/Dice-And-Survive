@@ -525,7 +525,7 @@
   <div id="merchantModal"
     style="display: none; position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
   background: #fff8dc; border: 3px solid #8b5e3c; padding: 20px; border-radius: 12px; z-index: 1000; text-align: center; width: 300px;">
-    <div style="font-size: 1.2em; margin-bottom: 10px;">🧙‍♂️ Таинственный торговец предлагает восстановить 25❤️ за 5💰
+    <div style="font-size: 1.2em; margin-bottom: 10px;">🧙‍♂️ Таинственный торговец предлагает купить зелье за 5💰
     </div>
     <button id="buyHealBtn">Купить</button>
     <button id="declineMerchantBtn">Отказаться</button>
@@ -795,23 +795,29 @@
 
     function checkForGold() {
       const cell = cells[currentCell];
-      if (goldCells.includes(currentCell) && !cell.querySelector('.gold')) {
+      if (goldCells.includes(currentCell) && !usedGoldCells.has(currentCell)) {
+        usedGoldCells.add(currentCell); // чтобы не забирать дважды
+
         const gold = document.createElement('span');
         gold.textContent = '💰';
         gold.className = 'gold';
         cell.appendChild(gold);
-        goldSound.play();
-        const goldGain = Math.floor(Math.random() * 5) + 1; // от 1 до 5
-        goldCount += goldGain;
-        updateGoldCounter(true); // ← вот ЭТО сюда
 
-        const popup = document.createElement('div');
-        popup.className = 'heal-popup'; // можно создать gold-popup если хочешь
-        popup.innerHTML = `Найдено золото: +${goldGain}`;
-        cell.appendChild(popup);
-        setTimeout(() => popup.remove(), 4000);
+        gold.addEventListener('click', () => {
+          const goldGain = Math.floor(Math.random() * 5) + 1; // от 1 до 5
+          goldCount += goldGain;
+          updateGoldCounter(true);
+          gold.remove(); // убрать золото с клетки
+
+          const popup = document.createElement('div');
+          popup.className = 'heal-popup';
+          popup.innerHTML = `Найдено золото: +${goldGain}`;
+          cell.appendChild(popup);
+          setTimeout(() => popup.remove(), 4000);
+        });
       }
     }
+
 
     function checkForEnemy() {
       const cell = cells[currentCell];
