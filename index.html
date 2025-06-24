@@ -1,38 +1,45 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
   <meta charset="UTF-8" />
   <title>Dice & Survive</title>
-  <link rel="stylesheet" href="styles.css" /> <!-- Вынеси CSS в отдельный файл -->
+  <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
-  <!-- UI элементы -->
   <div id="goldCounter">💰 0</div>
-  <div id="health-bar"><div id="health-fill"></div></div>
-  <div id="board-container"><div id="board"></div></div>
+  <div id="health-bar">
+    <div id="health-fill"></div>
+  </div>
+  <div id="board-container">
+    <div id="board"></div>
+  </div>
   <div id="dice">🎲</div>
-
-  <!-- Модальные окна -->
-  <div id="winModal"><div>🎉 Поздравляем!</div><div id="finalStats"></div><button id="winRestartBtn">ЗАНОВО</button></div>
-  <div id="battleModal"><div id="battleInfo"></div><div id="battleOutcome"></div><button id="closeBattleBtn">OK</button></div>
-  <div id="gameOverModal"><div>💀 Вы погибли!</div><button id="restartBtn">ЗАНОВО</button></div>
-
-  <!-- Звуки -->
-  <div style="display:none">
-    <audio id="diceSound" src="sounds/dice-roll.mp3"></audio>
-    <audio id="battleSound" src="sounds/battle.mp3"></audio>
-    <audio id="potionSound" src="sounds/potion.mp3"></audio>
-    <audio id="goldSound" src="sounds/gold.mp3"></audio>
-    <audio id="trapSound" src="sounds/trap.mp3"></audio>
-    <audio id="winGameSound" src="sounds/winGame.mp3"></audio>
-    <audio id="winBattleSound" src="sounds/winBattle.mp3"></audio>
-    <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
-    <audio id="battleLostSound" src="sounds/battleLost.mp3"></audio>
+  <div id="winModal">
+    <div>🎉 Поздравляем! Приключение завершено!</div>
+    <div id="finalStats">За Х дней</div>
+    <button id="winRestartBtn">ЗАНОВО</button>
+  </div>
+  <div id="battleModal">
+    <div id="battleInfo"></div>
+    <div id="battleOutcome"></div>
+    <button id="closeBattleBtn">OK</button>
+  </div>
+  <div id="gameOverModal">
+    <div>💀 Вы погибли! </div>
+    <button id="restartBtn">ЗАНОВО</button>
   </div>
 
-  <script src="game.js"></script> <!-- Вынеси JS в отдельный файл -->
-</body>
+  <!-- Audio -->
+  <audio id="diceSound" src="sounds/dice-roll.mp3"></audio>
+  <audio id="battleSound" src="sounds/battle.mp3"></audio>
+  <audio id="potionSound" src="sounds/potion.mp3"></audio>
+  <audio id="goldSound" src="sounds/gold.mp3"></audio>
+  <audio id="trapSound" src="sounds/trap.mp3"></audio>
+  <audio id="winGameSound" src="sounds/winGame.mp3"></audio>
+  <audio id="winBattleSound" src="sounds/winBattle.mp3"></audio>
+  <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
+  <audio id="battleLostSound" src="sounds/battleLost.mp3"></audio>
 
+  <script src="scripts.js"></script>
+</body>
 </html>
