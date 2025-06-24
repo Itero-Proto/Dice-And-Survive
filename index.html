@@ -926,16 +926,8 @@
       }
     };
     fightBtn.onclick = () => {
-      
-      // Показываем сообщение "Бросай кубик"
-      const throwPopup = document.createElement('div');
-      throwPopup.className = 'heal-popup';
-      throwPopup.textContent = 'Бросай кубик!';
-      battleModal.appendChild(throwPopup);
-      // Удаляем сообщение через 2 секунды
-      setTimeout(() => throwPopup.remove(), 2000);
-
-      // Включаем кубик для броска
+      fightBtn.style.display = 'none';
+      fleeBtn.style.display = 'none';
       dice.style.display = 'block';
       inBattleMode = true;
     };
