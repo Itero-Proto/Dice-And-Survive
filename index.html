@@ -1049,6 +1049,7 @@
     dice.addEventListener('click', () => {
       if (isPortalActive) {
         isPortalActive = false;
+        portalSound.play(); // Звук телепортации
         const roll = Math.floor(Math.random() * 6) + 1;
         const direction = Math.random() > 0.5 ? 1 : -1; // 50% вперёд или назад
         const newPosition = Math.max(0, Math.min(99, currentCell + (roll * direction)));
@@ -1203,6 +1204,7 @@
     document.getElementById('usePortalBtn').onclick = () => {
       document.getElementById('portalModal').style.display = 'none';
       dice.disabled = false; // Разблокируем кубик для броска
+      portalSound.play(); // Звук активации портала
       dice.click(); // Автоматически запускаем бросок
     };
 
