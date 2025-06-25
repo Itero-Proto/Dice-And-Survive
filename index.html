@@ -177,40 +177,39 @@
     }
 
     #dice {
-      width: 60px;
-      height: 60px;
-      position: relative;
-      transform-style: preserve-3d;
-      transition: transform 0.5s;
-    }
-
-    .face {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: white;
-      border: 2px solid #333;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-size: 24px;
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5em;
+      cursor: pointer;
+      padding: 15px 25px;
+      background: linear-gradient(145deg, #fff, #e6e6e6);
+      border-radius: 12px;
+      box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
+      user-select: none;
+      transition: all 0.3s ease;
+      z-index: 300;
     }
 
     #dice:hover {
       transform: translateX(-50%) scale(1.1);
+      box-shadow: 5px 5px 10px #bbb, -5px -5px 10px #fff;
     }
 
     #dice.rolling {
-      animation: roll 0.6s infinite linear;
+      animation:
+        roll 0.6s infinite linear,
+        pulse 0.5s infinite alternate;
     }
 
-    @keyframes roll {
-      0% {
-        transform: translateX(-50%) rotate(0deg);
+    @keyframes pulse {
+      from {
+        opacity: 0.8;
       }
 
-      100% {
-        transform: translateX(-50%) rotate(360deg);
+      to {
+        opacity: 1;
       }
     }
 
