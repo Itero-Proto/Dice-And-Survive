@@ -973,6 +973,10 @@
             setTimeout(() => document.body.classList.remove('shake'), 500);
             battleLostSound.play();
             playerLostBattle = true;
+          } else if (playerRoll === enemyRoll) { // Обработка ничьи
+            battleOutcome.textContent = `🔄 Ничья! Ты недооценил врага и отступаешь!`;
+            playerLostBattle = true;
+            runawaySound.play();
           } else {
             battleOutcome.textContent = `✅ Ты победил!`;
             winBattleSound.play();
