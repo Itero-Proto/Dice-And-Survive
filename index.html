@@ -864,8 +864,7 @@
 
     function checkForTrap() {
       const cell = cells[currentCell];
-      if (trapCells.includes(currentCell) && !usedTrapCells.has(currentCell)) {
-        usedTrapCells.add(currentCell); // Помечаем ловушку как использованную
+      if (trapCells.includes(currentCell)) { // Проверяем только наличие ловушки
         if (!cell.querySelector('.trap')) {
           const trap = document.createElement('span');
           trap.textContent = '🕳️';
@@ -919,7 +918,7 @@
       flashCell(cells[currentCell]);
       closeBattleBtn.style.display = 'inline-block';
     };
-    
+
     restartBtn.onclick = () => {
       location.reload();
     };
