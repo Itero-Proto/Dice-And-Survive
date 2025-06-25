@@ -183,37 +183,28 @@
     #dice {
       position: fixed;
       bottom: 5vh;
-      /* Отступ снизу в % от высоты экрана */
       left: 50%;
       transform: translateX(-50%);
-      font-size: min(8vw, 2.5rem);
-      /* Динамический размер шрифта */
-      padding: min(4vw, 20px) min(8vw, 40px);
-      /* Адаптивные отступы */
-      user-select: none;
-      transition: all 0.3s ease;
-      z-index: 300;
-      touch-action: manipulation;
-      /* Оптимизация для тач-устройств */
-      min-width: 80px;
-      /* Минимальный размер */
-      min-height: 80px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      /* не вращаем здесь */
     }
 
-    #dice.rolling {
+    .dice-inner {
+      font-size: min(8vw, 2.5rem);
+      padding: min(4vw, 20px) min(8vw, 40px);
+      transition: all 0.3s ease;
+    }
+
+    .dice-inner.rolling {
       animation: roll 0.6s infinite linear;
     }
 
     @keyframes roll {
-      0% {
-        transform: translateX(-50%) rotate(0deg);
+      from {
+        transform: rotate(0deg);
       }
 
-      100% {
-        transform: translateX(-50%) rotate(360deg);
+      to {
+        transform: rotate(360deg);
       }
     }
 
@@ -562,7 +553,9 @@
   <div id="board-container">
     <div id="board"></div>
   </div>
-  <div id="dice">🎲</div>
+  <div id="dice">
+    <div class="dice-inner">🎲</div>
+  </div>
   <div style="position: fixed; bottom: 30px; left: 10px; display: flex; gap: 10px;">
     <button id="show-leaderboard" style="
   width: 40px; height: 40px;  /* Фиксированный размер */
