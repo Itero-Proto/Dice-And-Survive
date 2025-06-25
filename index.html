@@ -719,7 +719,6 @@
           const confetti = document.createElement('div');
           confetti.className = 'confetti';
           confetti.style.left = `${Math.random() * 100}vw`;
-          confetti.style.top = `${Math.random() * 30 + 20}vh`; // 20-50% от верха
           confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
           document.body.appendChild(confetti);
           setTimeout(() => confetti.remove(), 3000);
