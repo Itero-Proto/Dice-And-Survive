@@ -543,8 +543,14 @@
   <div id="winModal">
     <div>🎉 Поздравляем! Приключение завершено!</div>
     <div id="finalStats">За Х дней</div>
-    <button id="winRestartBtn">ЗАНОВО</button>
+
+    <input id="playerNameInput" placeholder="Имя героя"
+      style="padding: 8px; margin-top: 10px; border-radius: 6px; border: 1px solid #888; font-size: 1em;" />
+    <button id="submitNameBtn" style="margin-left: 10px; padding: 8px 12px; font-weight: bold;">OK</button>
+
+    <button id="winRestartBtn" style="margin-top: 15px;">ЗАНОВО</button>
   </div>
+
   <div id="battleModal">
     <div id="battleInfo"></div>
     <div id="battleOutcome"></div>
@@ -732,16 +738,23 @@
         setTimeout(() => confetti.remove(), 4000);
       }, 150); // каждые 150 мс
 
-      const playerName = prompt('УРА! Кто ты, герой?:', 'Игрок');
-      if (playerName) {
-        leaderboard.push({
-          name: playerName.substring(0, 15), // Ограничиваем длину имени
-          rolls: diceRollsCount,
-          gold: goldCount,
-          date: new Date().toLocaleDateString()
-        });
-        localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
-      }
+      document.getElementById('submitNameBtn').onclick = () => {
+        const playerName = document.getElementById('playerNameInput').value.trim();
+        if (playerName) {
+          leaderboard.push({
+            name: playerName.substring(0, 15),
+            rolls: diceRollsCount,
+            gold: goldCount,
+            date: new Date().toLocaleDateString()
+          });
+          localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
+
+          // Скрыть поле ввода после ввода имени
+          document.getElementById('playerNameInput').style.display = 'none';
+          document.getElementById('submitNameBtn').style.display = 'none';
+        }
+      };
+
     }
 
     winRestartBtn.onclick = () => {
