@@ -176,6 +176,18 @@
       animation: enemy-sway 1s infinite ease-in-out;
     }
 
+    #dice {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2.5em;
+      cursor: pointer;
+      padding: 10px 20px;
+      user-select: none;
+      transition: all 0.3s ease;
+      z-index: 300;
+    }
 
     #dice:hover {
       transform: translateX(-50%) scale(1.1);
