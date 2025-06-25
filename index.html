@@ -207,10 +207,6 @@
       animation: roll 0.6s infinite linear;
     }
 
-    #dice-inner {
-      animation: roll 0.6s infinite linear;
-    }
-
     @keyframes roll {
       0% {
         transform: translateX(-50%) rotate(0deg);
@@ -566,11 +562,7 @@
   <div id="board-container">
     <div id="board"></div>
   </div>
-  <div id="dice">
-    <div class="dice-inner">🎲</div>
-    <div id="dice-number"></div>
-  </div>
-
+  <div id="dice">🎲</div>
   <div style="position: fixed; bottom: 30px; left: 10px; display: flex; gap: 10px;">
     <button id="show-leaderboard" style="
   width: 40px; height: 40px;  /* Фиксированный размер */
@@ -965,8 +957,7 @@
         fightBtn.style.display = 'inline-block';
         fleeBtn.style.display = 'inline-block';
         closeBattleBtn.style.display = 'none';
-        dice.style.display = 'flex'; // исходное значение, чтобы не ломалась верстка
-
+        dice.style.display = 'none';
         inBattleMode = true;
       }
     }
@@ -1044,8 +1035,6 @@
       }
     }
     closeBattleBtn.onclick = () => {
-      document.querySelector('#dice .dice-inner').textContent = `🎲`;
-
       battleModal.style.display = 'none';
       dice.style.display = 'block';
       closeBattleBtn.style.display = 'none';
@@ -1209,8 +1198,7 @@
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
-        document.querySelector('#dice .dice-inner').textContent = `🎲 ${roll}`;
-
+        dice.textContent = `🎲 ${roll}`;
         movePlayer(roll);
 
         setTimeout(() => {
