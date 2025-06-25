@@ -566,14 +566,55 @@
   <audio id="merchantSound" src="sounds/merchant.mp3"></audio>
   <audio id="runawaySound" src="sounds/runaway.mp3"></audio>
   <script>
-    // В начале скрипта (с другими переменными)
-    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
-    // Добавляем переменные в начало скрипта
-    let potionCount = 0;
+    const board = document.getElementById('board');
+    const dice = document.getElementById('dice');
+    const player = document.createElement('div');
+    const battleModal = document.getElementById('battleModal');
+    const battleInfo = document.getElementById('battleInfo');
+    const battleOutcome = document.getElementById('battleOutcome');
+    const closeBattleBtn = document.getElementById('closeBattleBtn');
+    const gameOverModal = document.getElementById('gameOverModal');
+    const restartBtn = document.getElementById('restartBtn');
     const potionsCountElement = document.getElementById('potions-count');
     const usePotionBtn = document.getElementById('use-potion-btn');
+    const fightBtn = document.getElementById('fightBtn');
+    const fleeBtn = document.getElementById('fleeBtn');
+    const defeatedEnemies = new Set();
+    const diceSound = document.getElementById('diceSound');
+    const battleSound = document.getElementById('battleSound');
+    const potionSound = document.getElementById('potionSound');
+    const goldSound = document.getElementById('goldSound');
+    const trapSound = document.getElementById('trapSound');
+    const winBattleSound = document.getElementById('winBattleSound');
+    const gameOverSound = document.getElementById('gameOverSound');
+    const battleLostSound = document.getElementById('battleLostSound');
+    const winGameSound = document.getElementById('winGameSound');
+    const merchantModal = document.getElementById('merchantModal');
+    const buyHealBtn = document.getElementById('buyHealBtn');
+    const declineMerchantBtn = document.getElementById('declineMerchantBtn');
+    const visitedMerchants = new Set();
+    const winModal = document.getElementById('winModal');
+    const finalStats = document.getElementById('finalStats');
+    const winRestartBtn = document.getElementById('winRestartBtn');
+    const usedHealthCells = new Set();
+    const usedGoldCells = new Set();
+    const healthCells = [], enemyCells = [], trapCells = [], goldCells = [], merchantCells = [];
+    const usedTrapCells = new Set();
 
-    // Функция использования зелья
+    player.className = 'player';
+    player.textContent = '🧍';
+
+    let playerLostBattle = false;
+    let currentCell = 0;
+    let playerHP = 100;
+    let leaderboard = JSON.parse(localStorage.getItem('leaderboard')) || [];
+    let potionCount = 0;
+    let isInteractingWithMerchant = false;
+    let diceRollsCount = 0;
+    let goldCount = 0;
+    let inBattleMode = false;
+    let awaitingRoll = false;
+
     usePotionBtn.addEventListener('click', () => {
       if (potionCount > 0 && playerHP < 100) {
         potionCount--;
@@ -589,50 +630,6 @@
         setTimeout(() => popup.remove(), 2000);
       }
     });
-    const fightBtn = document.getElementById('fightBtn');
-    const fleeBtn = document.getElementById('fleeBtn');
-    const defeatedEnemies = new Set();
-
-    const diceSound = document.getElementById('diceSound');
-    const battleSound = document.getElementById('battleSound');
-    const potionSound = document.getElementById('potionSound');
-    const goldSound = document.getElementById('goldSound');
-    const trapSound = document.getElementById('trapSound');
-    const winBattleSound = document.getElementById('winBattleSound');
-    const gameOverSound = document.getElementById('gameOverSound');
-    const battleLostSound = document.getElementById('battleLostSound');
-    const winGameSound = document.getElementById('winGameSound');
-    const merchantModal = document.getElementById('merchantModal');
-    const buyHealBtn = document.getElementById('buyHealBtn');
-    const declineMerchantBtn = document.getElementById('declineMerchantBtn');
-    const visitedMerchants = new Set();
-    let isInteractingWithMerchant = false;
-    const winModal = document.getElementById('winModal');
-    const finalStats = document.getElementById('finalStats');
-    const winRestartBtn = document.getElementById('winRestartBtn');
-    let diceRollsCount = 0;
-    let goldCount = 0; // счётчик золота
-    let inBattleMode = false;
-    const board = document.getElementById('board');
-    const dice = document.getElementById('dice');
-    const player = document.createElement('div');
-    const battleModal = document.getElementById('battleModal');
-    const battleInfo = document.getElementById('battleInfo');
-    const battleOutcome = document.getElementById('battleOutcome');
-    const closeBattleBtn = document.getElementById('closeBattleBtn');
-    const gameOverModal = document.getElementById('gameOverModal');
-    const restartBtn = document.getElementById('restartBtn');
-    let awaitingRoll = false;
-
-    player.className = 'player';
-    player.textContent = '🧍';
-    let playerLostBattle = false;
-
-    let currentCell = 0;
-    let playerHP = 100;
-    const usedHealthCells = new Set();
-    const usedGoldCells = new Set();
-    const healthCells = [], enemyCells = [], trapCells = [], goldCells = [], merchantCells = [];
 
     for (let i = 1; i <= 100; i++) {
       const cell = document.createElement('div');
@@ -660,10 +657,9 @@
 
       document.getElementById('leaderboard-modal').style.display = 'block';
     }
-    // Показ таблицы
+
     document.getElementById('show-leaderboard').addEventListener('click', showLeaderboard);
 
-    // Закрытие
     document.getElementById('close-leaderboard').addEventListener('click', () => {
       document.getElementById('leaderboard-modal').style.display = 'none';
     });
@@ -866,10 +862,10 @@
       }
     }
 
-
     function checkForTrap() {
       const cell = cells[currentCell];
-      if (trapCells.includes(currentCell)) {
+      if (trapCells.includes(currentCell) && !usedTrapCells.has(currentCell)) {
+        usedTrapCells.add(currentCell); // Помечаем ловушку как использованную
         if (!cell.querySelector('.trap')) {
           const trap = document.createElement('span');
           trap.textContent = '🕳️';
@@ -901,12 +897,14 @@
         cells[currentCell].appendChild(player);
       }
     };
+
     fightBtn.onclick = () => {
       fightBtn.style.display = 'none';
       fleeBtn.style.display = 'none';
       dice.style.display = 'block';
       inBattleMode = true;
     };
+
     fleeBtn.onclick = () => {
       fightBtn.style.display = 'none';
       fleeBtn.style.display = 'none';
@@ -921,6 +919,7 @@
       flashCell(cells[currentCell]);
       closeBattleBtn.style.display = 'inline-block';
     };
+    
     restartBtn.onclick = () => {
       location.reload();
     };
