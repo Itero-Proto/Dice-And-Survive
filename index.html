@@ -358,14 +358,8 @@
     }
 
     @keyframes confetti {
-      0% {
-        transform: translateY(0) rotate(0deg);
-        opacity: 1;
-      }
-
       100% {
-        transform: translateY(-100vh) rotate(360deg);
-        opacity: 0;
+        transform: translateY(calc(100vh - var(--start-top))) rotate(360deg);
       }
     }
 
@@ -725,8 +719,8 @@
           const confetti = document.createElement('div');
           confetti.className = 'confetti';
           confetti.style.left = `${Math.random() * 100}vw`;
+          confetti.style.top = `${Math.random() * 30 + 20}vh`; // 20-50% от верха
           confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-          confetti.style.animationDuration = `${2 + Math.random() * 3}s`;
           document.body.appendChild(confetti);
           setTimeout(() => confetti.remove(), 3000);
         }, i * 100);
