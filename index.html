@@ -67,7 +67,6 @@
 
     .cell.flash-red {
       animation: quickFlashRed 0.3s linear 3;
-      /* 3 быстрых моргания */
     }
 
     @keyframes quickFlashRed {
@@ -77,12 +76,9 @@
         background-color: #98621f;
       }
 
-      /* Исходный цвет клетки */
       50% {
         background-color: #ff0000;
       }
-
-      /* Ярко-красный */
     }
 
     @keyframes gold-shake {
@@ -176,38 +172,198 @@
       animation: enemy-sway 1s infinite ease-in-out;
     }
 
-    #dice {
+    /* НОВЫЕ СТИЛИ ДЛЯ 3D-КУБИКА */
+    #dice-container {
       position: fixed;
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%);
-      font-size: 2.5em;
-      cursor: pointer;
-      padding: 10px 20px;
-      background: linear-gradient(145deg, #ffffff, #e6e6e6);
-      border-radius: 12px;
-      box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
-      user-select: none;
-      transition: all 0.3s ease;
+      perspective: 1000px;
       z-index: 300;
     }
 
-    #dice:hover {
-      transform: translateX(-50%) scale(1.1);
+    #dice {
+      width: 60px;
+      height: 60px;
+      position: relative;
+      transform-style: preserve-3d;
+      transition: transform 1s ease-out;
+      cursor: pointer;
+      transform: rotateX(0) rotateY(0) rotateZ(0);
     }
 
-    #dice.rolling {
-      animation: roll 0.6s infinite linear;
+    .face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: white;
+      border: 2px solid #333;
+      border-radius: 10px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.1);
     }
 
+    /* Расположение граней */
+    .front {
+      transform: rotateY(0deg) translateZ(30px);
+    }
+
+    .back {
+      transform: rotateY(180deg) translateZ(30px);
+    }
+
+    .right {
+      transform: rotateY(90deg) translateZ(30px);
+    }
+
+    .left {
+      transform: rotateY(-90deg) translateZ(30px);
+    }
+
+    .top {
+      transform: rotateX(90deg) translateZ(30px);
+    }
+
+    .bottom {
+      transform: rotateX(-90deg) translateZ(30px);
+    }
+
+    /* Точки на гранях */
+    .dot {
+      width: 8px;
+      height: 8px;
+      background: #333;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    /* Расположение точек для каждой грани */
+    .face.front .dot {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .face.back .dot:nth-child(1) {
+      top: 25%;
+      left: 25%;
+    }
+
+    .face.back .dot:nth-child(2) {
+      bottom: 25%;
+      right: 25%;
+    }
+
+    .face.right .dot:nth-child(1) {
+      top: 25%;
+      left: 25%;
+    }
+
+    .face.right .dot:nth-child(2) {
+      bottom: 25%;
+      right: 25%;
+    }
+
+    .face.right .dot:nth-child(3) {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .face.left .dot:nth-child(1) {
+      top: 25%;
+      left: 25%;
+    }
+
+    .face.left .dot:nth-child(2) {
+      top: 25%;
+      right: 25%;
+    }
+
+    .face.left .dot:nth-child(3) {
+      bottom: 25%;
+      left: 25%;
+    }
+
+    .face.left .dot:nth-child(4) {
+      bottom: 25%;
+      right: 25%;
+    }
+
+    .face.top .dot:nth-child(1) {
+      top: 25%;
+      left: 25%;
+    }
+
+    .face.top .dot:nth-child(2) {
+      top: 25%;
+      right: 25%;
+    }
+
+    .face.top .dot:nth-child(3) {
+      bottom: 25%;
+      left: 25%;
+    }
+
+    .face.top .dot:nth-child(4) {
+      bottom: 25%;
+      right: 25%;
+    }
+
+    .face.top .dot:nth-child(5) {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .face.bottom .dot:nth-child(1) {
+      top: 25%;
+      left: 25%;
+    }
+
+    .face.bottom .dot:nth-child(2) {
+      top: 25%;
+      right: 25%;
+    }
+
+    .face.bottom .dot:nth-child(3) {
+      bottom: 25%;
+      left: 25%;
+    }
+
+    .face.bottom .dot:nth-child(4) {
+      bottom: 25%;
+      right: 25%;
+    }
+
+    .face.bottom .dot:nth-child(5) {
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .face.bottom .dot:nth-child(6) {
+      top: 50%;
+      right: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    /* Анимация броска */
     @keyframes roll {
       0% {
-        transform: translateX(-50%) rotate(0deg);
+        transform: rotateX(0) rotateY(0) rotateZ(0);
       }
 
       100% {
-        transform: translateX(-50%) rotate(360deg);
+        transform: rotateX(720deg) rotateY(360deg) rotateZ(180deg);
       }
+    }
+
+    #dice.rolling {
+      animation: roll 1s ease-out;
     }
 
     #battleModal {
@@ -222,12 +378,10 @@
       border-radius: 12px;
       z-index: 1000;
       display: none;
-      /* По умолчанию скрыто */
       text-align: center;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
     }
 
-    /* Стили для кнопок в бою */
     #fightBtn,
     #fleeBtn {
       background: #4CAF50;
@@ -256,31 +410,27 @@
 
     @media (max-width: 768px) {
       #battleModal {
-        position: fixed;
         top: 65%;
-        /* Чуть ниже центра */
-        left: 50%;
-        transform: translate(-50%, -50%);
         width: 90%;
-        /* Займет 90% ширины экрана */
         max-width: 280px;
         min-height: auto;
-        /* Убираем фиксированную минимальную высоту */
         height: auto;
-        /* Автоматическая высота по содержимому */
         padding: 12px;
-        /* Уменьшаем отступы */
-        background: rgb(127, 127, 127);
-        border: 3px solid #5c0000;
-        padding: 15px;
-        border-radius: 12px;
-        z-index: 1000;
-        display: none;
-        text-align: center;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-        margin: 0 auto;
-        /* Дополнительное центрирование */
         font-size: 14px;
+      }
+
+      #dice {
+        width: 50px;
+        height: 50px;
+      }
+
+      .face {
+        font-size: 20px;
+      }
+
+      .dot {
+        width: 6px;
+        height: 6px;
       }
     }
 
@@ -298,17 +448,6 @@
       z-index: 1000;
       display: none;
       text-align: center;
-    }
-
-    #closeBattleBtn {
-
-      background: #a00;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
     }
 
     #restartBtn {
@@ -507,19 +646,57 @@
   <div id="board-container">
     <div id="board"></div>
   </div>
-  <div id="dice">🎲</div>
+
+  <!-- НОВЫЙ 3D-КУБИК -->
+  <div id="dice-container">
+    <div id="dice">
+      <div class="face front">
+        <div class="dot"></div>
+      </div>
+      <div class="face back">
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="face right">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="face left">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="face top">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+      <div class="face bottom">
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+        <div class="dot"></div>
+      </div>
+    </div>
+  </div>
+
   <div style="position: fixed; bottom: 30px; left: 10px; display: flex; gap: 10px;">
     <button id="show-leaderboard" style="
-  width: 40px; height: 40px;  /* Фиксированный размер */
+  width: 40px; height: 40px;
   padding: 0;
   background: #5a3e2b;
   color: white;
   border: none;
-  border-radius: 50%;  /* Круглая форма */
+  border-radius: 50%;
   cursor: pointer;
   font-size: 20px;
 ">🏆</button>
-  </div>
   </div>
   <div id="winModal">
     <div>🎉 Поздравляем! Приключение завершено!</div>
@@ -639,7 +816,6 @@
       cell.className = 'cell';
       cell.dataset.index = i;
       board.appendChild(cell);
-
     }
 
     const cells = document.querySelectorAll('.cell');
@@ -660,13 +836,13 @@
 
       document.getElementById('leaderboard-modal').style.display = 'block';
     }
-    // Показ таблицы
+
     document.getElementById('show-leaderboard').addEventListener('click', showLeaderboard);
 
-    // Закрытие
     document.getElementById('close-leaderboard').addEventListener('click', () => {
       document.getElementById('leaderboard-modal').style.display = 'none';
     });
+
     function updateHealthBar() {
       document.getElementById('health-fill').style.width = playerHP + '%';
       if (playerHP <= 0) {
@@ -674,8 +850,8 @@
         gameOverModal.style.display = 'block';
         gameOverSound.play();
       }
-
     }
+
     function updateGoldCounter(changed = false) {
       const counter = document.getElementById('goldCounter');
       counter.textContent = `💰 ${goldCount}`;
@@ -687,11 +863,9 @@
       }
     }
 
-
     function showWinModal() {
       dice.disabled = true;
 
-      // Выбор ачивки по количеству золота
       let achievement = "";
       if (goldCount === 0) {
         achievement = "🏆 Жадность не твоя черта";
@@ -718,7 +892,7 @@
       const playerName = prompt('Поздравляем! Введите имя для таблицы рекордов:', 'Игрок');
       if (playerName) {
         leaderboard.push({
-          name: playerName.substring(0, 15), // Ограничиваем длину имени
+          name: playerName.substring(0, 15),
           rolls: diceRollsCount,
           gold: goldCount,
           date: new Date().toLocaleDateString()
@@ -735,6 +909,7 @@
       cell.classList.add('flash-red');
       setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
+
     while (enemyCells.length < 15) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!enemyCells.includes(rand)) enemyCells.push(rand);
@@ -763,6 +938,7 @@
         merchantCells.push(rand);
       }
     }
+
     function checkForHealthPotion() {
       const cell = cells[currentCell];
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
@@ -772,12 +948,11 @@
           potionIcon.textContent = '🧪';
           cell.appendChild(potionIcon);
 
-          // Добавляем обработчик клика
           potionIcon.addEventListener('click', () => {
-            usedHealthCells.add(currentCell); // Помечаем клетку как использованную
+            usedHealthCells.add(currentCell);
             potionCount++;
             potionsCountElement.textContent = `${potionCount}`;
-            potionIcon.remove(); // Удаляем зелье с клетки
+            potionIcon.remove();
             potionSound.play();
             const popup = document.createElement('div');
             popup.className = 'heal-popup';
@@ -791,13 +966,13 @@
         setTimeout(() => cell.classList.remove('potion'), 1500);
       }
     }
+
     function checkForMerchant() {
       const cell = cells[currentCell];
       if (merchantCells.includes(currentCell) && !visitedMerchants.has(currentCell)) {
-        isInteractingWithMerchant = true; // Блокируем взаимодействия
+        isInteractingWithMerchant = true;
         dice.disabled = true;
 
-        // Добавляем иконку торговца
         if (!cell.querySelector('.merchant')) {
           const merchant = document.createElement('span');
           merchant.textContent = '🧙‍♂️';
@@ -805,14 +980,9 @@
           cell.appendChild(merchant);
         }
 
-        // Блокируем кубик
         dice.disabled = true;
-
         document.getElementById('merchantSound').play();
-
-        // Показываем окно торговца
         merchantModal.style.display = 'block';
-        // Обновляем состояние кнопки при открытии
         buyHealBtn.disabled = goldCount < 5;
         buyHealBtn.style.opacity = goldCount < 5 ? "0.5" : "1";
       }
@@ -829,10 +999,10 @@
         cell.appendChild(gold);
 
         gold.addEventListener('click', () => {
-          const goldGain = Math.floor(Math.random() * 5) + 1; // от 1 до 5
+          const goldGain = Math.floor(Math.random() * 5) + 1;
           goldCount += goldGain;
           updateGoldCounter(true);
-          gold.remove(); // убрать золото с клетки
+          gold.remove();
 
           const popup = document.createElement('div');
           popup.className = 'heal-popup';
@@ -842,7 +1012,6 @@
         });
       }
     }
-
 
     function checkForEnemy() {
       const cell = cells[currentCell];
@@ -865,7 +1034,6 @@
         inBattleMode = true;
       }
     }
-
 
     function checkForTrap() {
       const cell = cells[currentCell];
@@ -901,12 +1069,14 @@
         cells[currentCell].appendChild(player);
       }
     };
+
     fightBtn.onclick = () => {
       fightBtn.style.display = 'none';
       fleeBtn.style.display = 'none';
       dice.style.display = 'block';
       inBattleMode = true;
     };
+
     fleeBtn.onclick = () => {
       fightBtn.style.display = 'none';
       fleeBtn.style.display = 'none';
