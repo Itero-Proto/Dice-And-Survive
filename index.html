@@ -176,6 +176,21 @@
       animation: idle-bob 1.5s infinite ease-in-out;
     }
 
+    /* Оптимизация для маленьких экранов */
+    @media (max-height: 600px) {
+      #board-container {
+        height: 50vh;
+      }
+
+      .cell {
+        width: 80vw;
+        height: 80vw;
+      }
+
+      #dice {
+        bottom: 3vh;
+      }
+    }
   </style>
 </head>
 
