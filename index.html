@@ -1140,7 +1140,7 @@
 
           const enemyRoll = Math.floor(Math.random() * 6) + 1;
           const playerRoll = Math.floor(Math.random() * 6) + 1;
-
+          document.getElementById('dice-number').textContent = playerRoll;
           battleInfo.textContent = `👹 Враг нанёс: ${enemyRoll} | 🧍 Ты нанёс: ${playerRoll}`;
 
           if (playerRoll < enemyRoll) {
@@ -1189,11 +1189,12 @@
 
           updateHealthBar();
           closeBattleBtn.style.display = 'inline-block';
+          document.getElementById('dice-number').textContent = '';
           dice.disabled = false;
           dice.style.display = 'none';
           inBattleMode = false;
 
-        }, 800);
+        }, 1500);
 
         return;
       }
