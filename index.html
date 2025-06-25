@@ -2,514 +2,178 @@
 <html lang="en">
 
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <meta charset="UTF-8" />
   <title>Dice & Survive</title>
   <style>
+    /* Базовые настройки */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       margin: 0;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: -apple-system, BlinkMacSystemFont, sans-serif;
       background-color: #009d32;
       background-image:
         radial-gradient(circle at 10% 20%, rgba(0, 180, 50, 0.8) 1px, transparent 1px),
         radial-gradient(circle at 90% 80%, rgba(0, 200, 60, 0.8) 1px, transparent 1px),
         radial-gradient(circle at 30% 50%, rgba(0, 160, 40, 0.8) 1px, transparent 1px);
       background-size: 30px 30px;
+      overflow-x: hidden;
+      touch-action: manipulation;
+      height: 100vh;
+      width: 100vw;
+      position: fixed;
     }
 
-    #health-bar {
-      width: 80%;
-      height: 20px;
-      background-color: #353535;
-      border-radius: 10px;
-      margin: 15px 0;
-      overflow: hidden;
-      border: 2px solid #444;
-    }
-
-    #health-fill {
-      height: 100%;
-      width: 100%;
-      background-color: #a60000;
-      transition: width 0.4s ease;
-    }
-
+    /* Адаптивные контейнеры */
     #board-container {
-      height: 80vh;
+      width: 100vw;
+      height: 60vh;
       overflow-y: auto;
-      border-radius: 12px;
+      padding: 10px 0;
+      -webkit-overflow-scrolling: touch;
     }
 
     #board {
       display: flex;
       flex-direction: column-reverse;
-      width: 130px;
+      width: 100%;
+      max-width: 150px;
+      margin: 0 auto;
     }
 
     .cell {
-      width: 120px;
-      height: 120px;
-      margin: 0px auto;
+      width: 90vw;
+      max-width: 120px;
+      height: 90vw;
+      max-height: 120px;
+      margin: 5px auto;
       border-radius: 10px;
       background-color: #98621f;
       border: 5px solid #462400;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
-      color: #444;
-      font-size: 1em;
       position: relative;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
     }
 
-    .cell.flash-red {
-      animation: quickFlashRed 0.3s linear 3;
-      /* 3 быстрых моргания */
-    }
-
-    @keyframes quickFlashRed {
-
-      0%,
-      100% {
-        background-color: #98621f;
-      }
-
-      /* Исходный цвет клетки */
-      50% {
-        background-color: #ff0000;
-      }
-
-      /* Ярко-красный */
-    }
-
-    @keyframes gold-shake {
-      0% {
-        transform: translate(0, 0);
-      }
-
-      25% {
-        transform: translate(1px, -1px);
-      }
-
-      50% {
-        transform: translate(-1px, 1px);
-      }
-
-      75% {
-        transform: translate(1px, 1px);
-      }
-
-      100% {
-        transform: translate(0, 0);
-      }
-    }
-
-    .player {
-      position: absolute;
-      font-size: 2em;
-      animation: idle-bob 1s infinite ease-in-out;
-      z-index: 10;
-      transition: transform 0.3s ease;
-    }
-
-    .heal-popup,
-    .trap-popup {
-      position: fixed;
-      top: 25%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      min-height: auto;
-      height: auto;
-      padding: 12px;
-      border-radius: 8px;
-      font-size: 0.9em;
-      font-weight: bold;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-      animation: fadeUp 4s forwards;
-      z-index: 20;
-    }
-
-    .heal-popup {
-      background: #e8f5e9;
-      border: 1px solid #4caf50;
-      color: #2e7d32;
-    }
-
-    .trap-popup {
-      background: #ffebee;
-      border: 1px solid #f44336;
-      color: #d32f2f;
-    }
-
-    @keyframes idle-bob {
-
-      0%,
-      100% {
-        transform: translateY(0);
-      }
-
-      50% {
-        transform: translateY(-5px);
-      }
-    }
-
-    @keyframes enemy-sway {
-
-      0%,
-      100% {
-        transform: translateX(-25px);
-      }
-
-      50% {
-        transform: translateX(25px);
-      }
-    }
-
-    .enemy {
-      position: absolute;
-      top: 5px;
-      font-size: 1.9em;
-      z-index: 1;
-      animation: enemy-sway 1s infinite ease-in-out;
+    /* Адаптивные элементы интерфейса */
+    #health-bar {
+      width: 90vw;
+      height: 20px;
+      margin: 10px auto;
+      background-color: #353535;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid #444;
     }
 
     #dice {
       position: fixed;
       bottom: 5vh;
-      /* Отступ снизу в % от высоты экрана */
       left: 50%;
       transform: translateX(-50%);
-      font-size: min(8vw, 2.5rem);
-      /* Динамический размер шрифта */
-      cursor: pointer;
-      padding: min(4vw, 20px) min(8vw, 40px);
-      /* Адаптивные отступы */
-      user-select: none;
-      transition: all 0.3s ease;
-      z-index: 300;
-      touch-action: manipulation;
-      /* Оптимизация для тач-устройств */
-      min-width: 80px;
-      /* Минимальный размер */
-      min-height: 80px;
+      font-size: 3rem;
+      width: 80px;
+      height: 80px;
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-
-    #dice.rolling {
-      animation: roll 0.6s infinite linear;
-    }
-
-    @keyframes roll {
-      0% {
-        transform: translateX(-50%) rotate(0deg);
-      }
-
-      100% {
-        transform: translateX(-50%) rotate(360deg);
-      }
-    }
-
-    #battleModal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 280px;
-      background: rgb(127, 127, 127);
-      border: 3px solid #5c0000;
-      padding: 15px;
-      border-radius: 12px;
-      z-index: 1000;
-      display: none;
-      /* По умолчанию скрыто */
-      text-align: center;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-    }
-
-    /* Стили для кнопок в бою */
-    #fightBtn,
-    #fleeBtn {
-      background: #4CAF50;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
       cursor: pointer;
-      margin: 5px;
+      user-select: none;
+      z-index: 300;
+      touch-action: manipulation;
+      background: rgba(255, 255, 255, 0.8);
+      border-radius: 50%;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
     }
-
-    #fightBtn:hover,
-    #fleeBtn:hover {
-      background: #45a049;
-    }
-
-    #closeBattleBtn {
-      background: #a00;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 768px) {
-      #battleModal {
-        position: fixed;
-        top: 65%;
-        /* Чуть ниже центра */
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 90%;
-        /* Займет 90% ширины экрана */
-        max-width: 280px;
-        min-height: auto;
-        /* Убираем фиксированную минимальную высоту */
-        height: auto;
-        /* Автоматическая высота по содержимому */
-        padding: 12px;
-        /* Уменьшаем отступы */
-        background: rgb(127, 127, 127);
-        border: 3px solid #5c0000;
-        padding: 15px;
-        border-radius: 12px;
-        z-index: 1000;
-        display: none;
-        text-align: center;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
-        margin: 0 auto;
-        /* Дополнительное центрирование */
-        font-size: 14px;
-      }
-    }
-
-    #gameOverModal {
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 50%;
-      height: 10%;
-      background: rgb(127, 127, 127);
-      border: 3px solid #5c0000;
-      padding: 20px;
-      border-radius: 12px;
-      z-index: 990;
-      display: none;
-      text-align: center;
-    }
-
-    #closeBattleBtn {
-
-      background: #a00;
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-top: 10px;
-    }
-
-    #restartBtn {
-      margin-top: 15px;
-      padding: 6px 16px;
-      font-weight: bold;
-      background: #ccc;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-    }
-
-    #winModal {
-      position: fixed;
-      top: 10%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgb(242, 255, 0);
-      border: 3px solid #0059ff;
-      padding: 20px;
-      border-radius: 12px;
-      z-index: 1000;
-      display: none;
-      text-align: center;
-    }
-
-    #winModal div:first-child {
-      font-size: 1.5em;
-      color: #4CAF50;
-      margin-bottom: 15px;
-    }
-
-    #winRestartBtn {
-      margin-top: 15px;
-      padding: 8px 20px;
-      font-weight: bold;
-      background: #4CAF50;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-
-    #winRestartBtn:hover {
-      background: #45a049;
-    }
-
-    @keyframes confetti {
-      0% {
-        transform: translateY(0) rotate(0deg);
-      }
-
-      100% {
-        transform: translateY(100vh) rotate(360deg);
-      }
-    }
-
-    .confetti {
-      position: fixed;
-      top: 0;
-      left: 50%;
-      width: 10px;
-      height: 10px;
-      background-color: #f00;
-      animation: confetti 3s linear infinite;
-      z-index: 999;
-    }
-
-    #deathOverlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: rgba(0, 0, 0, 0.85);
-      z-index: 999;
-      display: none;
-    }
-
 
     #goldCounter {
       position: fixed;
-      right: 25px;
-      bottom: 25px;
-      background: #fff8dc;
-      border: 2px solid #d4af37;
-      border-radius: 10px;
-      padding: 10px 15px;
-      font-size: 1.2em;
-      font-weight: bold;
-      color: #8b7500;
+      right: 10px;
+      bottom: 12vh;
+      font-size: 1rem;
+      padding: 8px 12px;
       z-index: 100;
-      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     }
 
-    @keyframes goldFlash {
-      0% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.3);
-      }
-
-      100% {
-        transform: scale(1);
-      }
+    /* Инвентарь */
+    #inventory {
+      position: fixed;
+      left: 10px;
+      bottom: 12vh;
+      font-size: 0.9rem;
+      padding: 6px;
+      z-index: 100;
     }
 
-    #goldCounter.flash {
-      animation: goldFlash 0.4s ease;
+    /* Кнопка таблицы лидеров */
+    #show-leaderboard {
+      position: fixed;
+      left: 10px;
+      bottom: 20vh;
+      width: 50px;
+      height: 50px;
+      font-size: 1.5rem;
+      z-index: 100;
     }
 
-    .trap {
-      position: absolute;
-      font-size: 3em;
-      z-index: 10;
+    /* Модальные окна (адаптивные) */
+    #battleModal,
+    #merchantModal,
+    #portalModal,
+    #leaderboard-modal,
+    #winModal,
+    #gameOverModal {
+      width: 90vw;
+      max-width: 300px;
+      left: 50%;
+      transform: translateX(-50%);
+      padding: 15px;
+      font-size: 1rem;
     }
 
-    .gold {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      font-size: 1.4em;
-      z-index: 5;
-      animation: gold-shake 0.5s infinite;
+    #battleModal {
+      top: 30vh;
     }
 
-    @keyframes potionPulse {
+    #merchantModal {
+      top: 20vh;
+    }
+
+    #winModal {
+      top: 10vh;
+    }
+
+    /* Адаптация текста */
+    .heal-popup,
+    .trap-popup {
+      font-size: 0.8rem;
+      padding: 8px;
+      width: 80vw;
+    }
+
+    /* Анимации для мобилок */
+    @keyframes idle-bob {
 
       0%,
       100% {
-        transform: scale(1);
+        transform: translateY(0) scale(1);
       }
 
       50% {
-        transform: scale(1.25);
+        transform: translateY(-5px) scale(1.05);
       }
     }
 
-    .potion-icon {
-      position: absolute;
-      top: 5px;
-      right: 5px;
-      font-size: 1.4em;
-      z-index: 5;
-      animation: potionPulse 2s infinite ease-in-out;
-    }
-
-    .merchant {
-      position: absolute;
-      top: 5px;
-      font-size: 1.9em;
-      z-index: 1;
-      animation: merchantBlink 2s infinite ease-in-out;
-    }
-
-    @keyframes merchantBlink {
-
-      0%,
-      100% {
-        opacity: 1;
-      }
-
-      50% {
-        opacity: 0.3;
-      }
-    }
-
-    .shake {
-      animation: shake 0.5s linear;
-    }
-
-    @keyframes shake {
-
-      0%,
-      100% {
-        transform: translateX(0);
-      }
-
-      25% {
-        transform: translateX(-5px);
-      }
-
-      75% {
-        transform: translateX(5px);
-      }
-    }
-
-    .portal-icon {
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      font-size: 1.4em;
-      z-index: 5;
-      animation: gold-shake 1s infinite;
+    .player {
+      font-size: 1.8rem;
+      animation: idle-bob 1.5s infinite ease-in-out;
     }
   </style>
 </head>
@@ -556,7 +220,7 @@
   <div id="health-bar">
     <div id="health-fill"></div>
   </div>
-  <div id="board-container">
+  <div id="board-container" style="height: calc(var(--real-vh, 100vh) - 150px)">
     <div id="board"></div>
   </div>
   <div id="dice">🎲</div>
