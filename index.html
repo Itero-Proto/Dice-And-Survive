@@ -183,8 +183,8 @@
       transform: translateX(-50%);
       font-size: 2.5em;
       cursor: pointer;
-      padding: 15px 25px;
-      background: linear-gradient(145deg, #fff, #e6e6e6);
+      padding: 10px 20px;
+      background: linear-gradient(145deg, #ffffff, #e6e6e6);
       border-radius: 12px;
       box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
       user-select: none;
@@ -194,22 +194,19 @@
 
     #dice:hover {
       transform: translateX(-50%) scale(1.1);
-      box-shadow: 5px 5px 10px #bbb, -5px -5px 10px #fff;
     }
 
     #dice.rolling {
-      animation:
-        roll 0.6s infinite linear,
-        pulse 0.5s infinite alternate;
+      animation: roll 0.6s infinite linear;
     }
 
-    @keyframes pulse {
-      from {
-        opacity: 0.8;
+    @keyframes roll {
+      0% {
+        transform: translateX(-50%) rotate(0deg);
       }
 
-      to {
-        opacity: 1;
+      100% {
+        transform: translateX(-50%) rotate(360deg);
       }
     }
 
