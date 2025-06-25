@@ -965,6 +965,7 @@
         fightBtn.style.display = 'inline-block';
         fleeBtn.style.display = 'inline-block';
         closeBattleBtn.style.display = 'none';
+        dice.style.display = 'none';
         inBattleMode = true;
       }
     }
@@ -1139,7 +1140,7 @@
 
           const enemyRoll = Math.floor(Math.random() * 6) + 1;
           const playerRoll = Math.floor(Math.random() * 6) + 1;
-          document.getElementById('dice-number').textContent = playerRoll;
+
           battleInfo.textContent = `👹 Враг нанёс: ${enemyRoll} | 🧍 Ты нанёс: ${playerRoll}`;
 
           if (playerRoll < enemyRoll) {
@@ -1188,12 +1189,11 @@
 
           updateHealthBar();
           closeBattleBtn.style.display = 'inline-block';
-          document.getElementById('dice-number').textContent = '';
           dice.disabled = false;
           dice.style.display = 'none';
           inBattleMode = false;
 
-        }, 1500);
+        }, 800);
 
         return;
       }
@@ -1206,12 +1206,10 @@
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
-        document.getElementById('dice-number').textContent = roll;
+        dice.textContent = `🎲 ${roll}`;
         movePlayer(roll);
 
         setTimeout(() => {
-          document.getElementById('dice-number').textContent = '';
-
           dice.disabled = false;
         }, roll * 400 + 800);
       }, 800);
