@@ -178,22 +178,29 @@
 
     #dice {
       position: fixed;
-      bottom: 30px;
+      bottom: 5vh;
+      /* Отступ снизу в % от высоты экрана */
       left: 50%;
       transform: translateX(-50%);
-      font-size: 2.5em;
+      font-size: min(8vw, 2.5rem);
+      /* Динамический размер шрифта */
       cursor: pointer;
-      padding: 10px 20px;
+      padding: min(4vw, 20px) min(8vw, 40px);
+      /* Адаптивные отступы */
       background: linear-gradient(145deg, #ffffff, #e6e6e6);
       border-radius: 12px;
       box-shadow: 3px 3px 6px #ccc, -3px -3px 6px #fff;
       user-select: none;
       transition: all 0.3s ease;
       z-index: 300;
-    }
-
-    #dice:hover {
-      transform: translateX(-50%) scale(1.1);
+      touch-action: manipulation;
+      /* Оптимизация для тач-устройств */
+      min-width: 80px;
+      /* Минимальный размер */
+      min-height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
     #dice.rolling {
