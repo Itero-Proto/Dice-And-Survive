@@ -378,6 +378,17 @@
       z-index: 999;
     }
 
+    #deathOverlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 998;
+      display: none;
+    }
+
 
     #goldCounter {
       position: fixed;
@@ -500,6 +511,14 @@
 </head>
 
 <body>
+  <div id="deathOverlay" style="display: none; position: fixed; top: 0; left: 0;
+  width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 999;
+  display: flex; align-items: center; justify-content: center; flex-direction: column;">
+    <img src="images/dead.svg" alt="Силуэт мертвеца" style="width: 150px; height: auto; opacity: 0.8;" />
+    <div style="color: white; font-size: 1.5em; margin-top: 20px;">Ты пал...</div>
+  </div>
+
+
   <div id="portalModal" style="display: none; position: fixed; top: 65%; left: 50%; transform: translate(-50%, -50%); 
      background: #1a1a1a; color: #00ffcc; padding: 20px; border-radius: 10px; border: 2px solid #00ffcc; 
      z-index: 1000; text-align: center;">
@@ -696,6 +715,9 @@
       if (playerHP <= 0) {
         dice.disabled = true;
         gameOverModal.style.display = 'block';
+        document.getElementById('deathOverlay').style.display = 'flex';
+
+
         gameOverSound.play();
       }
 
@@ -716,9 +738,9 @@
       dice.disabled = true;
 
       let achievement = "";
-      if (goldCount === 0) {
+      if (goldCount <= 10) {
         achievement = "🏆 Жадность не твоя черта";
-      } else if (goldCount <= 15) {
+      } else if (goldCount <= 30) {
         achievement = "🏆 Любитель сокровищ";
       } else {
         achievement = "🏆 Жадный до победы!";
@@ -778,7 +800,7 @@
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!trapCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand)) trapCells.push(rand);
     }
-    while (goldCells.length < 20) {
+    while (goldCells.length < 15) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!goldCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand) && !trapCells.includes(rand)) goldCells.push(rand);
     }
@@ -1031,6 +1053,7 @@
 
     restartBtn.onclick = () => {
       location.reload();
+      document.getElementById('deathOverlay').style.display = 'none';
     };
 
     function movePlayer(steps) {
