@@ -564,6 +564,7 @@
   <audio id="gameOverSound" src="sounds/gameover.mp3"></audio>
   <audio id="battleLostSound" src="sounds/battleLost.mp3"></audio>
   <audio id="merchantSound" src="sounds/merchant.mp3"></audio>
+  <audio id="shortcutSound" src="sounds/shortcut.mp3"></audio>
   <audio id="runawaySound" src="sounds/runaway.mp3"></audio>
   <script>
     const board = document.getElementById('board');
@@ -598,7 +599,7 @@
     const winRestartBtn = document.getElementById('winRestartBtn');
     const usedHealthCells = new Set();
     const usedGoldCells = new Set();
-    const healthCells = [], enemyCells = [], trapCells = [], goldCells = [], merchantCells = [];
+    const healthCells = [], enemyCells = [], trapCells = [], goldCells = [], shortcutCells = [], merchantCells = [];
     const usedTrapCells = new Set();
 
     player.className = 'player';
@@ -759,6 +760,19 @@
         merchantCells.push(rand);
       }
     }
+    while (shortcutCells.length < 5) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (
+        !shortcutCells.includes(rand) &&
+        !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) &&
+        !trapCells.includes(rand) &&
+        !goldCells.includes(rand) &&
+        !merchantCells.includes(rand)
+      ) {
+        shortcutCells.push(rand);
+      }
+    }
     function checkForHealthPotion() {
       const cell = cells[currentCell];
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
@@ -861,7 +875,32 @@
         inBattleMode = true;
       }
     }
+    function checkForShortcut() {
+      const cell = cells[currentCell];
+      if (shortcutCells.includes(currentCell)) {
+        // Визуальный эффект (например, стрелка вверх)
+        const shortcutIcon = document.createElement('span');
+        shortcutIcon.textContent = '⏫';
+        shortcutIcon.style.position = 'absolute';
+        shortcutIcon.style.fontSize = '2em';
+        shortcutIcon.style.animation = 'gold-shake 0.5s infinite';
+        cell.appendChild(shortcutIcon);
+        shortcutSound.play();
+        // Сообщение
+        const steps = Math.floor(Math.random() * 3) + 1; // 1-3 клетки
+        const popup = document.createElement('div');
+        popup.className = 'heal-popup';
+        popup.textContent = `Короткий путь! +${steps} клетки!`;
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 2000);
 
+        // Перемещение
+        setTimeout(() => {
+          movePlayer(steps);
+          shortcutIcon.remove(); // Убираем иконку после перемещения
+        }, 1000);
+      }
+    }
     function checkForTrap() {
       const cell = cells[currentCell];
       if (trapCells.includes(currentCell)) { // Проверяем только наличие ловушки
@@ -937,6 +976,7 @@
             checkForEnemy();
             checkForTrap();
             checkForMerchant();
+            checkForShortcut();
           }
           return;
         }
