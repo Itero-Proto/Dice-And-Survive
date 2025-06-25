@@ -953,22 +953,20 @@
     }
     function checkForPortal() {
       const cell = cells[currentCell];
-      if (portalCells.includes(currentCell)) {
-        // Добавляем иконку портала (если её нет)
-        if (!cell.querySelector('.portal-icon')) {
-          const portalIcon = document.createElement('span');
-          portalIcon.className = 'portal-icon';
-          portalIcon.textContent = '🌀';
-          portalIcon.style.position = 'absolute';
-          portalIcon.style.fontSize = '2em';
-          portalIcon.style.animation = 'gold-shake 1s infinite';
-          cell.appendChild(portalIcon);
-        }
-        portalSound.play();
+      // Проверяем, что игрок именно остановился в этой клетке
+      if (portalCells.includes(currentCell) && !cell.querySelector('.portal-icon')) {
+        const portalIcon = document.createElement('span');
+        portalIcon.className = 'portal-icon';
+        portalIcon.textContent = '🌀';
+        portalIcon.style.position = 'absolute';
+        portalIcon.style.fontSize = '2em';
+        portalIcon.style.animation = 'gold-shake 1s infinite';
+        cell.appendChild(portalIcon);
+
         // Показываем окно выбора
         isPortalActive = true;
         document.getElementById('portalModal').style.display = 'block';
-        dice.disabled = true; // Блокируем кубик
+        dice.disabled = true;
       }
     }
     closeBattleBtn.onclick = () => {
