@@ -357,28 +357,18 @@
       background: #45a049;
     }
 
-    @keyframes confetti-fall {
-      0% {
-        transform: translateY(-10px) rotate(0deg);
-        /* Начинаем чуть выше вьюпорта */
-        opacity: 1;
-      }
-
+    @keyframes confetti {
       100% {
-        transform: translateY(100vh) rotate(360deg);
-        /* Летим до низа экрана */
-        opacity: 0;
+        transform: translateY(calc(100vh - var(--start-top))) rotate(360deg);
       }
     }
 
     .confetti {
       position: fixed;
-      top: 0;
-      /* Стартовая точка - верх экрана */
-      width: 12px;
-      height: 12px;
+      width: 10px;
+      height: 10px;
       background-color: #f00;
-      animation: confetti-fall 3s cubic-bezier(0.1, 0.8, 0.4, 1) forwards;
+      animation: confetti 3s linear forwards;
       z-index: 999;
     }
 
@@ -590,9 +580,6 @@
   <audio id="runawaySound" src="sounds/runaway.mp3"></audio>
   <audio id="portalSound" src="sounds/portal.mp3"></audio>
   <script>
-    // Добавьте в цикл создания
-    const shapes = ['◆', '●', '▲', '■'];
-    confetti.textContent = shapes[Math.floor(Math.random() * shapes.length)];
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
     const player = document.createElement('div');
@@ -731,8 +718,9 @@
         setTimeout(() => {
           const confetti = document.createElement('div');
           confetti.className = 'confetti';
-          confetti.style.left = `${Math.random() * 100}vw`; /* Случайное положение по X */
-          confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; /* Рандомный цвет */
+          confetti.style.left = `${Math.random() * 100}vw`;
+          confetti.style.top = `${Math.random() * 30 + 20}vh`; // 20-50% от верха
+          confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
           document.body.appendChild(confetti);
           setTimeout(() => confetti.remove(), 3000);
         }, i * 100);
