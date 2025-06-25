@@ -509,7 +509,7 @@
     <button id="declinePortalBtn" style="background: #aa0000; color: white; border: none; padding: 8px 15px; 
          border-radius: 5px; cursor: pointer;">НУ НАФИГ!</button>
   </div>
-  <div id="leaderboard-modal" style="display: none; position: fixed; top: 50%; left: 50%; 
+  <div id="leaderboard-modal" style="display: none; position: fixed; top: 80%; left: 50%; 
      transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.9); color: white; 
      padding: 20px; border-radius: 10px; border: 2px solid #4CAF50; z-index: 1000;
      max-width: 300px; width: 80%; text-align: center;">
@@ -635,6 +635,7 @@
     let goldCount = 0;
     let inBattleMode = false;
     let awaitingRoll = false;
+    let confettiInterval = null;
 
     usePotionBtn.addEventListener('click', () => {
       if (potionCount > 0 && playerHP < 100) {
@@ -708,7 +709,6 @@
     function showWinModal() {
       dice.disabled = true;
 
-      // Выбор ачивки по количеству золота
       let achievement = "";
       if (goldCount === 0) {
         achievement = "🏆 Жадность не твоя черта";
@@ -718,21 +718,21 @@
         achievement = "🏆 Жадный до победы!";
       }
       winGameSound.play();
-      finalStats.innerHTML = `Пройдено за ${diceRollsCount} дней<br>💰: ${goldCount}<br>${achievement}`;
+      finalStats.innerHTML = `Пройдено за ${diceRollsCount} дней<br>СОБРАЛ: ${goldCount}<br>${achievement}`;
       winModal.style.display = 'block';
 
-      for (let i = 0; i < 50; i++) {
-        setTimeout(() => {
-          const confetti = document.createElement('div');
-          confetti.className = 'confetti';
-          confetti.style.left = `${Math.random() * 100}vw`;
-          confetti.style.top = `${Math.random() * 30 + 20}vh`; // 20-50% от верха
-          confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-          document.body.appendChild(confetti);
-          setTimeout(() => confetti.remove(), 3000);
-        }, i * 100);
-      }
-      const playerName = prompt('Поздравляем! Введите имя для таблицы рекордов:', 'Игрок');
+      confettiInterval = setInterval(() => {
+        const confetti = document.createElement('div');
+        confetti.className = 'confetti';
+        confetti.style.left = `${Math.random() * 100}vw`;
+        confetti.style.top = `0vh`;
+        confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+        confetti.style.animationDuration = `${2 + Math.random()}s`; // случайная скорость
+        document.body.appendChild(confetti);
+        setTimeout(() => confetti.remove(), 4000);
+      }, 150); // каждые 150 мс
+
+      const playerName = prompt('УРА! Кто ты, герой?:', 'Игрок');
       if (playerName) {
         leaderboard.push({
           name: playerName.substring(0, 15), // Ограничиваем длину имени
@@ -745,6 +745,7 @@
     }
 
     winRestartBtn.onclick = () => {
+      clearInterval(confettiInterval); // Остановить создание конфетти
       location.reload();
     };
 
