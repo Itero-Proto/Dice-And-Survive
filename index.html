@@ -1119,6 +1119,7 @@
       }, 400);
     }
 
+    // Заменяем обработчик клика на кубике
     dice.addEventListener('click', () => {
       diceSound.play();
       if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
@@ -1133,6 +1134,9 @@
           const enemyRoll = Math.floor(Math.random() * 6) + 1;
           const playerRoll = Math.floor(Math.random() * 6) + 1;
 
+          // Показываем результат на кубике
+          showDiceResult(playerRoll);
+
           battleInfo.textContent = `👹 Враг нанёс: ${enemyRoll} | 🧍 Ты нанёс: ${playerRoll}`;
 
           if (playerRoll < enemyRoll) {
@@ -1143,7 +1147,7 @@
             setTimeout(() => document.body.classList.remove('shake'), 500);
             battleLostSound.play();
             playerLostBattle = true;
-          } else if (playerRoll === enemyRoll) { // Обработка ничьи
+          } else if (playerRoll === enemyRoll) {
             battleOutcome.textContent = `🔄 Ничья! Ты недооценил врага и отступаешь!`;
             playerLostBattle = true;
             runawaySound.play();
@@ -1164,7 +1168,7 @@
             cell.appendChild(gold);
 
             gold.addEventListener('click', () => {
-              const goldGain = Math.floor(Math.random() * 10) + 1; // от 1 до 10
+              const goldGain = Math.floor(Math.random() * 10) + 1;
               goldCount += goldGain;
               updateGoldCounter(true);
 
@@ -1174,10 +1178,9 @@
               cell.appendChild(popup);
               setTimeout(() => popup.remove(), 4000);
 
-              gold.remove(); // удаляем сундук после сбора
+              gold.remove();
             });
           }
-
 
           updateHealthBar();
           closeBattleBtn.style.display = 'inline-block';
@@ -1185,8 +1188,7 @@
           dice.style.display = 'none';
           inBattleMode = false;
 
-        }, 800);
-
+        }, 1000);
         return;
       }
 
@@ -1195,65 +1197,37 @@
       dice.disabled = true;
       dice.classList.add('rolling');
       diceSound.play();
+
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
-        dice.textContent = `🎲 ${roll}`;
+
+        // Показываем результат на кубике
+        showDiceResult(roll);
+
         movePlayer(roll);
 
         setTimeout(() => {
           dice.disabled = false;
         }, roll * 400 + 800);
-      }, 800);
+      }, 1000);
     });
 
+    // Новая функция для отображения результата на 3D-кубике
+    function showDiceResult(value) {
+      // Углы поворота для каждого значения кубика
+      const rotations = {
+        1: { x: 0, y: 0 },       // 1 - front
+        2: { x: 0, y: 180 },      // 2 - back
+        3: { x: 0, y: 90 },       // 3 - right
+        4: { x: 0, y: -90 },      // 4 - left
+        5: { x: 90, y: 0 },       // 5 - top
+        6: { x: -90, y: 0 }       // 6 - bottom
+      };
 
-    updateHealthBar();
-    buyHealBtn.onclick = () => {
-      if (goldCount >= 5) {
-        goldCount -= 5;
-        updateGoldCounter(true);
-
-        // Анимация лечения: мигание здоровья
-        const healthBar = document.getElementById('health-fill');
-        healthBar.style.transition = "none"; // Отключаем плавность для резкого мигания
-        healthBar.style.backgroundColor = "#00ff00"; // Зелёный цвет
-
-        setTimeout(() => {
-          healthBar.style.transition = "width 0.4s ease"; // Возвращаем анимацию
-          healthBar.style.backgroundColor = "#a60000"; // Возвращаем красный
-        }, 300);
-
-        // Восстановление HP
-        playerHP = Math.min(100, playerHP + 50);
-        updateHealthBar();
-
-        merchantModal.style.display = 'none';
-        isInteractingWithMerchant = false;
-        dice.disabled = false;
-
-        const popup = document.createElement('div');
-        popup.className = 'heal-popup';
-        popup.textContent = 'Куплено зелье (+50❤️)';
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 2000);
-
-        potionSound.play();
-      }
-      else {
-        // Если не хватает золота, показываем сообщение
-        const popup = document.createElement('div');
-        popup.className = 'trap-popup';
-        popup.textContent = 'Недостаточно золота!';
-        document.body.appendChild(popup);
-        setTimeout(() => popup.remove(), 2000);
-      }
-    };
-    declineMerchantBtn.onclick = () => {
-      merchantModal.style.display = 'none';
-      isInteractingWithMerchant = false; // Разблокируем
-      dice.disabled = false;
-    };
+      const rotation = rotations[value];
+      dice.style.transform = `rotateX(${rotation.x}deg) rotateY(${rotation.y}deg)`;
+    }
 
   </script>
 
