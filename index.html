@@ -511,11 +511,12 @@
 </head>
 
 <body>
-  <div id="deathOverlay" style="display: none; position: fixed; top: 0; left: 0;
-  width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 999;
-  display: flex; align-items: center; justify-content: center; flex-direction: column;">
+  <div id="deathOverlay" style="position: fixed; top: 0; left: 0; 
+     width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 999;
+     display: none; /* ТОЛЬКО ОДИН РАЗ! */ 
+     align-items: center; justify-content: center; flex-direction: column;">
     <img src="dead.svg" alt="Силуэт мертвеца" style="width: 150px; height: auto; opacity: 0.8;" />
-    <div style="color: white; font-size: 1.5em; margin-top: 20px;">Ты пал...</div>
+    <div style="font-size: 1.5em; margin-top: 20px;">Ты пал...</div>
   </div>
 
 
@@ -716,7 +717,6 @@
         dice.disabled = true;
         gameOverModal.style.display = 'block';
         document.getElementById('deathOverlay').style.display = 'flex';
-
 
         gameOverSound.play();
       }
