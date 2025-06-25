@@ -780,7 +780,7 @@
         shortcutCells.push(rand);
       }
     }
-    while (portalCells.length < 5) {
+    while (portalCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (
         !portalCells.includes(rand) &&
@@ -946,6 +946,7 @@
         popup.className = 'heal-popup';
         popup.textContent = `Короткий путь! +${steps} клетки!`;
         document.body.appendChild(popup);
+        document.getElementById('shortcutSound').play();
         setTimeout(() => popup.remove(), 2000);
 
         // Перемещаем игрока
