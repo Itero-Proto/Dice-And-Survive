@@ -965,7 +965,8 @@
         fightBtn.style.display = 'inline-block';
         fleeBtn.style.display = 'inline-block';
         closeBattleBtn.style.display = 'none';
-        dice.style.display = 'none';
+        dice.style.display = 'flex'; // исходное значение, чтобы не ломалась верстка
+
         inBattleMode = true;
       }
     }
@@ -1043,6 +1044,8 @@
       }
     }
     closeBattleBtn.onclick = () => {
+      document.querySelector('#dice .dice-inner').textContent = `🎲`;
+
       battleModal.style.display = 'none';
       dice.style.display = 'block';
       closeBattleBtn.style.display = 'none';
@@ -1206,7 +1209,8 @@
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
-        dice.textContent = `🎲 ${roll}`;
+        document.querySelector('#dice .dice-inner').textContent = `🎲 ${roll}`;
+
         movePlayer(roll);
 
         setTimeout(() => {
