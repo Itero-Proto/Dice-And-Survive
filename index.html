@@ -117,6 +117,7 @@
       animation: idle-bob 1s infinite ease-in-out;
       z-index: 10;
       transition: transform 0.3s ease;
+      filter: drop-shadow(0 5px 3px rgba(0, 0, 0, 0.3));
     }
 
     .heal-popup,
@@ -158,6 +159,22 @@
       50% {
         transform: translateY(-5px);
       }
+    }
+
+    @keyframes jump {
+
+      0%,
+      100% {
+        transform: translateY(0) scale(1);
+      }
+
+      50% {
+        transform: translateY(-25px) scale(1.1);
+      }
+    }
+
+    .player-jump {
+      animation: jump 0.4s ease-in-out;
     }
 
     @keyframes enemy-sway {
@@ -514,6 +531,24 @@
       z-index: 5;
       animation: gold-shake 1s infinite;
     }
+
+    @keyframes land {
+      0% {
+        transform: scale(1.1);
+      }
+
+      50% {
+        transform: scale(0.95);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    .player-land {
+      animation: land 0.2s ease-out;
+    }
   </style>
 </head>
 
@@ -628,6 +663,7 @@
   <audio id="shortcutSound" src="sounds/shortcut.mp3"></audio>
   <audio id="runawaySound" src="sounds/runaway.mp3"></audio>
   <audio id="portalSound" src="sounds/portal.mp3"></audio>
+  <audio id="jumpSound" src="sounds/jump.mp3"></audio>
   <script>
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
@@ -1072,8 +1108,11 @@
     };
 
     function movePlayer(steps) {
+      document.getElementById('jumpSound').currentTime = 0;
+      document.getElementById('jumpSound').play();
       if (steps <= 0) return;
       let stepCount = 0;
+
       const interval = setInterval(() => {
         if (stepCount >= steps || currentCell >= cells.length - 1) {
           clearInterval(interval);
@@ -1087,16 +1126,31 @@
             checkForMerchant();
             checkForShortcut();
             checkForPortal();
-
           }
           return;
         }
-        currentCell++;
 
+        // Удаляем предыдущий класс прыжка (если был)
+        player.classList.remove('player-jump');
+
+        // Принудительно вызываем reflow для сброса анимации
+        void player.offsetWidth;
+
+        // Добавляем класс прыжка
+        player.classList.add('player-jump');
+
+        currentCell++;
         cells[currentCell].appendChild(player);
         cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
         stepCount++;
-      }, 400);
+
+        setTimeout(() => {
+          player.classList.remove('player-jump');
+          player.classList.add('player-land');
+          setTimeout(() => player.classList.remove('player-land'), 200);
+        }, 400);
+
+      }, 500); // Увеличим интервал для лучшей визуализации
     }
 
     dice.addEventListener('click', () => {
