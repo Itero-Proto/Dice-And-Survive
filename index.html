@@ -692,6 +692,8 @@
   <audio id="runawaySound" src="sounds/runaway.mp3"></audio>
   <audio id="portalSound" src="sounds/portal.mp3"></audio>
   <audio id="jumpSound" src="sounds/jump.mp3"></audio>
+  <audio id="keySound" src="sounds/key.mp3"></audio>
+  <audio id="openChestSound" src="sounds/openChest.mp3"></audio>
   <script>
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
@@ -1223,6 +1225,7 @@
           chestIcon.addEventListener('click', () => {
             if (keyCount > 0) {
               keyCount--;
+              openChestSound.play();
               document.getElementById('keyCount').textContent = keyCount;
 
               // Добыча из сундука
@@ -1371,6 +1374,7 @@
               // Создаём ключ
               const key = document.createElement('span');
               key.textContent = '🔑';
+              keySound.play();
               key.className = 'key-icon';
               key.style.position = 'absolute';
               key.style.top = '5px';
@@ -1379,6 +1383,7 @@
               cell.appendChild(key);
 
               key.addEventListener('click', () => {
+                keySound.play();
                 keyCount++;
                 document.getElementById('keyCount').textContent = keyCount;
                 key.remove();
