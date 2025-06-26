@@ -874,7 +874,7 @@
       cell.classList.add('flash-red');
       setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
-    while (enemyCells.length < 10) {
+    while (enemyCells.length < 15) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!enemyCells.includes(rand)) enemyCells.push(rand);
     }
@@ -929,7 +929,7 @@
         portalCells.push(rand);
       }
     }
-    while (keyCells.length < 20) {
+    while (keyCells.length < 5) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (
         !keyCells.includes(rand) &&
@@ -945,7 +945,7 @@
       }
     }
 
-    while (chestCells.length < 10) {
+    while (chestCells.length < 5) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (
         !chestCells.includes(rand) &&
@@ -1226,7 +1226,7 @@
               document.getElementById('keyCount').textContent = keyCount;
 
               // Добыча из сундука
-              const reward = Math.floor(Math.random() * 10) + 5; // от 5 до 14 золота
+              const reward = Math.floor(Math.random() * 10) + 5;
               goldCount += reward;
               updateGoldCounter(true);
 
