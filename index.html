@@ -1108,8 +1108,6 @@
     };
 
     function movePlayer(steps) {
-      document.getElementById('jumpSound').currentTime = 0;
-      document.getElementById('jumpSound').play();
       if (steps <= 0) return;
       let stepCount = 0;
 
@@ -1130,13 +1128,13 @@
           return;
         }
 
-        // Удаляем предыдущий класс прыжка (если был)
+        // Воспроизводим звук прыжка для КАЖДОГО шага
+        const jumpSound = document.getElementById('jumpSound');
+        jumpSound.currentTime = 0; // Перематываем на начало
+        jumpSound.play();
+
         player.classList.remove('player-jump');
-
-        // Принудительно вызываем reflow для сброса анимации
-        void player.offsetWidth;
-
-        // Добавляем класс прыжка
+        void player.offsetWidth; // Сброс анимации
         player.classList.add('player-jump');
 
         currentCell++;
@@ -1146,11 +1144,9 @@
 
         setTimeout(() => {
           player.classList.remove('player-jump');
-          player.classList.add('player-land');
-          setTimeout(() => player.classList.remove('player-land'), 200);
         }, 400);
 
-      }, 500); // Увеличим интервал для лучшей визуализации
+      }, 500); // Интервал между шагами
     }
 
     dice.addEventListener('click', () => {
