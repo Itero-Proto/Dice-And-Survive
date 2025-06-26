@@ -1193,6 +1193,7 @@
           // При клике — получить ключ
           keyIcon.addEventListener('click', () => {
             keyCount++;
+            document.getElementById('keySound').play();
             document.getElementById('keyCount').textContent = keyCount;
             keyIcon.remove();
 
@@ -1225,7 +1226,7 @@
           chestIcon.addEventListener('click', () => {
             if (keyCount > 0) {
               keyCount--;
-              openChestSound.play();
+              document.getElementById('openChestSound').play();
               document.getElementById('keyCount').textContent = keyCount;
 
               // Добыча из сундука
@@ -1374,7 +1375,6 @@
               // Создаём ключ
               const key = document.createElement('span');
               key.textContent = '🔑';
-              document.getElementById('keySound').play();
               key.className = 'key-icon';
               key.style.position = 'absolute';
               key.style.top = '5px';
@@ -1384,10 +1384,9 @@
 
               key.addEventListener('click', () => {
                 keyCount++;
-                document.getElementById('keyCount').textContent = keyCount;
                 document.getElementById('keySound').play();
+                document.getElementById('keyCount').textContent = keyCount;
                 key.remove();
-
                 const popup = document.createElement('div');
                 popup.className = 'heal-popup';
                 popup.textContent = '🔑 Найден ключ!';
