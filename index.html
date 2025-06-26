@@ -1374,7 +1374,7 @@
               // Создаём ключ
               const key = document.createElement('span');
               key.textContent = '🔑';
-              keySound.play();
+              document.getElementById('keySound').play();
               key.className = 'key-icon';
               key.style.position = 'absolute';
               key.style.top = '5px';
@@ -1383,9 +1383,9 @@
               cell.appendChild(key);
 
               key.addEventListener('click', () => {
-                keySound.play();
                 keyCount++;
                 document.getElementById('keyCount').textContent = keyCount;
+                document.getElementById('keySound').play();
                 key.remove();
 
                 const popup = document.createElement('div');
