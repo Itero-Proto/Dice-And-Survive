@@ -1364,25 +1364,51 @@
             const enemy = cell.querySelector('.enemy');
             if (enemy) enemy.remove();
 
-            // Создаём сундук с золотом
-            const gold = document.createElement('span');
-            gold.textContent = '💰';
-            gold.className = 'gold';
-            cell.appendChild(gold);
+            // Решаем, что выпадет: ключ (30%) или золото (70%)
+            const rewardType = Math.random() < 0.3 ? "key" : "gold";
 
-            gold.addEventListener('click', () => {
-              const goldGain = Math.floor(Math.random() * 10) + 1; // от 1 до 10
-              goldCount += goldGain;
-              updateGoldCounter(true);
+            if (rewardType === "key") {
+              // Создаём ключ
+              const key = document.createElement('span');
+              key.textContent = '🔑';
+              key.className = 'key-icon';
+              key.style.position = 'absolute';
+              key.style.top = '5px';
+              key.style.left = '5px';
+              key.style.animation = 'potionPulse 2s infinite ease-in-out';
+              cell.appendChild(key);
 
-              const popup = document.createElement('div');
-              popup.className = 'heal-popup';
-              popup.innerHTML = `Найдено золото: +${goldGain}`;
-              cell.appendChild(popup);
-              setTimeout(() => popup.remove(), 4000);
+              key.addEventListener('click', () => {
+                keyCount++;
+                document.getElementById('keyCount').textContent = keyCount;
+                key.remove();
 
-              gold.remove(); // удаляем сундук после сбора
-            });
+                const popup = document.createElement('div');
+                popup.className = 'heal-popup';
+                popup.textContent = '🔑 Найден ключ!';
+                cell.appendChild(popup);
+                setTimeout(() => popup.remove(), 2000);
+              });
+            } else {
+              // Создаём золото (старая логика)
+              const gold = document.createElement('span');
+              gold.textContent = '💰';
+              gold.className = 'gold';
+              cell.appendChild(gold);
+
+              gold.addEventListener('click', () => {
+                const goldGain = Math.floor(Math.random() * 10) + 1;
+                goldCount += goldGain;
+                updateGoldCounter(true);
+
+                const popup = document.createElement('div');
+                popup.className = 'heal-popup';
+                popup.textContent = `Найдено золото: +${goldGain}💰`;
+                cell.appendChild(popup);
+                setTimeout(() => popup.remove(), 2000);
+                gold.remove();
+              });
+            }
           }
 
 
