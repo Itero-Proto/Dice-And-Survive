@@ -114,10 +114,10 @@
     .player {
       position: absolute;
       font-size: 2em;
+      animation: idle-bob 1s infinite ease-in-out;
       z-index: 10;
       transition: transform 0.3s ease;
       filter: drop-shadow(0 5px 3px rgba(0, 0, 0, 0.3));
-      animation: land 0.2s ease-out;
     }
 
     .heal-popup,
@@ -149,6 +149,17 @@
       color: #d32f2f;
     }
 
+    @keyframes idle-bob {
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
+    }
 
     @keyframes jump {
 
@@ -539,19 +550,28 @@
       animation: land 0.2s ease-out;
     }
 
-    .key {
-      position: absolute;
-      top: 5px;
-      left: 5px;
-      z-index: 5;
-      cursor: pointer;
+    #inventory {
+      position: fixed;
+      left: 25px;
+      bottom: 25px;
+      background: #fff3e0;
+      border: 2px solid #795548;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-size: 1.1em;
+      font-weight: bold;
+      color: #4e342e;
+      z-index: 100;
+      box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
     }
 
-    .chest {
+    .chest-icon {
       position: absolute;
+      left: 5px;
       bottom: 5px;
-      right: 5px;
+      font-size: 1.4em;
       z-index: 5;
+      animation: gold-shake 1s infinite;
       cursor: pointer;
     }
   </style>
@@ -641,14 +661,10 @@
      box-shadow: 0 0 8px rgba(76, 175, 80, 0.4);">
     <div id="potions-count" style="font-size: 14px; margin-bottom: 3px;">0</div>
     <button id="use-potion-btn" style="background: none; border: none; font-size: 24px; cursor: pointer;">🧪</button>
+    <div id="keyCount" style="font-size: 14px; margin-bottom: 3px;">0</div>
+    <button id="use-key-btn" style="background: none; border: none; font-size: 24px; cursor: pointer;">🔑</button>
   </div>
-  <div id="inventory-keys" style="position: fixed; left: 10px; top: 60%; transform: translateY(-50%); 
-     background: rgba(106, 106, 106, 0.9); border: 1px solid #000000; border-radius: 8px;
-     padding: 8px 5px; z-index: 100; color: white; display: flex; flex-direction: column; align-items: center;
-     box-shadow: 0 0 8px rgba(255, 215, 0, 0.4);">
-    <div id="keys-count" style="font-size: 14px; margin-bottom: 3px;">0</div>
-    <div style="font-size: 24px;">🔑</div>
-  </div>
+
   <div id="gameOverModal">
     <div>💀 Вы погибли! </div>
     <button id="restartBtn">ЗАНОВО</button>
@@ -687,7 +703,6 @@
     const gameOverModal = document.getElementById('gameOverModal');
     const restartBtn = document.getElementById('restartBtn');
     const potionsCountElement = document.getElementById('potions-count');
-    const keysCountElement = document.getElementById('keys-count');
     const usePotionBtn = document.getElementById('use-potion-btn');
     const fightBtn = document.getElementById('fightBtn');
     const fleeBtn = document.getElementById('fleeBtn');
@@ -710,12 +725,8 @@
     const winRestartBtn = document.getElementById('winRestartBtn');
     const usedHealthCells = new Set();
     const usedGoldCells = new Set();
-    const healthCells = [], enemyCells = [], portalCells = [], trapCells = [], goldCells = [], shortcutCells = [], merchantCells = [];
-    const keyCells = [];         // Клетки с ключами
-    const chestCells = [];       // Клетки с сундуками
-    const usedKeyCells = new Set(); // Для удаления собранных ключей
-    const usedChestCells = new Set(); // Для открытых сундуков
-    let keyCount = 0;            // Количество ключей в инвентаре
+    const healthCells = [], enemyCells = [], portalCells = [], trapCells = [], goldCells = [], shortcutCells = [], keyCells = [], chestCells = [], merchantCells = [];
+    let keyCount = 0;
     const usedTrapCells = new Set();
     let isPortalActive = false; // Блокирует кубик, пока игрок не решит
     player.className = 'player';
@@ -762,6 +773,11 @@
     setTimeout(() => {
       cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
     }, 100);
+
+    function updateInventory() {
+      document.getElementById('potionCount').textContent = potionCount;
+      document.getElementById('keyCount').textContent = keyCount;
+    }
 
     function showLeaderboard() {
       const list = document.getElementById('leaderboard-list');
@@ -870,11 +886,11 @@
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!trapCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand)) trapCells.push(rand);
     }
-    while (goldCells.length < 15) {
+    while (goldCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!goldCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand) && !trapCells.includes(rand)) goldCells.push(rand);
     }
-    while (merchantCells.length < 15) {
+    while (merchantCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (
         !merchantCells.includes(rand) &&
@@ -913,8 +929,7 @@
         portalCells.push(rand);
       }
     }
-    // 5 случайных ключей
-    while (keyCells.length < 5) {
+    while (keyCells.length < 20) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (
         !keyCells.includes(rand) &&
@@ -930,23 +945,23 @@
       }
     }
 
-    // 5 случайных сундуков
-    while (chestCells.length < 5) {
+    while (chestCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (
         !chestCells.includes(rand) &&
+        !keyCells.includes(rand) &&
         !enemyCells.includes(rand) &&
         !healthCells.includes(rand) &&
         !trapCells.includes(rand) &&
         !goldCells.includes(rand) &&
         !merchantCells.includes(rand) &&
         !shortcutCells.includes(rand) &&
-        !portalCells.includes(rand) &&
-        !keyCells.includes(rand) // Сундук не должен быть в клетке с ключом
+        !portalCells.includes(rand)
       ) {
         chestCells.push(rand);
       }
     }
+
     function checkForHealthPotion() {
       const cell = cells[currentCell];
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
@@ -1122,63 +1137,6 @@
         dice.disabled = true;
       }
     }
-    function checkForKey() {
-      const cell = cells[currentCell];
-      if (keyCells.includes(currentCell) && !usedKeyCells.has(currentCell)) {
-        const key = document.createElement('span');
-        key.textContent = '🔑';
-        key.className = 'key';
-        key.style.position = 'absolute';
-        key.style.fontSize = '1.4em';
-        key.style.animation = 'gold-shake 0.5s infinite';
-        cell.appendChild(key);
-
-        key.addEventListener('click', () => {
-          usedKeyCells.add(currentCell);
-          keyCount++;
-          keysCountElement.textContent = `${keyCount}`;
-          key.remove();
-          goldSound.play(); // Можно добавить отдельный звук для ключей
-          createPopup('Найден ключ!', 'heal');
-        });
-      }
-    }
-    function checkForChest() {
-      const cell = cells[currentCell];
-      if (chestCells.includes(currentCell) && !usedChestCells.has(currentCell)) {
-        const chest = document.createElement('span');
-        chest.textContent = '🧰';
-        chest.className = 'chest';
-        chest.style.position = 'absolute';
-        chest.style.fontSize = '1.4em';
-        chest.style.animation = 'gold-shake 0.8s infinite';
-        cell.appendChild(chest);
-
-        chest.addEventListener('click', () => {
-          if (keyCount > 0) {
-            keyCount--;
-            keysCountElement.textContent = `${keyCount}`;
-            usedChestCells.add(currentCell);
-            chest.remove();
-
-            // Награда за сундук
-            const reward = Math.random() > 0.5 ? 'gold' : 'potion';
-            if (reward === 'gold') {
-              const goldGain = Math.floor(Math.random() * 10) + 5; // 5-15 золота
-              goldCount += goldGain;
-              updateGoldCounter(true);
-              createPopup(`Сундук: +${goldGain}💰`, 'heal');
-            } else {
-              potionCount++;
-              potionsCountElement.textContent = `${potionCount}`;
-              createPopup('Сундук: +1 зелье!', 'heal');
-            }
-          } else {
-            createPopup('Нужен ключ!', 'trap');
-          }
-        });
-      }
-    }
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
       dice.style.display = 'block';
@@ -1215,6 +1173,93 @@
     restartBtn.onclick = () => {
       location.reload();
     };
+    function checkForKey() {
+      const cell = cells[currentCell];
+      if (keyCells.includes(currentCell)) {
+        // Проверка, чтобы не добавлять ключ повторно
+        if (!cell.querySelector('.key-icon')) {
+          const keyIcon = document.createElement('span');
+          keyIcon.className = 'key-icon';
+          keyIcon.textContent = '🔑';
+          keyIcon.style.position = 'absolute';
+          keyIcon.style.top = '5px';
+          keyIcon.style.left = '5px';
+          keyIcon.style.fontSize = '1.4em';
+          keyIcon.style.animation = 'potionPulse 2s infinite ease-in-out';
+          cell.appendChild(keyIcon);
+
+          // При клике — получить ключ
+          keyIcon.addEventListener('click', () => {
+            keyCount++;
+            document.getElementById('keyCount').textContent = keyCount;
+            keyIcon.remove();
+
+            const popup = document.createElement('div');
+            popup.className = 'heal-popup';
+            popup.textContent = '🔑 Найден ключ!';
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 2000);
+          });
+        }
+      }
+    }
+    function checkForChest() {
+      const cell = cells[currentCell];
+
+      if (chestCells.includes(currentCell)) {
+        // Проверка, если сундук уже есть
+        if (!cell.querySelector('.chest-icon')) {
+          const chestIcon = document.createElement('span');
+          chestIcon.className = 'chest-icon';
+          chestIcon.textContent = '🧰';
+          chestIcon.style.position = 'absolute';
+          chestIcon.style.left = '5px';
+          chestIcon.style.bottom = '5px';
+          chestIcon.style.fontSize = '1.4em';
+          chestIcon.style.cursor = 'pointer';
+          chestIcon.style.animation = 'gold-shake 1s infinite';
+          cell.appendChild(chestIcon);
+
+          chestIcon.addEventListener('click', () => {
+            if (keyCount > 0) {
+              keyCount--;
+              document.getElementById('keyCount').textContent = keyCount;
+
+              // Добыча из сундука
+              const reward = Math.floor(Math.random() * 10) + 5; // от 5 до 14 золота
+              goldCount += reward;
+              updateGoldCounter(true);
+
+              // Удаляем сундук
+              chestIcon.remove();
+
+              const popup = document.createElement('div');
+              popup.className = 'heal-popup';
+              popup.textContent = `Сундук открыт! +${reward}💰`;
+              cell.appendChild(popup);
+              setTimeout(() => popup.remove(), 3000);
+            } else {
+              // Нет ключей
+              const popup = document.createElement('div');
+              popup.className = 'trap-popup';
+              popup.textContent = 'Нет ключей!';
+              cell.appendChild(popup);
+              setTimeout(() => popup.remove(), 2000);
+            }
+          });
+        }
+      }
+    }
+
+
+    function spawnEnemyAtCell(index) {
+      const cell = cells[index];
+      const enemy = document.createElement('span');
+      enemy.textContent = '👹';
+      enemy.className = 'enemy';
+      cell.appendChild(enemy);
+      enemyCells.push(index);
+    }
 
     function movePlayer(steps) {
       if (steps <= 0) return;
@@ -1235,6 +1280,7 @@
             checkForPortal();
             checkForKey();
             checkForChest();
+
           }
           return;
         }
