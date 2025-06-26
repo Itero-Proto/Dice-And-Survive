@@ -858,7 +858,7 @@
       cell.classList.add('flash-red');
       setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
-    while (enemyCells.length < 15) {
+    while (enemyCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!enemyCells.includes(rand)) enemyCells.push(rand);
     }
