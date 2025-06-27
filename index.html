@@ -21,6 +21,7 @@
     }
 
     #health-bar {
+      position: relative;
       width: 80%;
       height: 20px;
       background-color: #353535;
@@ -28,6 +29,20 @@
       margin: 15px 0;
       overflow: hidden;
       border: 2px solid #444;
+    }
+
+    #health-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-weight: bold;
+      color: white;
+      font-size: 0.9em;
+      pointer-events: none;
+      /* чтобы не мешал кликам */
+      z-index: 10;
+      text-shadow: 1px 1px 2px black;
     }
 
     #health-fill {
@@ -618,7 +633,9 @@
   <div id="goldCounter">💰 0</div>
   <div id="health-bar">
     <div id="health-fill"></div>
+    <span id="health-text">100 / 100</span>
   </div>
+
   <div id="board-container">
     <div id="board"></div>
   </div>
@@ -798,21 +815,21 @@
     }
 
     document.getElementById('show-leaderboard').addEventListener('click', showLeaderboard);
-
     document.getElementById('close-leaderboard').addEventListener('click', () => {
       document.getElementById('leaderboard-modal').style.display = 'none';
     });
+
     function updateHealthBar() {
       document.getElementById('health-fill').style.width = playerHP + '%';
+      document.getElementById('health-text').textContent = `${playerHP} / 100`;
       if (playerHP <= 0) {
         dice.disabled = true;
         gameOverModal.style.display = 'block';
         document.getElementById('deathOverlay').style.display = 'flex';
-
         gameOverSound.play();
       }
-
     }
+
     function updateGoldCounter(changed = false) {
       const counter = document.getElementById('goldCounter');
       counter.textContent = `💰 ${goldCount}`;
