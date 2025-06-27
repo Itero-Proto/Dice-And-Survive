@@ -574,36 +574,6 @@
       animation: gold-shake 1s infinite;
       cursor: pointer;
     }
-
-    .boss-enemy {
-      position: absolute;
-      font-size: 2.5em;
-      animation: bossPulse 1.5s infinite;
-      filter: drop-shadow(0 0 5px rgba(255, 87, 34, 0.7));
-    }
-
-    @keyframes bossPulse {
-
-      0%,
-      100% {
-        transform: scale(1);
-      }
-
-      50% {
-        transform: scale(1.1);
-      }
-    }
-
-    #specialBtn {
-      background: linear-gradient(to bottom, #ff9800, #e65100);
-      color: white;
-      border: none;
-      padding: 8px 15px;
-      border-radius: 5px;
-      cursor: pointer;
-      margin: 5px;
-      font-weight: bold;
-    }
   </style>
 </head>
 
@@ -646,34 +616,8 @@
           cursor: pointer;">Закрыть</button>
   </div>
   <div id="goldCounter">💰 0</div>
-  <div id="health-bar" style="
-  width: 80%;
-  height: 20px;
-  background-color: #353535;
-  border-radius: 10px;
-  margin: 15px 0;
-  overflow: hidden;
-  border: 2px solid #444;
-  position: relative; /* Для позиционирования текста */
-">
-    <div id="health-fill" style="
-    height: 100%;
-    width: 100%;
-    background-color: #a60000;
-    transition: width 0.4s ease;
-  "></div>
-    <!-- Текст теперь вне health-fill -->
-    <div id="health-text" style="
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: white;
-    font-size: 12px;
-    font-weight: bold;
-    text-shadow: 0 0 2px black;
-    pointer-events: none; /* Чтобы клики проходили сквозь текст */
-  "></div>
+  <div id="health-bar">
+    <div id="health-fill"></div>
   </div>
   <div id="board-container">
     <div id="board"></div>
@@ -704,7 +648,6 @@
   </div>
 
   <div id="battleModal">
-    <button id="specialBtn" style="background: #ff9800; display: none;">Особый приём (1 раз)</button>
     <div id="battleInfo"></div>
     <div id="battleOutcome"></div>
     <button id="fightBtn">СРАЖАТЬСЯ</button>
@@ -784,15 +727,10 @@
     const winRestartBtn = document.getElementById('winRestartBtn');
     const usedHealthCells = new Set();
     const usedGoldCells = new Set();
-
-    const bossCells = [24, 49, 74]; // Клетки с боссами
-    const reservedCells = [...bossCells]; // Все занятые клетки (для удобства)
-    const bossDefeated = new Set(); // Для отслеживания побеждённых боссов
-    const healthFill = document.getElementById('health-fill');
-    const healthText = document.getElementById('health-text');
-
-    let maxHP = 100; // Добавляем переменную для максимального здоровья
+    const healthCells = [], enemyCells = [], portalCells = [], trapCells = [], goldCells = [], shortcutCells = [],
+      keyCells = [], chestCells = [], merchantCells = [], bookCells = [];
     let keyCount = 0;
+    usedBookCells = new Set();
     const usedTrapCells = new Set();
     let isPortalActive = false; // Блокирует кубик, пока игрок не решит
     player.className = 'player';
@@ -863,33 +801,16 @@
     document.getElementById('close-leaderboard').addEventListener('click', () => {
       document.getElementById('leaderboard-modal').style.display = 'none';
     });
-    function updateHealthBar(isMaxHpIncreased = false) {
-
-      // Обновляем ширину полоски с учётом maxHP
-      const healthPercent = (playerHP / maxHP) * 100;
-      healthFill.style.width = `${healthPercent}%`;
-
-      // Обновляем текст (например: "85/100")
-      if (healthText) {
-        healthText.textContent = `${playerHP}/${maxHP}`;
-      }
-
-      // Эффект при увеличении maxHP
-      if (isMaxHpIncreased) {
-        healthFill.classList.add('health-increase');
-        setTimeout(() => healthFill.classList.remove('health-increase'), 500);
-      }
-
-      // Проверка на смерть
+    function updateHealthBar() {
+      document.getElementById('health-fill').style.width = playerHP + '%';
       if (playerHP <= 0) {
         dice.disabled = true;
         gameOverModal.style.display = 'block';
         document.getElementById('deathOverlay').style.display = 'flex';
+
         gameOverSound.play();
       }
 
-      // Цвет при низком здоровье
-      healthFill.style.backgroundColor = playerHP < 30 ? '#ff0000' : '#a60000';
     }
     function updateGoldCounter(changed = false) {
       const counter = document.getElementById('goldCounter');
@@ -901,17 +822,7 @@
         setTimeout(() => counter.classList.remove('flash'), 400);
       }
     }
-    // Функция для генерации уникальных клеток
-    function generateUniqueCells(count, excludeCells) {
-      const result = [];
-      while (result.length < count) {
-        const rand = Math.floor(Math.random() * 98) + 1;
-        if (!excludeCells.includes(rand) && !result.includes(rand)) {
-          result.push(rand);
-        }
-      }
-      return result;
-    }
+
 
     function showWinModal() {
       dice.disabled = true;
@@ -967,16 +878,113 @@
       cell.classList.add('flash-red');
       setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
-    // Генерация всех типов клеток
-    enemyCells = generateUniqueCells(15, reservedCells);
-    healthCells = generateUniqueCells(10, [...reservedCells, ...enemyCells]);
-    trapCells = generateUniqueCells(10, [...reservedCells, ...enemyCells, ...healthCells]);
-    goldCells = generateUniqueCells(10, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells]);
-    merchantCells = generateUniqueCells(10, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells]);
-    shortcutCells = generateUniqueCells(5, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells, ...merchantCells]);
-    portalCells = generateUniqueCells(5, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells, ...merchantCells, ...shortcutCells]);
-    keyCells = generateUniqueCells(5, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells, ...merchantCells, ...shortcutCells, ...portalCells]);
-    chestCells = generateUniqueCells(5, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells, ...merchantCells, ...shortcutCells, ...portalCells, ...keyCells]);
+    while (enemyCells.length < 15) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (!enemyCells.includes(rand)) enemyCells.push(rand);
+    }
+    while (healthCells.length < 10) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (!healthCells.includes(rand) && !enemyCells.includes(rand)) healthCells.push(rand);
+    }
+    while (trapCells.length < 10) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (!trapCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand)) trapCells.push(rand);
+    }
+    while (goldCells.length < 10) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (!goldCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand) && !trapCells.includes(rand)) goldCells.push(rand);
+    }
+    while (merchantCells.length < 10) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (
+        !merchantCells.includes(rand) &&
+        !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) &&
+        !trapCells.includes(rand) &&
+        !goldCells.includes(rand)
+      ) {
+        merchantCells.push(rand);
+      }
+    }
+    while (shortcutCells.length < 5) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (
+        !shortcutCells.includes(rand) &&
+        !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) &&
+        !trapCells.includes(rand) &&
+        !goldCells.includes(rand) &&
+        !merchantCells.includes(rand)
+      ) {
+        shortcutCells.push(rand);
+      }
+    }
+    while (portalCells.length < 5) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (
+        !portalCells.includes(rand) &&
+        !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) &&
+        !trapCells.includes(rand) &&
+        !goldCells.includes(rand) &&
+        !merchantCells.includes(rand) &&
+        !shortcutCells.includes(rand)
+      ) {
+        portalCells.push(rand);
+      }
+    }
+    while (keyCells.length < 5) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (
+        !keyCells.includes(rand) &&
+        !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) &&
+        !trapCells.includes(rand) &&
+        !goldCells.includes(rand) &&
+        !merchantCells.includes(rand) &&
+        !shortcutCells.includes(rand) &&
+        !portalCells.includes(rand)
+      ) {
+        keyCells.push(rand);
+      }
+    }
+
+    while (chestCells.length < 5) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (
+        !chestCells.includes(rand) &&
+        !keyCells.includes(rand) &&
+        !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) &&
+        !trapCells.includes(rand) &&
+        !goldCells.includes(rand) &&
+        !merchantCells.includes(rand) &&
+        !shortcutCells.includes(rand) &&
+        !portalCells.includes(rand)
+      ) {
+        chestCells.push(rand);
+      }
+
+    }
+
+    const occupiedCells = new Set([
+      ...enemyCells,
+      ...healthCells,
+      ...trapCells,
+      ...goldCells,
+      ...merchantCells,
+      ...shortcutCells,
+      ...portalCells,
+      ...keyCells,
+      ...chestCells,
+    ]);
+
+    while (bookCells.length < 5) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (!occupiedCells.has(rand) && !bookCells.includes(rand)) {
+        bookCells.push(rand);
+      }
+    }
 
     function checkForHealthPotion() {
       const cell = cells[currentCell];
@@ -1061,12 +1069,6 @@
 
     function checkForEnemy() {
       const cell = cells[currentCell];
-      // Проверка на босса
-      if (bossCells.includes(currentCell) && !bossDefeated.has(currentCell)) {
-        spawnBoss(currentCell);
-        return;
-      }
-      // Старая логика для обычных врагов
       if (enemyCells.includes(currentCell) && !defeatedEnemies.has(currentCell)) {
         if (!cell.querySelector('.enemy')) {
           const enemy = document.createElement('span');
@@ -1075,7 +1077,7 @@
           cell.appendChild(enemy);
           battleSound.play();
         }
-        startBattle("👹 Обычный враг", false);
+
         battleInfo.textContent = `⚔️ Повстречался какой-то враг`;
         battleOutcome.textContent = '';
         battleModal.style.display = 'block';
@@ -1085,37 +1087,6 @@
         dice.style.display = 'none';
         inBattleMode = true;
       }
-
-
-    }
-
-    function spawnBoss(cellIndex) {
-      const cell = cells[cellIndex];
-      const boss = document.createElement('span');
-      boss.textContent = '🗿';
-      boss.className = 'boss-enemy'; // Новый класс для стилей
-      cell.appendChild(boss);
-
-      // Уникальный звук для босса
-      const bossSound = new Audio('sounds/boss.mp3'); // Добавьте файл
-      bossSound.play();
-
-      startBattle("🗿 КАМЕННЫЙ ГОЛЕМ", true);
-    }
-
-    function startBattle(enemyName, isBoss) {
-      battleInfo.innerHTML = isBoss
-        ? `<span style="color: #ff5722; font-weight: bold;">⚔️ БОСС: ${enemyName}</span>`
-        : `⚔️ ${enemyName}`;
-
-      battleOutcome.textContent = '';
-      battleModal.style.display = 'block';
-      fightBtn.style.display = 'inline-block';
-      fleeBtn.style.display = isBoss ? 'none' : 'inline-block'; // От босса нельзя убежать!
-      specialBtn.style.display = isBoss ? 'inline-block' : 'none'; // Кнопка только для боссов
-      closeBattleBtn.style.display = 'none';
-      dice.style.display = 'none';
-      inBattleMode = true;
     }
     function checkForShortcut() {
       const cell = cells[currentCell];
@@ -1306,6 +1277,58 @@
       }
     }
 
+    function checkForBook() {
+      const cell = cells[currentCell];
+      if (bookCells.includes(currentCell) && !usedBookCells.has(currentCell)) {
+        if (!cell.querySelector('.book-icon')) {
+          const bookIcon = document.createElement('span');
+          bookIcon.className = 'book-icon';
+          bookIcon.textContent = '📘';
+          bookIcon.style.position = 'absolute';
+          bookIcon.style.top = '5px';
+          bookIcon.style.right = '5px';
+          bookIcon.style.fontSize = '1.4em';
+          bookIcon.style.cursor = 'pointer';
+          bookIcon.style.animation = 'potionPulse 2s infinite ease-in-out';
+          cell.appendChild(bookIcon);
+
+          bookIcon.addEventListener('click', () => {
+            usedBookCells.add(currentCell);
+            bookIcon.remove();
+
+            // Строим описание 3 следующих клеток
+            const info = [];
+            for (let offset = 1; offset <= 3; offset++) {
+              const next = currentCell + offset;
+              if (next >= cells.length) break;
+              let content = `Клетка ${next + 1}: `;
+
+              if (enemyCells.includes(next)) content += '👹 Враг';
+              else if (healthCells.includes(next)) content += '🧪 Зелье';
+              else if (trapCells.includes(next)) content += '🕳️ Ловушка';
+              else if (goldCells.includes(next)) content += '💰 Золото';
+              else if (merchantCells.includes(next)) content += '🧙 Торговец';
+              else if (shortcutCells.includes(next)) content += '⏫ Короткий путь';
+              else if (portalCells.includes(next)) content += '🌀 Портал';
+              else if (keyCells.includes(next)) content += '🔑 Ключ';
+              else if (chestCells.includes(next)) content += '🧰 Сундук';
+              else if (bookCells.includes(next)) content += '📘 Ещё одна книга';
+              else content += '🟫 Пусто';
+
+              info.push(content);
+            }
+
+            // Показываем модалку
+            const popup = document.createElement('div');
+            popup.className = 'heal-popup';
+            popup.style.width = '80%';
+            popup.innerHTML = `<div style="margin-bottom: 5px;">📘 Ты заглянул в будущее:</div>` + info.join('<br>');
+            document.body.appendChild(popup);
+            setTimeout(() => popup.remove(), 5000);
+          });
+        }
+      }
+    }
 
     function spawnEnemyAtCell(index) {
       const cell = cells[index];
@@ -1326,31 +1349,23 @@
           if (currentCell >= cells.length - 1) {
             showWinModal();
           } else {
-            // Проверяем, является ли клетка клеткой с боссом и он еще не побежден
-            const isActiveBossCell = bossCells.includes(currentCell) && !bossDefeated.has(currentCell);
-
-            if (isActiveBossCell) {
-              // Если это клетка с активным боссом - проверяем только босса
-              checkForEnemy();
-            } else {
-              // Для обычных клеток проверяем все события
-              checkForHealthPotion();
-              checkForGold();
-              checkForEnemy();
-              checkForTrap();
-              checkForMerchant();
-              checkForShortcut();
-              checkForPortal();
-              checkForKey();
-              checkForChest();
-            }
+            checkForHealthPotion();
+            checkForGold();
+            checkForEnemy();
+            checkForTrap();
+            checkForMerchant();
+            checkForShortcut();
+            checkForPortal();
+            checkForKey();
+            checkForChest();
+            checkForBook();
           }
           return;
         }
 
         // Воспроизводим звук прыжка для КАЖДОГО шага
         const jumpSound = document.getElementById('jumpSound');
-        jumpSound.currentTime = 0;
+        jumpSound.currentTime = 0; // Перематываем на начало
         jumpSound.play();
 
         player.classList.remove('player-jump');
@@ -1370,100 +1385,110 @@
     }
 
     dice.addEventListener('click', () => {
-      console.log('Кубик нажат!'); // Проверить срабатывание
       if (isPortalActive) {
         isPortalActive = false;
-        portalSound.play();
+        portalSound.play(); // Звук телепортации
         const roll = Math.floor(Math.random() * 6) + 1;
-        const direction = Math.random() > 0.5 ? 1 : -1;
+        const direction = Math.random() > 0.5 ? 1 : -1; // 50% вперёд или назад
         const newPosition = Math.max(0, Math.min(99, currentCell + (roll * direction)));
 
+        // Сообщение о перемещении
         const popup = document.createElement('div');
         popup.className = direction > 0 ? 'heal-popup' : 'trap-popup';
         popup.textContent = `Портал перенёс вас ${direction > 0 ? 'вперёд' : 'назад'} на ${roll} клеток!`;
         document.body.appendChild(popup);
         setTimeout(() => popup.remove(), 3000);
 
+        // Перемещаем игрока
         currentCell = newPosition;
         cells[currentCell].appendChild(player);
         cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
+        return; // Прерываем обычный бросок
       }
-
       diceSound.play();
       if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
 
       if (inBattleMode) {
+        // Бросок кубика в бою
         dice.disabled = true;
         dice.classList.add('rolling');
-
         setTimeout(() => {
           dice.classList.remove('rolling');
+
           const enemyRoll = Math.floor(Math.random() * 6) + 1;
-          let playerRoll = Math.floor(Math.random() * 6) + 1;
-
-          // Проверяем, является ли текущий враг боссом
-          const isBoss = bossCells.includes(currentCell) && !bossDefeated.has(currentCell);
-
-          // Эффект Голема: уменьшаем бросок игрока
-          if (isBoss) {
-            playerRoll = Math.max(1, playerRoll - 1);
-          }
+          const playerRoll = Math.floor(Math.random() * 6) + 1;
 
           battleInfo.textContent = `👹 Враг нанёс: ${enemyRoll} | 🧍 Ты нанёс: ${playerRoll}`;
 
           if (playerRoll < enemyRoll) {
-            const damage = isBoss ? 50 : 25;
-            playerHP = Math.max(0, playerHP - damage);
+            playerHP = Math.max(0, playerHP - 25);
             flashCell(cells[currentCell]);
-
-            battleOutcome.innerHTML = isBoss
-              ? `❌ ГОЛЕМ РАЗДАВИЛ ТЕБЯ! -50❤️`
-              : `❌ Ты проиграл. -25❤️ и отброшен на 1 клетку!`;
-
+            battleOutcome.textContent = `❌ Ты проиграл. -25❤️ и отброшен на 1 клетку!`;
             document.body.classList.add('shake');
             setTimeout(() => document.body.classList.remove('shake'), 500);
             battleLostSound.play();
             playerLostBattle = true;
-          }
-          else if (playerRoll === enemyRoll) {
+          } else if (playerRoll === enemyRoll) { // Обработка ничьи
             battleOutcome.textContent = `🔄 Ничья! Ты недооценил врага и отступаешь!`;
             playerLostBattle = true;
             runawaySound.play();
-
-            if (!isBoss && currentCell > 0) {
-              currentCell--;
-            }
-          }
-          else {
-            if (isBoss) {
-              bossDefeated.add(currentCell);
-              maxHP += 10;
-              playerHP = Math.min(maxHP, playerHP + 10);
-              battleOutcome.innerHTML = `✅ Ты ПОБЕДИЛ ГОЛЕМА! +10 к максимальному здоровью!`;
-
-              // Подробное удаление босса
-              const cell = cells[currentCell];
-              const boss = cell.querySelector('.boss-enemy');
-              if (boss) {
-
-                boss.remove();
-              }
-            }
-            else {
-              battleOutcome.textContent = `✅ Ты победил!`;
-
-              // Удаляем обычного врага
-              const enemy = cells[currentCell].querySelector('.enemy');
-              if (enemy) enemy.remove();
-              defeatedEnemies.add(currentCell);
-
-              // Награда за победу
-              giveBattleReward(currentCell);
-            }
+          } else {
+            battleOutcome.textContent = `✅ Ты победил!`;
             winBattleSound.play();
             playerLostBattle = false;
+
+            // Удаляем врага
+            const cell = cells[currentCell];
+            const enemy = cell.querySelector('.enemy');
+            if (enemy) enemy.remove();
+
+            // Решаем, что выпадет: ключ (30%) или золото (70%)
+            const rewardType = Math.random() < 0.3 ? "key" : "gold";
+
+            if (rewardType === "key") {
+              // Создаём ключ
+              const key = document.createElement('span');
+              key.textContent = '🔑';
+              key.className = 'key-icon';
+              key.style.position = 'absolute';
+              key.style.top = '5px';
+              key.style.left = '5px';
+              key.style.animation = 'potionPulse 2s infinite ease-in-out';
+              cell.appendChild(key);
+
+              key.addEventListener('click', () => {
+                keyCount++;
+                document.getElementById('keySound').play();
+                document.getElementById('keyCount').textContent = keyCount;
+                key.remove();
+                const popup = document.createElement('div');
+                popup.className = 'heal-popup';
+                popup.textContent = '🔑 Найден ключ!';
+                cell.appendChild(popup);
+                setTimeout(() => popup.remove(), 2000);
+              });
+            } else {
+              // Создаём золото (старая логика)
+              const gold = document.createElement('span');
+              gold.textContent = '💰';
+              gold.className = 'gold';
+              cell.appendChild(gold);
+
+              gold.addEventListener('click', () => {
+                const goldGain = Math.floor(Math.random() * 10) + 1;
+                goldCount += goldGain;
+                updateGoldCounter(true);
+
+                const popup = document.createElement('div');
+                popup.className = 'heal-popup';
+                popup.textContent = `Найдено золото: +${goldGain}💰`;
+                cell.appendChild(popup);
+                setTimeout(() => popup.remove(), 2000);
+                gold.remove();
+              });
+            }
           }
+
 
           updateHealthBar();
           closeBattleBtn.style.display = 'inline-block';
@@ -1471,12 +1496,8 @@
           dice.style.display = 'none';
           inBattleMode = false;
 
-          // Обновляем позицию игрока, если его отбросили
-          if (playerLostBattle) {
-            cells[currentCell].appendChild(player);
-            cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
         }, 800);
+
         return;
       }
 
@@ -1485,7 +1506,6 @@
       dice.disabled = true;
       dice.classList.add('rolling');
       diceSound.play();
-
       setTimeout(() => {
         dice.classList.remove('rolling');
         const roll = Math.floor(Math.random() * 6) + 1;
@@ -1498,54 +1518,6 @@
       }, 800);
     });
 
-    // Новая функция для выдачи наград
-    function giveBattleReward(cellIndex) {
-      const cell = cells[cellIndex];
-      const rewardType = Math.random() < 0.3 ? "key" : "gold";
-
-      if (rewardType === "key") {
-        const key = document.createElement('span');
-        key.textContent = '🔑';
-        key.className = 'key-icon';
-        key.style.position = 'absolute';
-        key.style.top = '5px';
-        key.style.left = '5px';
-        key.style.animation = 'potionPulse 2s infinite ease-in-out';
-        cell.appendChild(key);
-
-        key.addEventListener('click', () => {
-          keyCount++;
-          document.getElementById('keySound').play();
-          document.getElementById('keyCount').textContent = keyCount;
-          key.remove();
-
-          const popup = document.createElement('div');
-          popup.className = 'heal-popup';
-          popup.textContent = '🔑 Найден ключ!';
-          cell.appendChild(popup);
-          setTimeout(() => popup.remove(), 2000);
-        });
-      }
-      else {
-        const gold = document.createElement('span');
-        gold.textContent = '💰';
-        gold.className = 'gold';
-        cell.appendChild(gold);
-
-        gold.addEventListener('click', () => {
-          const goldGain = Math.floor(Math.random() * 10) + 1;
-          goldCount += goldGain;
-          updateGoldCounter(true);
-
-          const popup = document.createElement('div');
-          popup.className = 'heal-popup';
-          popup.textContent = `Найдено золото: +${goldGain}💰`;
-          cell.appendChild(popup);
-          setTimeout(() => popup.remove(), 2000);
-          gold.remove();
-        });
-      }
-    }
 
     updateHealthBar();
     buyHealBtn.onclick = () => {
