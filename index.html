@@ -997,7 +997,7 @@
       ...chestCells,
     ]);
 
-    while (bookCells.length < 5) {
+    while (bookCells.length < 15) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!occupiedCells.has(rand) && !bookCells.includes(rand)) {
         bookCells.push(rand);
@@ -1314,12 +1314,12 @@
             usedBookCells.add(currentCell);
             bookIcon.remove();
             document.getElementById('openBookSound').play();
-            // Строим описание 3 следующих клеток
+            // Строим описание 6 следующих клеток
             const info = [];
-            for (let offset = 1; offset <= 3; offset++) {
+            for (let offset = 1; offset <= 6; offset++) {
               const next = currentCell + offset;
               if (next >= cells.length) break;
-              let content = `Клетка ${next + 1}: `;
+              let content = ``;
 
               if (enemyCells.includes(next)) content += '👹 Враг';
               else if (healthCells.includes(next)) content += '🧪 Зелье';
@@ -1340,10 +1340,23 @@
             const popup = document.createElement('div');
             popup.className = 'heal-popup';
             popup.style.width = '55%';
-            popup.style.maxWidth = '300px'; // ограничение на больших экранах
-            popup.innerHTML = `<div style="margin-bottom: 5px;">📘 Ты заглянул в будущее:</div>` + info.join('<br>');
+            popup.style.maxWidth = '300px';
+            popup.innerHTML = `
+    <div style="text-align: center; margin-bottom: 5px; width: 100%;">
+        Ты заглянул в будущее:
+    </div>` + info.join('<br>');
             document.body.appendChild(popup);
-            setTimeout(() => popup.remove(), 5000);
+
+            // Закрытие по клику в любом месте экрана
+            const closePopupOnClick = () => {
+              popup.remove();
+              document.removeEventListener('click', closePopupOnClick); // Удаляем обработчик после закрытия
+            };
+            // Добавляем обработчик клика (с небольшим таймаутом, чтобы не сработал сразу)
+            setTimeout(() => {
+              document.addEventListener('click', closePopupOnClick);
+            }, 50);
+
           });
         }
       }
