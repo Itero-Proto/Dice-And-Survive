@@ -878,7 +878,7 @@
       cell.classList.add('flash-red');
       setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
-    while (enemyCells.length < 15) {
+    while (enemyCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!enemyCells.includes(rand)) enemyCells.push(rand);
     }
@@ -1321,7 +1321,8 @@
             // Показываем модалку
             const popup = document.createElement('div');
             popup.className = 'heal-popup';
-            popup.style.width = '60%';
+            popup.style.width = '55%';
+            popup.style.maxWidth = '300px'; // ограничение на больших экранах
             popup.innerHTML = `<div style="margin-bottom: 5px;">📘 Ты заглянул в будущее:</div>` + info.join('<br>');
             document.body.appendChild(popup);
             setTimeout(() => popup.remove(), 5000);
