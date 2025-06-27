@@ -589,43 +589,10 @@
       animation: gold-shake 1s infinite;
       cursor: pointer;
     }
-
-    .boss-target {
-      position: absolute;
-      font-size: 2.5em;
-      cursor: pointer;
-      animation: appearFlash 0.5s ease-out;
-      user-select: none;
-    }
-
-    @keyframes appearFlash {
-      0% {
-        transform: scale(0.3);
-        opacity: 0;
-      }
-
-      50% {
-        transform: scale(1.3);
-        opacity: 1;
-      }
-
-      100% {
-        transform: scale(1);
-        opacity: 1;
-      }
-    }
   </style>
 </head>
 
 <body>
-  <div id="bossBattleModal"
-    style="display: none; position: fixed; top: 0; left: 0; 
-  width: 100vw; height: 100vh; background: rgba(0,0,0,0.9); z-index: 2000; 
-  display: none; align-items: center; justify-content: center; flex-direction: column; color: white; font-size: 1.2em;">
-    <div style="margin-bottom: 10px;">⚔️ Битва с боссом! Лови цели!</div>
-    <div id="bossTargetArea" style="position: relative; width: 100vw; height: 80vh; overflow: hidden;"></div>
-    <div id="bossTimer" style="margin-top: 15px;">⏱️ Время: 10</div>
-  </div>
   <div id="deathOverlay" style="position: fixed; top: 0; left: 0; 
      width: 100vw; height: 100vh; background: rgba(0, 0, 0, 0.85); z-index: 999;
      display: none; /* ТОЛЬКО ОДИН РАЗ! */ 
@@ -745,8 +712,6 @@
   <audio id="keySound" src="sounds/key.mp3"></audio>
   <audio id="openChestSound" src="sounds/openChest.mp3"></audio>
   <audio id="openBookSound" src="sounds/openBook.mp3"></audio>
-  <audio id="bossBattleSound" src="sounds/bossBattle.mp3"></audio>
-  <audio id="bossClickSound" src="sounds/bossClick.mp3"></audio>
   <script>
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
@@ -781,8 +746,7 @@
     const usedHealthCells = new Set();
     const usedGoldCells = new Set();
     const healthCells = [], enemyCells = [], portalCells = [], trapCells = [], goldCells = [], shortcutCells = [],
-      keyCells = [], chestCells = [], merchantCells = [], bookCells = [], bossCells = [];
-    const usedBossCells = new Set();
+      keyCells = [], chestCells = [], merchantCells = [], bookCells = [];
     let keyCount = 0;
     usedBookCells = new Set();
     const usedTrapCells = new Set();
@@ -828,15 +792,6 @@
 
     const cells = document.querySelectorAll('.cell');
     cells[currentCell].appendChild(player);
-    // Показываем иконки боссов на нужных клетках
-    bossCells.forEach(index => {
-      const cell = cells[index];
-      const boss = document.createElement('span');
-      boss.textContent = '💀';
-      boss.className = 'enemy'; // использует анимацию врага
-      cell.appendChild(boss);
-    });
-
     setTimeout(() => {
       cells[currentCell].scrollIntoView({ behavior: 'auto', block: 'center' });
     }, 100);
@@ -1048,14 +1003,6 @@
         bookCells.push(rand);
       }
     }
-    while (bossCells.length < 5) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (!occupiedCells.has(rand)) {
-        bossCells.push(rand);
-        occupiedCells.add(rand);
-      }
-    }
-
 
     function checkForHealthPotion() {
       const cell = cells[currentCell];
@@ -1348,133 +1295,6 @@
       }
     }
 
-    function checkForBoss() {
-      const cell = cells[currentCell];
-      if (bossCells.includes(currentCell) && !usedBossCells.has(currentCell)) {
-        usedBossCells.add(currentCell);
-        startBossBattle();
-      }
-    }
-    function startBossBattle() {
-      const modal = document.getElementById('bossBattleModal');
-      const area = document.getElementById('bossTargetArea');
-      const timerDisplay = document.getElementById('bossTimer');
-      const bossSound = document.getElementById('bossBattleSound');
-      bossSound.play();
-
-      modal.style.display = 'flex';
-      area.innerHTML = '';
-
-      let clicked = 0;
-      let missedClicks = 0;
-      let timeLeft = 10;
-      let generated = 0;
-
-      const maxTargets = 10;
-      const targetEmojis = ['💥', '💣', '🔥', '⚡', '🧨'];
-
-      // Таймер отсчёта
-      const countdown = setInterval(() => {
-        timeLeft--;
-        timerDisplay.textContent = `⏱️ Время: ${timeLeft}`;
-        if (timeLeft <= 0) {
-          clearInterval(countdown);
-          endBossBattle(clicked);
-        }
-      }, 1000);
-
-      // Появление целей
-      const spawnInterval = setInterval(() => {
-        if (generated >= maxTargets) {
-          clearInterval(spawnInterval);
-          return;
-        }
-        generated++;
-        const target = document.createElement('div');
-        target.className = 'boss-target';
-        target.textContent = targetEmojis[Math.floor(Math.random() * targetEmojis.length)];
-        target.style.top = `${Math.random() * 70 + 5}vh`;
-        target.style.left = `${Math.random() * 85 + 5}vw`;
-
-        target.addEventListener('click', (e) => {
-          e.stopPropagation();
-          clicked++;
-          target.remove();
-          // Проигрываем звук нажатия
-          const clickSound = document.getElementById('bossClickSound');
-          if (clickSound) {
-            clickSound.currentTime = 0; // перематываем
-            clickSound.play();
-          }
-        });
-
-        area.appendChild(target);
-
-        setTimeout(() => target.remove(), 1100);
-      }, 1200);
-
-      // Промах — клик по пустому месту
-      area.addEventListener('click', onMiss);
-
-      function onMiss(e) {
-        if (!e.target.classList.contains('boss-target')) {
-          playerHP = Math.max(0, playerHP - 5);
-          updateHealthBar();
-        }
-      }
-
-      function endBossBattle(successfulHits) {
-        modal.style.display = 'none';
-        area.removeEventListener('click', onMiss);
-
-        if (successfulHits >= maxTargets) {
-          // Победа над боссом
-          const popup = document.createElement('div');
-          popup.className = 'heal-popup';
-          popup.textContent = '🎉 Ты победил босса!';
-          document.body.appendChild(popup);
-          setTimeout(() => popup.remove(), 3000);
-
-          const cell = cells[currentCell];
-          const rewardType = Math.random() < 0.5 ? 'key' : 'gold';
-
-          if (rewardType === 'key') {
-            const key = document.createElement('span');
-            key.textContent = '🔑';
-            key.className = 'key-icon';
-            key.style.position = 'absolute';
-            key.style.top = '5px';
-            key.style.left = '5px';
-            key.style.animation = 'potionPulse 2s infinite ease-in-out';
-            cell.appendChild(key);
-          } else {
-            const gold = document.createElement('span');
-            gold.textContent = '💰';
-            gold.className = 'gold';
-            cell.appendChild(gold);
-          }
-
-        } else {
-          // Поражение
-          const popup = document.createElement('div');
-          popup.className = 'trap-popup';
-          popup.textContent = `Босс ранил тебя! -50❤️ и шаг назад`;
-          document.body.appendChild(popup);
-          setTimeout(() => popup.remove(), 3000);
-
-          playerHP = Math.max(0, playerHP - 50);
-          updateHealthBar();
-
-          if (currentCell > 0) {
-            currentCell--;
-            cells[currentCell].appendChild(player);
-            cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }
-        }
-      }
-    }
-
-
     function checkForBook() {
       const cell = cells[currentCell];
       if (bookCells.includes(currentCell) && !usedBookCells.has(currentCell)) {
@@ -1571,8 +1391,6 @@
             checkForKey();
             checkForChest();
             checkForBook();
-            checkForBoss();
-
           }
           return;
         }
@@ -1791,9 +1609,6 @@
       isPortalActive = false;
       dice.disabled = false; // Возвращаем возможность ходить
     };
-
-
-
   </script>
 
 
