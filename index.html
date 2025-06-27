@@ -646,18 +646,34 @@
           cursor: pointer;">Закрыть</button>
   </div>
   <div id="goldCounter">💰 0</div>
-  <div id="health-bar">
-    <div id="health-fill"></div>
+  <div id="health-bar" style="
+  width: 80%;
+  height: 20px;
+  background-color: #353535;
+  border-radius: 10px;
+  margin: 15px 0;
+  overflow: hidden;
+  border: 2px solid #444;
+  position: relative; /* Для позиционирования текста */
+">
+    <div id="health-fill" style="
+    height: 100%;
+    width: 100%;
+    background-color: #a60000;
+    transition: width 0.4s ease;
+  "></div>
+    <!-- Текст теперь вне health-fill -->
     <div id="health-text" style="
     position: absolute;
-    top: 0;
-    right: 5px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     color: white;
     font-size: 12px;
-    text-shadow: 1px 1px 1px black;
+    font-weight: bold;
+    text-shadow: 0 0 2px black;
+    pointer-events: none; /* Чтобы клики проходили сквозь текст */
   "></div>
-  </div>
-  <div id="health-fill"></div>
   </div>
   <div id="board-container">
     <div id="board"></div>
@@ -769,10 +785,10 @@
     const usedHealthCells = new Set();
     const usedGoldCells = new Set();
     const healthCells = [], enemyCells = [], portalCells = [], trapCells = [], goldCells = [], shortcutCells = [], keyCells = [], chestCells = [], merchantCells = [];
-    const bossCells = [5, 10, 25]; // Клетки с боссами
+    const bossCells = [24, 49, 74]; // Клетки с боссами
     const bossDefeated = new Set(); // Для отслеживания побеждённых боссов
     const healthFill = document.getElementById('health-fill');
-    const healthText = document.getElementById('health-text'); // Добавьте этот элемент в HTML (см. ниже)
+    const healthText = document.getElementById('health-text');
 
     let maxHP = 100; // Добавляем переменную для максимального здоровья
     let keyCount = 0;
@@ -942,19 +958,28 @@
     }
     while (enemyCells.length < 15) {
       let rand = Math.floor(Math.random() * 98) + 1;
-      if (!enemyCells.includes(rand)) enemyCells.push(rand);
+      if (!enemyCells.includes(rand) && !bossCells.includes(rand)) {
+        enemyCells.push(rand);
+      }
     }
     while (healthCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
-      if (!healthCells.includes(rand) && !enemyCells.includes(rand)) healthCells.push(rand);
+      if (!healthCells.includes(rand) && !enemyCells.includes(rand) && !bossCells.includes(rand)) {
+        healthCells.push(rand);
+      }
     }
     while (trapCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
-      if (!trapCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand)) trapCells.push(rand);
+      if (!trapCells.includes(rand) && !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) && !bossCells.includes(rand)) {
+        trapCells.push(rand);
+      }
     }
     while (goldCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
-      if (!goldCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand) && !trapCells.includes(rand)) goldCells.push(rand);
+      if (!goldCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand) &&
+        !trapCells.includes(rand) && !bossCells.includes(rand))
+        goldCells.push(rand);
     }
     while (merchantCells.length < 10) {
       let rand = Math.floor(Math.random() * 98) + 1;
@@ -964,7 +989,7 @@
         !healthCells.includes(rand) &&
         !trapCells.includes(rand) &&
         !goldCells.includes(rand)
-      ) {
+        && !bossCells.includes(rand)) {
         merchantCells.push(rand);
       }
     }
@@ -976,8 +1001,8 @@
         !healthCells.includes(rand) &&
         !trapCells.includes(rand) &&
         !goldCells.includes(rand) &&
-        !merchantCells.includes(rand)
-      ) {
+        !merchantCells.includes(rand) &&
+        !bossCells.includes(rand)) {
         shortcutCells.push(rand);
       }
     }
@@ -990,8 +1015,8 @@
         !trapCells.includes(rand) &&
         !goldCells.includes(rand) &&
         !merchantCells.includes(rand) &&
-        !shortcutCells.includes(rand)
-      ) {
+        !shortcutCells.includes(rand) &&
+        !bossCells.includes(rand)) {
         portalCells.push(rand);
       }
     }
@@ -1005,8 +1030,8 @@
         !goldCells.includes(rand) &&
         !merchantCells.includes(rand) &&
         !shortcutCells.includes(rand) &&
-        !portalCells.includes(rand)
-      ) {
+        !portalCells.includes(rand) &&
+        !bossCells.includes(rand)) {
         keyCells.push(rand);
       }
     }
@@ -1022,8 +1047,8 @@
         !goldCells.includes(rand) &&
         !merchantCells.includes(rand) &&
         !shortcutCells.includes(rand) &&
-        !portalCells.includes(rand)
-      ) {
+        !portalCells.includes(rand) &&
+        !bossCells.includes(rand)) {
         chestCells.push(rand);
       }
     }
@@ -1374,23 +1399,31 @@
           if (currentCell >= cells.length - 1) {
             showWinModal();
           } else {
-            checkForHealthPotion();
-            checkForGold();
-            checkForEnemy();
-            checkForTrap();
-            checkForMerchant();
-            checkForShortcut();
-            checkForPortal();
-            checkForKey();
-            checkForChest();
+            // Проверяем, является ли клетка клеткой с боссом и он еще не побежден
+            const isActiveBossCell = bossCells.includes(currentCell) && !bossDefeated.has(currentCell);
 
+            if (isActiveBossCell) {
+              // Если это клетка с активным боссом - проверяем только босса
+              checkForEnemy();
+            } else {
+              // Для обычных клеток проверяем все события
+              checkForHealthPotion();
+              checkForGold();
+              checkForEnemy();
+              checkForTrap();
+              checkForMerchant();
+              checkForShortcut();
+              checkForPortal();
+              checkForKey();
+              checkForChest();
+            }
           }
           return;
         }
 
         // Воспроизводим звук прыжка для КАЖДОГО шага
         const jumpSound = document.getElementById('jumpSound');
-        jumpSound.currentTime = 0; // Перематываем на начало
+        jumpSound.currentTime = 0;
         jumpSound.play();
 
         player.classList.remove('player-jump');
