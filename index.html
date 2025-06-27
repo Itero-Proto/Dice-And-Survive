@@ -694,6 +694,7 @@
   <audio id="jumpSound" src="sounds/jump.mp3"></audio>
   <audio id="keySound" src="sounds/key.mp3"></audio>
   <audio id="openChestSound" src="sounds/openChest.mp3"></audio>
+  <audio id="openBookSound" src="sounds/openBook.mp3"></audio>
   <script>
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
@@ -1295,7 +1296,7 @@
           bookIcon.addEventListener('click', () => {
             usedBookCells.add(currentCell);
             bookIcon.remove();
-
+            document.getElementById('openBookSound').play();
             // Строим описание 3 следующих клеток
             const info = [];
             for (let offset = 1; offset <= 3; offset++) {
