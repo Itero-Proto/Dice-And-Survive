@@ -784,8 +784,9 @@
     const winRestartBtn = document.getElementById('winRestartBtn');
     const usedHealthCells = new Set();
     const usedGoldCells = new Set();
-    const healthCells = [], enemyCells = [], portalCells = [], trapCells = [], goldCells = [], shortcutCells = [], keyCells = [], chestCells = [], merchantCells = [];
+
     const bossCells = [24, 49, 74]; // Клетки с боссами
+    const reservedCells = [...bossCells]; // Все занятые клетки (для удобства)
     const bossDefeated = new Set(); // Для отслеживания побеждённых боссов
     const healthFill = document.getElementById('health-fill');
     const healthText = document.getElementById('health-text');
@@ -900,7 +901,17 @@
         setTimeout(() => counter.classList.remove('flash'), 400);
       }
     }
-
+    // Функция для генерации уникальных клеток
+    function generateUniqueCells(count, excludeCells) {
+      const result = [];
+      while (result.length < count) {
+        const rand = Math.floor(Math.random() * 98) + 1;
+        if (!excludeCells.includes(rand) && !result.includes(rand)) {
+          result.push(rand);
+        }
+      }
+      return result;
+    }
 
     function showWinModal() {
       dice.disabled = true;
@@ -956,102 +967,16 @@
       cell.classList.add('flash-red');
       setTimeout(() => cell.classList.remove('flash-red'), 900);
     }
-    while (enemyCells.length < 15) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (!enemyCells.includes(rand) && !bossCells.includes(rand)) {
-        enemyCells.push(rand);
-      }
-    }
-    while (healthCells.length < 10) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (!healthCells.includes(rand) && !enemyCells.includes(rand) && !bossCells.includes(rand)) {
-        healthCells.push(rand);
-      }
-    }
-    while (trapCells.length < 10) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (!trapCells.includes(rand) && !enemyCells.includes(rand) &&
-        !healthCells.includes(rand) && !bossCells.includes(rand)) {
-        trapCells.push(rand);
-      }
-    }
-    while (goldCells.length < 10) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (!goldCells.includes(rand) && !enemyCells.includes(rand) && !healthCells.includes(rand) &&
-        !trapCells.includes(rand) && !bossCells.includes(rand))
-        goldCells.push(rand);
-    }
-    while (merchantCells.length < 10) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (
-        !merchantCells.includes(rand) &&
-        !enemyCells.includes(rand) &&
-        !healthCells.includes(rand) &&
-        !trapCells.includes(rand) &&
-        !goldCells.includes(rand)
-        && !bossCells.includes(rand)) {
-        merchantCells.push(rand);
-      }
-    }
-    while (shortcutCells.length < 5) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (
-        !shortcutCells.includes(rand) &&
-        !enemyCells.includes(rand) &&
-        !healthCells.includes(rand) &&
-        !trapCells.includes(rand) &&
-        !goldCells.includes(rand) &&
-        !merchantCells.includes(rand) &&
-        !bossCells.includes(rand)) {
-        shortcutCells.push(rand);
-      }
-    }
-    while (portalCells.length < 5) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (
-        !portalCells.includes(rand) &&
-        !enemyCells.includes(rand) &&
-        !healthCells.includes(rand) &&
-        !trapCells.includes(rand) &&
-        !goldCells.includes(rand) &&
-        !merchantCells.includes(rand) &&
-        !shortcutCells.includes(rand) &&
-        !bossCells.includes(rand)) {
-        portalCells.push(rand);
-      }
-    }
-    while (keyCells.length < 5) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (
-        !keyCells.includes(rand) &&
-        !enemyCells.includes(rand) &&
-        !healthCells.includes(rand) &&
-        !trapCells.includes(rand) &&
-        !goldCells.includes(rand) &&
-        !merchantCells.includes(rand) &&
-        !shortcutCells.includes(rand) &&
-        !portalCells.includes(rand) &&
-        !bossCells.includes(rand)) {
-        keyCells.push(rand);
-      }
-    }
-
-    while (chestCells.length < 5) {
-      let rand = Math.floor(Math.random() * 98) + 1;
-      if (
-        !chestCells.includes(rand) &&
-        !keyCells.includes(rand) &&
-        !enemyCells.includes(rand) &&
-        !healthCells.includes(rand) &&
-        !trapCells.includes(rand) &&
-        !goldCells.includes(rand) &&
-        !merchantCells.includes(rand) &&
-        !shortcutCells.includes(rand) &&
-        !portalCells.includes(rand) &&
-        !bossCells.includes(rand)) {
-        chestCells.push(rand);
-      }
-    }
+    // Генерация всех типов клеток
+    enemyCells = generateUniqueCells(15, reservedCells);
+    healthCells = generateUniqueCells(10, [...reservedCells, ...enemyCells]);
+    trapCells = generateUniqueCells(10, [...reservedCells, ...enemyCells, ...healthCells]);
+    goldCells = generateUniqueCells(10, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells]);
+    merchantCells = generateUniqueCells(10, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells]);
+    shortcutCells = generateUniqueCells(5, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells, ...merchantCells]);
+    portalCells = generateUniqueCells(5, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells, ...merchantCells, ...shortcutCells]);
+    keyCells = generateUniqueCells(5, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells, ...merchantCells, ...shortcutCells, ...portalCells]);
+    chestCells = generateUniqueCells(5, [...reservedCells, ...enemyCells, ...healthCells, ...trapCells, ...goldCells, ...merchantCells, ...shortcutCells, ...portalCells, ...keyCells]);
 
     function checkForHealthPotion() {
       const cell = cells[currentCell];
@@ -1163,6 +1088,7 @@
 
 
     }
+
     function spawnBoss(cellIndex) {
       const cell = cells[cellIndex];
       const boss = document.createElement('span');
@@ -1176,6 +1102,7 @@
 
       startBattle("🗿 КАМЕННЫЙ ГОЛЕМ", true);
     }
+
     function startBattle(enemyName, isBoss) {
       battleInfo.innerHTML = isBoss
         ? `<span style="color: #ff5722; font-weight: bold;">⚔️ БОСС: ${enemyName}</span>`
@@ -1443,6 +1370,7 @@
     }
 
     dice.addEventListener('click', () => {
+      console.log('Кубик нажат!'); // Проверить срабатывание
       if (isPortalActive) {
         isPortalActive = false;
         portalSound.play();
@@ -1497,18 +1425,12 @@
             setTimeout(() => document.body.classList.remove('shake'), 500);
             battleLostSound.play();
             playerLostBattle = true;
-
-            // Отбрасываем только обычных врагов
-            if (!isBoss && currentCell > 0) {
-              currentCell--;
-            }
           }
           else if (playerRoll === enemyRoll) {
             battleOutcome.textContent = `🔄 Ничья! Ты недооценил врага и отступаешь!`;
             playerLostBattle = true;
             runawaySound.play();
 
-            // Отступаем от всех врагов, кроме босса
             if (!isBoss && currentCell > 0) {
               currentCell--;
             }
@@ -1520,9 +1442,13 @@
               playerHP = Math.min(maxHP, playerHP + 10);
               battleOutcome.innerHTML = `✅ Ты ПОБЕДИЛ ГОЛЕМА! +10 к максимальному здоровью!`;
 
-              // Удаляем босса с клетки
-              const boss = cells[currentCell].querySelector('.boss-enemy');
-              if (boss) boss.remove();
+              // Подробное удаление босса
+              const cell = cells[currentCell];
+              const boss = cell.querySelector('.boss-enemy');
+              if (boss) {
+
+                boss.remove();
+              }
             }
             else {
               battleOutcome.textContent = `✅ Ты победил!`;
