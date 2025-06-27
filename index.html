@@ -997,7 +997,7 @@
       ...chestCells,
     ]);
 
-    while (bookCells.length < 15) {
+    while (bookCells.length < 5) {
       let rand = Math.floor(Math.random() * 98) + 1;
       if (!occupiedCells.has(rand) && !bookCells.includes(rand)) {
         bookCells.push(rand);
