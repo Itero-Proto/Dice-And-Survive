@@ -720,6 +720,7 @@
   <audio id="keySound" src="sounds/key.mp3"></audio>
   <audio id="openChestSound" src="sounds/openChest.mp3"></audio>
   <audio id="openBookSound" src="sounds/openBook.mp3"></audio>
+  <audio id="keyMasterSound" src="sounds/keyMaster.mp3"></audio>
   <script>
     const board = document.getElementById('board');
     const dice = document.getElementById('dice');
@@ -1139,7 +1140,7 @@
           master.style.animation = 'merchantBlink 2s infinite ease-in-out';
           cell.appendChild(master);
         }
-
+        document.getElementById('keyMasterSound').play();
         // Показываем модалку
         keyMasterModal.style.display = 'block';
 
