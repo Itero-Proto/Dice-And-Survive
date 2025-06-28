@@ -897,25 +897,25 @@
         const playerName = document.getElementById('playerNameInput').value.trim();
         if (playerName) {
           const result = {
-            name: playerName.substring(0, 15),
-            rolls: diceRollsCount,
-            gold: goldCount,
-            stars: calculateStars(),
+            name: playerName.substring(0, 15) || "Аноним",
+            rolls: Number(diceRollsCount) || 0,
+            gold: Number(goldCount) || 0,
+            stars: Number(calculateStars()) || 1,
             date: new Date().toLocaleDateString()
           };
 
           leaderboard.push(result);
           localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
 
-          // Отправка результата в Telegram боту
+          // Отправка в Telegram
           if (window.Telegram?.WebApp?.sendData) {
             Telegram.WebApp.sendData(JSON.stringify(result));
+            setTimeout(() => Telegram.WebApp.close(), 500);
           } else {
-            console.log("Результат (для отладки):", result);
-            alert("Результат сохранён локально. В Telegram он отправится автоматически!");
+            console.log("Результат (отладка):", result);
           }
 
-          // Скрыть поле ввода
+          // Скрываем поля ввода
           document.getElementById('playerNameInput').style.display = 'none';
           document.getElementById('submitNameBtn').style.display = 'none';
         }
