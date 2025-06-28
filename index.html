@@ -896,19 +896,28 @@
       document.getElementById('submitNameBtn').onclick = () => {
         const playerName = document.getElementById('playerNameInput').value.trim();
         if (playerName) {
-          leaderboard.push({
+          const result = {
             name: playerName.substring(0, 15),
             rolls: diceRollsCount,
             gold: goldCount,
+            stars: calculateStars(),
             date: new Date().toLocaleDateString()
-          });
+          };
+
+          leaderboard.push(result);
           localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
 
-          // Скрыть поле ввода после ввода имени
+          // Отправка данных в Telegram-бота
+          if (window.Telegram && Telegram.WebApp) {
+            Telegram.WebApp.sendData(JSON.stringify(result));
+          }
+
+          // Скрыть поле ввода
           document.getElementById('playerNameInput').style.display = 'none';
           document.getElementById('submitNameBtn').style.display = 'none';
         }
       };
+
 
     }
 
