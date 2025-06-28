@@ -465,7 +465,7 @@
     .trap {
       position: absolute;
       font-size: 3em;
-      z-index: 10;
+      z-index: 1;
     }
 
     .gold {
@@ -694,6 +694,14 @@
     <button id="buyHealBtn">Вылечиться</button>
     <button id="declineMerchantBtn">Отказаться</button>
   </div>
+  <div id="keyMasterModal" style="display: none; position: fixed; top: 60%; left: 50%; transform: translateX(-50%);
+  background: #e8eaf6; border: 3px solid #3f51b5; padding: 20px; border-radius: 12px;
+  z-index: 1000; text-align: center; width: 300px;">
+    <div style="font-size: 1.2em; margin-bottom: 10px;">🧑 Мастер ключей предлагает: 1 ключ за 10💰</div>
+    <button id="buyKeyBtn">Купить ключ</button>
+    <button id="declineKeyMasterBtn">Отказаться</button>
+  </div>
+
 
   <audio id="diceSound" src="sounds/dice-roll.mp3"></audio>
   <audio id="battleSound" src="sounds/battle.mp3"></audio>
@@ -746,7 +754,11 @@
     const usedHealthCells = new Set();
     const usedGoldCells = new Set();
     const healthCells = [], enemyCells = [], portalCells = [], trapCells = [], goldCells = [], shortcutCells = [],
-      keyCells = [], chestCells = [], merchantCells = [], bookCells = [], timeTrapCells = [];
+      keyCells = [], chestCells = [], merchantCells = [], bookCells = [], timeTrapCells = [], keyMasterCells = [];
+    const keyMasterModal = document.getElementById('keyMasterModal');
+    const buyKeyBtn = document.getElementById('buyKeyBtn');
+    const declineKeyMasterBtn = document.getElementById('declineKeyMasterBtn');
+
     let keyCount = 0;
     usedBookCells = new Set();
     const usedTrapCells = new Set();
@@ -1034,6 +1046,25 @@
         timeTrapCells.push(rand);
       }
     }
+    while (keyMasterCells.length < 10) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (
+        !keyMasterCells.includes(rand) &&
+        !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) &&
+        !trapCells.includes(rand) &&
+        !goldCells.includes(rand) &&
+        !merchantCells.includes(rand) &&
+        !shortcutCells.includes(rand) &&
+        !portalCells.includes(rand) &&
+        !keyCells.includes(rand) &&
+        !chestCells.includes(rand) &&
+        !bookCells.includes(rand) &&
+        !timeTrapCells.includes(rand)
+      ) {
+        keyMasterCells.push(rand);
+      }
+    }
 
     function checkForHealthPotion() {
       const cell = cells[currentCell];
@@ -1087,6 +1118,34 @@
         // Обновляем состояние кнопки при открытии
         buyHealBtn.disabled = goldCount < 5;
         buyHealBtn.style.opacity = goldCount < 5 ? "0.5" : "1";
+      }
+    }
+    function checkForKeyMaster() {
+      const cell = cells[currentCell];
+      if (keyMasterCells.includes(currentCell)) {
+        isInteractingWithMerchant = true;
+        dice.disabled = true;
+
+        // Показываем иконку мастера, если ещё нет
+        if (!cell.querySelector('.keymaster')) {
+          const master = document.createElement('span');
+          master.textContent = '🧑';
+          master.className = 'keymaster';
+          master.style.position = 'absolute';
+          master.style.top = '5px';
+          master.style.left = '50%';
+          master.style.transform = 'translateX(-50%)';
+          master.style.fontSize = '1.9em';
+          master.style.animation = 'merchantBlink 2s infinite ease-in-out';
+          cell.appendChild(master);
+        }
+
+        // Показываем модалку
+        keyMasterModal.style.display = 'block';
+
+        // Обновляем доступность кнопки
+        buyKeyBtn.disabled = goldCount < 10;
+        buyKeyBtn.style.opacity = goldCount < 10 ? "0.5" : "1";
       }
     }
 
@@ -1192,6 +1251,7 @@
           currentCell = Math.max(0, currentCell - stepsBack);
           cells[currentCell].appendChild(player);
           cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+          checkAllEvents();
         }, 800);
       }
     }
@@ -1199,27 +1259,44 @@
 
     function checkForTrap() {
       const cell = cells[currentCell];
-      if (trapCells.includes(currentCell)) { // Проверяем только наличие ловушки
+      if (trapCells.includes(currentCell)) {
+
         if (!cell.querySelector('.trap')) {
-          const trap = document.createElement('span');
-          trap.textContent = '🕳️';
-          trap.className = 'trap';
-          cell.appendChild(trap);
-          trapSound.play();
+          const trapIcon = document.createElement('span');
+          trapIcon.className = 'trap';
+          trapIcon.textContent = '🕳️';
+          trapIcon.style.position = 'absolute';
+          trapIcon.style.top = '50%';
+          trapIcon.style.left = '50%';
+          trapIcon.style.transform = 'translate(-50%, -50%)';
+          trapIcon.style.fontSize = '2.2em'; // или больше, по вкусу
+          trapIcon.style.animation = 'trapBlink 2s infinite';
+          trapIcon.style.pointerEvents = 'none'; // чтобы не мешала кликам по клетке
+
+          cell.appendChild(trapIcon);
         }
+
+        // Урон наносим КАЖДЫЙ раз
+        playerHP = Math.max(0, playerHP - 25);
+        updateHealthBar();
         flashCell(cell);
+
         const popup = document.createElement('div');
         popup.className = 'trap-popup';
-        popup.innerHTML = 'Ты упал в яму, но выбрался потеряв много сил -25❤️!';
-        document.body.classList.add('shake');
-        setTimeout(() => document.body.classList.remove('shake'), 500);
+        popup.textContent = '-25❤️ Ловушка!';
         cell.appendChild(popup);
-        setTimeout(() => popup.remove(), 4000);
-        playerHP = Math.max(0, playerHP - 25);
-        cells[currentCell].appendChild(player);
-        updateHealthBar();
+        setTimeout(() => popup.remove(), 2000);
+
+        trapSound.play();
+
+        if (playerHP <= 0) {
+          setTimeout(() => {
+            showGameOverModal();
+          }, 500);
+        }
       }
     }
+
     function checkForPortal() {
       const cell = cells[currentCell];
       if (portalCells.includes(currentCell)) {
@@ -1241,6 +1318,21 @@
         dice.disabled = true;
       }
     }
+    function checkAllEvents() {
+      checkForHealthPotion();
+      checkForGold();
+      checkForEnemy();
+      checkForTrap();
+      checkForMerchant();
+      checkForShortcut();
+      checkForPortal();
+      checkForKey();
+      checkForChest();
+      checkForBook();
+      checkForTimeTrap();
+      checkForKeyMaster();
+    }
+
     closeBattleBtn.onclick = () => {
       battleModal.style.display = 'none';
       dice.style.display = 'block';
@@ -1269,6 +1361,7 @@
       currentCell = Math.max(0, currentCell - 2);
       cells[currentCell].appendChild(player);
       cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      checkAllEvents();
       cells[currentCell].appendChild(player);
       flashCell(cells[currentCell]);
       closeBattleBtn.style.display = 'inline-block';
@@ -1409,7 +1502,7 @@
               else if (chestCells.includes(next)) content += '🧰 Сундук';
               else if (bookCells.includes(next)) content += '📘 Ещё одна книга';
               else if (timeTrapCells.includes(next)) content += '⏬ Ловушка времени';
-
+              else if (keyMasterCells.includes(next)) content += '🧑 Мастер ключей';
               else content += '🟫 Пусто';
 
               info.push(content);
@@ -1460,17 +1553,7 @@
           if (currentCell >= cells.length - 1) {
             showWinModal();
           } else {
-            checkForHealthPotion();
-            checkForGold();
-            checkForEnemy();
-            checkForTrap();
-            checkForMerchant();
-            checkForShortcut();
-            checkForPortal();
-            checkForKey();
-            checkForChest();
-            checkForBook();
-            checkForTimeTrap();
+            checkAllEvents();
 
           }
           return;
@@ -1520,6 +1603,7 @@
         currentCell = newPosition;
         cells[currentCell].appendChild(player);
         cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        checkAllEvents();
         return; // Прерываем обычный бросок
       }
       diceSound.play();
@@ -1637,6 +1721,34 @@
 
 
     updateHealthBar();
+    buyKeyBtn.onclick = () => {
+      if (goldCount >= 10) {
+        goldCount -= 10;
+        updateGoldCounter(true);
+
+        keyCount++;
+        document.getElementById('keyCount').textContent = keyCount;
+
+        potionSound.play(); // можешь заменить на отдельный звук, если хочешь
+
+        const popup = document.createElement('div');
+        popup.className = 'heal-popup';
+        popup.textContent = '🔑 Куплен ключ!';
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 2000);
+
+        keyMasterModal.style.display = 'none';
+        isInteractingWithMerchant = false;
+        dice.disabled = false;
+      }
+    };
+
+    declineKeyMasterBtn.onclick = () => {
+      keyMasterModal.style.display = 'none';
+      isInteractingWithMerchant = false;
+      dice.disabled = false;
+    };
+
     buyHealBtn.onclick = () => {
       if (goldCount >= 5) {
         goldCount -= 5;
