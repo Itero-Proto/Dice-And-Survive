@@ -909,9 +909,11 @@
 
           // Отправка в Telegram
           if (window.Telegram?.WebApp?.sendData) {
+            console.log("📤 Отправка в Telegram:", result);
             Telegram.WebApp.sendData(JSON.stringify(result));
             setTimeout(() => Telegram.WebApp.close(), 500);
           } else {
+            console.log("❌ Telegram.WebApp.sendData не доступен");
             console.log("Результат (отладка):", result);
           }
 
