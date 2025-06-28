@@ -149,7 +149,7 @@
       font-weight: bold;
       box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
       animation: fadeUp 4s forwards;
-      z-index: 20;
+      z-index: 999;
     }
 
     .heal-popup {
@@ -251,7 +251,7 @@
 
     #battleModal {
       position: fixed;
-      top: 50%;
+      top: 70%;
       left: 50%;
       transform: translate(-50%, -50%);
       width: 280px;
@@ -334,7 +334,7 @@
       border: 3px solid #5c0000;
       padding: 20px;
       border-radius: 12px;
-      z-index: 1000;
+      z-index: 999;
       display: none;
       text-align: center;
     }
@@ -687,7 +687,7 @@
     <button id="restartBtn">ЗАНОВО</button>
   </div>
   <div id="merchantModal"
-    style="display: none; position: fixed; top: 15%; left: 50%; transform: translateX(-50%);
+    style="display: none; position: fixed; top: 60%; left: 50%; transform: translateX(-50%);
   background: #fff8dc; border: 3px solid #8b5e3c; padding: 20px; border-radius: 12px; z-index: 1000; text-align: center; width: 300px;">
     <div style="font-size: 1.2em; margin-bottom: 10px;">🧙‍♂️ Таинственный незнакомец вылечит тебя за 5💰
     </div>
@@ -753,7 +753,7 @@
     let isPortalActive = false; // Блокирует кубик, пока игрок не решит
     player.className = 'player';
     player.textContent = '🧍';
-
+    let inPortalMode = false;
     let playerLostBattle = false;
     let currentCell = 0;
     let playerHP = 100;
@@ -840,7 +840,17 @@
         setTimeout(() => counter.classList.remove('flash'), 400);
       }
     }
+    function calculateStars() {
+      let stars = 1;
 
+      if (diceRollsCount <= 35 && playerHP > 75 && goldCount >= 15) {
+        stars = 3;
+      } else if (diceRollsCount <= 50 && playerHP > 40 && goldCount >= 5) {
+        stars = 2;
+      }
+
+      return '⭐'.repeat(stars);
+    }
 
     function showWinModal() {
       dice.disabled = true;
@@ -854,7 +864,9 @@
         achievement = "🏆 Жадный до победы!";
       }
       winGameSound.play();
-      finalStats.innerHTML = `Пройдено за ${diceRollsCount} дней<br>СОБРАЛ: ${goldCount}<br>${achievement}`;
+      const stars = calculateStars();
+      finalStats.innerHTML = `Пройдено за ${diceRollsCount} дней<br>💰: ${goldCount}<br>${achievement}<br>Оценка: ${stars}`;
+
       winModal.style.display = 'block';
 
       confettiInterval = setInterval(() => {
@@ -1172,7 +1184,7 @@
           cell.appendChild(portalIcon);
           document.getElementById('portalSound').play(); // Звук портала
         }
-
+        inPortalMode = true;
         // Показываем окно выбора
         isPortalActive = true;
         document.getElementById('portalModal').style.display = 'block';
@@ -1417,6 +1429,10 @@
     }
 
     dice.addEventListener('click', () => {
+      // Блокируем бросок, если что-то мешает
+      if (dice.disabled || playerHP <= 0 || isInteractingWithMerchant) return;
+
+      // Отдельная логика, если активен портал
       if (isPortalActive) {
         isPortalActive = false;
         portalSound.play(); // Звук телепортации
