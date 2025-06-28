@@ -908,8 +908,11 @@
           localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
 
           // Отправка результата в Telegram боту
-          if (window.Telegram && Telegram.WebApp && Telegram.WebApp.sendData) {
+          if (window.Telegram?.WebApp?.sendData) {
             Telegram.WebApp.sendData(JSON.stringify(result));
+          } else {
+            console.log("Результат (для отладки):", result);
+            alert("Результат сохранён локально. В Telegram он отправится автоматически!");
           }
 
           // Скрыть поле ввода
