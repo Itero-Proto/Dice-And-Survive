@@ -907,8 +907,8 @@
           leaderboard.push(result);
           localStorage.setItem('leaderboard', JSON.stringify(leaderboard));
 
-          // Отправка данных в Telegram-бота
-          if (window.Telegram && Telegram.WebApp) {
+          // Отправка результата в Telegram боту
+          if (window.Telegram && Telegram.WebApp && Telegram.WebApp.sendData) {
             Telegram.WebApp.sendData(JSON.stringify(result));
           }
 
@@ -917,6 +917,7 @@
           document.getElementById('submitNameBtn').style.display = 'none';
         }
       };
+
 
 
     }
