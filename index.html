@@ -746,7 +746,7 @@
     const usedHealthCells = new Set();
     const usedGoldCells = new Set();
     const healthCells = [], enemyCells = [], portalCells = [], trapCells = [], goldCells = [], shortcutCells = [],
-      keyCells = [], chestCells = [], merchantCells = [], bookCells = [];
+      keyCells = [], chestCells = [], merchantCells = [], bookCells = [], timeTrapCells = [];
     let keyCount = 0;
     usedBookCells = new Set();
     const usedTrapCells = new Set();
@@ -1016,6 +1016,25 @@
       }
     }
 
+    while (timeTrapCells.length < 10) {
+      let rand = Math.floor(Math.random() * 98) + 1;
+      if (
+        !timeTrapCells.includes(rand) &&
+        !enemyCells.includes(rand) &&
+        !healthCells.includes(rand) &&
+        !trapCells.includes(rand) &&
+        !goldCells.includes(rand) &&
+        !merchantCells.includes(rand) &&
+        !shortcutCells.includes(rand) &&
+        !portalCells.includes(rand) &&
+        !keyCells.includes(rand) &&
+        !chestCells.includes(rand) &&
+        !bookCells.includes(rand)
+      ) {
+        timeTrapCells.push(rand);
+      }
+    }
+
     function checkForHealthPotion() {
       const cell = cells[currentCell];
       if (healthCells.includes(currentCell) && !usedHealthCells.has(currentCell)) {
@@ -1147,6 +1166,37 @@
         }, 1000);
       }
     }
+
+    function checkForTimeTrap() {
+      const cell = cells[currentCell];
+      if (timeTrapCells.includes(currentCell)) {
+        if (!cell.querySelector('.time-trap-icon')) {
+          const icon = document.createElement('span');
+          icon.textContent = '⏬';
+          icon.className = 'time-trap-icon';
+          icon.style.position = 'absolute';
+          icon.style.fontSize = '2em';
+          icon.style.animation = 'shake 0.5s infinite';
+          cell.appendChild(icon);
+        }
+
+        const stepsBack = Math.floor(Math.random() * 6) + 1;
+        const popup = document.createElement('div');
+        shortcutSound.play();
+        popup.className = 'trap-popup';
+        popup.textContent = `⏳ Временной откат! Назад на ${stepsBack} клет${stepsBack === 1 ? 'ку' : (stepsBack < 5 ? 'ки' : 'ок')}!`;
+        document.body.appendChild(popup);
+        setTimeout(() => popup.remove(), 2500);
+
+        setTimeout(() => {
+          currentCell = Math.max(0, currentCell - stepsBack);
+          cells[currentCell].appendChild(player);
+          cells[currentCell].scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 800);
+      }
+    }
+
+
     function checkForTrap() {
       const cell = cells[currentCell];
       if (trapCells.includes(currentCell)) { // Проверяем только наличие ловушки
@@ -1281,19 +1331,34 @@
               document.getElementById('openChestSound').play();
               document.getElementById('keyCount').textContent = keyCount;
 
-              // Добыча из сундука
-              const reward = Math.floor(Math.random() * 10) + 5;
-              goldCount += reward;
-              updateGoldCounter(true);
-
               // Удаляем сундук
               chestIcon.remove();
 
-              const popup = document.createElement('div');
-              popup.className = 'heal-popup';
-              popup.textContent = `Сундук открыт! +${reward}💰`;
-              cell.appendChild(popup);
-              setTimeout(() => popup.remove(), 3000);
+              // Рандом: 50% шанс на зелье, 50% на золото
+              const givePotion = Math.random() < 0.5;
+
+              if (givePotion) {
+                potionCount++;
+                potionsCountElement.textContent = `${potionCount}`;
+                potionSound.play();
+
+                const popup = document.createElement('div');
+                popup.className = 'heal-popup';
+                popup.textContent = `В сундуке зелье! 🧪`;
+                cell.appendChild(popup);
+                setTimeout(() => popup.remove(), 3000);
+              } else {
+                const reward = Math.floor(Math.random() * 10) + 5;
+                goldCount += reward;
+                updateGoldCounter(true);
+
+                const popup = document.createElement('div');
+                popup.className = 'heal-popup';
+                popup.textContent = `Сундук открыт! +${reward}💰`;
+                cell.appendChild(popup);
+                setTimeout(() => popup.remove(), 3000);
+              }
+
             } else {
               // Нет ключей
               const popup = document.createElement('div');
@@ -1343,6 +1408,8 @@
               else if (keyCells.includes(next)) content += '🔑 Ключ';
               else if (chestCells.includes(next)) content += '🧰 Сундук';
               else if (bookCells.includes(next)) content += '📘 Ещё одна книга';
+              else if (timeTrapCells.includes(next)) content += '⏬ Ловушка времени';
+
               else content += '🟫 Пусто';
 
               info.push(content);
@@ -1403,6 +1470,8 @@
             checkForKey();
             checkForChest();
             checkForBook();
+            checkForTimeTrap();
+
           }
           return;
         }
@@ -1593,7 +1662,7 @@
 
         const popup = document.createElement('div');
         popup.className = 'heal-popup';
-        popup.textContent = 'Куплено зелье (+50❤️)';
+        popup.textContent = 'Тебя вылечили! (+50❤️)';
         document.body.appendChild(popup);
         setTimeout(() => popup.remove(), 2000);
 
